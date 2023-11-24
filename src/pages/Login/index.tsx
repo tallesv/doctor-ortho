@@ -40,7 +40,7 @@ export function Login() {
       setLoginError(false);
       setIsSubmitting(true);
 
-      login({ email, password });
+      await login({ email, password });
     } catch (err) {
       setLoginError(true);
     } finally {

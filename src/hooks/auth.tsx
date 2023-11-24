@@ -73,6 +73,7 @@ function AuthProvider({ children }: AuthContext) {
       //api.defaults.headers.common.Authorization = `Bearer ${token}`;
       navigate('/');
     } catch (err) {
+      throw err;
       //message.error('Credenciais invalidas!');
     }
   }, []);

@@ -83,13 +83,12 @@ export function Signup() {
         data.email,
         data.password,
       );
+
+      navigate('/');
     } catch (err) {
       setFormError(true);
     } finally {
-      setTimeout(() => {
-        setIsSubmitting(false);
-        navigate('/');
-      }, 4000);
+      setIsSubmitting(false);
     }
   };
 
