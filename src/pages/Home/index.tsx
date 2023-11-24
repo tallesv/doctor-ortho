@@ -1,18 +1,18 @@
-import { Button } from '../../components/Button';
+//import { Button } from '../../components/Button';
 import { DefaultLayout } from '../../layout/DefaultLayout/index';
-import { Label, Radio } from 'flowbite-react';
-import { useState } from 'react';
-import * as yup from 'yup';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+// import { Label, Radio } from 'flowbite-react';
+// import { useState } from 'react';
+// import * as yup from 'yup';
+// import { useForm, SubmitHandler } from 'react-hook-form';
+// import { yupResolver } from '@hookform/resolvers/yup';
 
-type QuestionFormData = {
-  answer: string;
-};
+// type QuestionFormData = {
+//   answer: string;
+// };
 
-const questionFormSchema = yup.object().shape({
-  answer: yup.string().required('Por favor escolha uma opcao.'),
-});
+// const questionFormSchema = yup.object().shape({
+//   answer: yup.string().required('Por favor escolha uma opcao.'),
+// });
 
 export function Home() {
   // const [currentQuestion, setCurrentQuestion] = useState<Question>(myForm[0]);

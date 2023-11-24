@@ -78,7 +78,7 @@ export function Signup() {
     try {
       setFormError(false);
       setIsSubmitting(true);
-      const firebaseResponse = await createUserWithEmailAndPassword(
+      await createUserWithEmailAndPassword(
         firebaseAuth,
         data.email,
         data.password,
