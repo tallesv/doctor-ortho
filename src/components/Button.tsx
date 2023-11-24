@@ -17,7 +17,7 @@ export function Button({
       type="button"
       disabled={isLoading}
       className={bindClassNames(
-        'flex items-center justify-center text-white bg-teal-600 disabled:bg-teal-700 disabled:cursor-not-allowed hover:bg-teal-700 focus:ring-2 focus:ring-teal-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2',
+        'flex items-center justify-center text-white bg-sky-500 disabled:bg-sky-600 disabled:cursor-not-allowed hover:bg-sky-600 focus:ring-2 focus:ring-sky-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2',
         className || '',
       )}
       {...rest}

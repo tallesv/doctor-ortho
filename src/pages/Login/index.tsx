@@ -82,13 +82,13 @@ export function Login() {
         <div className="flex flex-row justify-between">
           <a
             onClick={() => navigate('/sign-up')}
-            className="text-sm mr-2 font-medium cursor-pointer text-teal-600 hover:text-teal-500"
+            className="text-sm mr-2 font-medium cursor-pointer text-blue-700 hover:text-blue-500"
           >
             Faça o seu cadastro
           </a>
           <a
             onClick={() => navigate('/forgot-password')}
-            className="text-sm mr-2 font-medium cursor-pointer text-teal-600 hover:text-teal-500"
+            className="text-sm mr-2 font-medium cursor-pointer text-blue-700 hover:text-blue-500"
           >
             Esqueceu a sua senha?
           </a>

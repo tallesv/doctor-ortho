@@ -103,7 +103,7 @@ export function Signup() {
           <span className="ml-1 text-red-500">Tente novamente.</span>
         </div>
       )}
-      <form className="mt-6 space-y-6" onSubmit={handleSubmit(handleSignup)}>
+      <form className="space-y-6" onSubmit={handleSubmit(handleSignup)}>
         <div className="flex flex-col space-y-4 rounded-md">
           <Input
             autoComplete="name"
