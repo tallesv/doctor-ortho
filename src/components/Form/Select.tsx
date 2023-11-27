@@ -14,7 +14,15 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 
 const Select = forwardRef(
   (
-    { label, options, error, errorMessage, className, ...rest }: SelectProps,
+    {
+      label,
+      options,
+      error,
+      errorMessage,
+      className,
+      required,
+      ...rest
+    }: SelectProps,
     ref: ForwardedRef<HTMLSelectElement>,
   ) => {
     const inputBorderStyle = getInputBorderStyle(error);
@@ -26,6 +34,7 @@ const Select = forwardRef(
             htmlFor={rest.id}
             className="block mb-2 ml-1 text-sm font-medium text-gray-900"
           >
+            {required && <span className="text-red-500 mr-1">*</span>}
             {label}
           </label>
         )}
