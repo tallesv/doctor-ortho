@@ -11,18 +11,22 @@ import { brazilianStates } from '../../utils/states';
 import cepPromise from 'cep-promise';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { firebaseAuth } from '../../config/firebase';
+import Datepicker from '../../components/Form/Datepicker/index';
+import CountrySelector from '../../components/Form/CountrySelector';
 
 type SignupFormData = {
   name: string;
   email: string;
   cpf: string;
+  phone: string;
+  birth_date: string;
   password: string;
   password_confirmation: string;
-  postal_code?: string;
-  state?: string;
-  city?: string;
-  street?: string;
-  number?: string;
+  postal_code: string;
+  state: string;
+  city: string;
+  street: string;
+  number: string;
 };
 
 const signupFormSchema = yup.object().shape({
@@ -31,6 +35,10 @@ const signupFormSchema = yup.object().shape({
     .required('Por favor insira um E-mail.')
     .email('E-mail inválido.'),
   cpf: yup.string().required('Por favor insira o seu CPF.'),
+  phone: yup.string().required('Por favor insira o seu telefone.'),
+  birth_date: yup
+    .string()
+    .required('Por favor insira a sua data de nascimento.'),
   name: yup.string().required('Por favor insira o seu Nome.'),
   password: yup
     .string()
@@ -41,11 +49,11 @@ const signupFormSchema = yup.object().shape({
     .required('Por favor insira a confirmação da senha.')
     .min(6, 'A senha deve ter no mínimo 6 caracteres.')
     .oneOf([yup.ref('password')], 'As senhas precisam ser iguais.'),
-  postal_code: yup.string(),
-  state: yup.string(),
-  city: yup.string(),
-  street: yup.string(),
-  number: yup.string(),
+  postal_code: yup.string().required('Por favor insira o seu CEP.'),
+  state: yup.string().required('Por favor insira um estado.'),
+  city: yup.string().required('Por favor insira uma cidade.'),
+  street: yup.string().required('Por favor insira uma rua.'),
+  number: yup.string().required('Por favor insira um Número.'),
 });
 
 export function Signup() {
@@ -132,6 +140,41 @@ export function Signup() {
             {...register('cpf')}
           />
 
+          <div className="flex flex-col">
+            <label className="block mb-2 ml-1 text-sm font-medium text-gray-900">
+              {<span className="text-red-500 mr-1">*</span>}
+              Telefone
+            </label>
+            <div className="flex">
+              <div className="sm:w-2/6 w-full">
+                <CountrySelector
+                  required
+                  className="rounded-r-none rounded-l-lg"
+                  error={!!formState.errors.state}
+                  errorMessage={formState.errors.state?.message}
+                />
+              </div>
+              <div className="w-full">
+                <Input
+                  autoComplete="phone"
+                  required
+                  className="rounded-l-none rounded-r-lg"
+                  error={!!formState.errors.phone}
+                  errorMessage={formState.errors.phone?.message}
+                  {...register('phone')}
+                />
+              </div>
+            </div>
+          </div>
+
+          <Datepicker
+            label="Data de nascimento"
+            required
+            error={!!formState.errors.birth_date}
+            errorMessage={formState.errors.birth_date?.message}
+            {...register('birth_date')}
+          />
+
           <Input
             type="password"
             label="Senha"
@@ -154,6 +197,7 @@ export function Signup() {
             <div className="flex">
               <div className="w-full">
                 <Input
+                  required
                   label="CEP"
                   className="rounded-l-lg rounded-r-none"
                   error={!!formState.errors.postal_code}
@@ -164,6 +208,7 @@ export function Signup() {
               </div>
               <div className="sm:w-9/12 w-full">
                 <Select
+                  required
                   label="Estado"
                   className="rounded-l-none rounded-r-lg"
                   options={brazilianStates.map(item => ({
@@ -179,6 +224,7 @@ export function Signup() {
           </div>
 
           <Input
+            required
             label="Cidade"
             error={!!formState.errors.city}
             errorMessage={formState.errors.city?.message}
@@ -189,6 +235,7 @@ export function Signup() {
             <div className="flex">
               <div className="w-full">
                 <Input
+                  required
                   label="Rua"
                   className="rounded-l-lg rounded-r-none"
                   error={!!formState.errors.street}
@@ -198,7 +245,8 @@ export function Signup() {
               </div>
               <div className="w-1/3">
                 <Input
-                  label="Numero"
+                  required
+                  label="Número"
                   className="rounded-l-none rounded-r-lg"
                   error={!!formState.errors.number}
                   errorMessage={formState.errors.number?.message}
