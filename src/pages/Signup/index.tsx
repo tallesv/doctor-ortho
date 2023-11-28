@@ -13,6 +13,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { firebaseAuth } from '../../config/firebase';
 import Datepicker from '../../components/Form/Datepicker/index';
 import CountrySelector from '../../components/Form/CountrySelector';
+import { specialitiesType } from './types';
 
 type SignupFormData = {
   name: string;
@@ -22,6 +23,8 @@ type SignupFormData = {
   birth_date: string;
   password: string;
   password_confirmation: string;
+  speciality: string;
+  speciality_input?: string;
   postal_code: string;
   state: string;
   city: string;
@@ -49,6 +52,16 @@ const signupFormSchema = yup.object().shape({
     .required('Por favor insira a confirmação da senha.')
     .min(6, 'A senha deve ter no mínimo 6 caracteres.')
     .oneOf([yup.ref('password')], 'As senhas precisam ser iguais.'),
+  speciality: yup.string().required(),
+  speciality_input: yup
+    .string()
+    .test('Required', 'Por favor insira a sua especialidade.', (value, ctx) => {
+      if (ctx.parent.speciality === 'Outro') {
+        return value!.length > 0;
+      } else {
+        return true;
+      }
+    }),
   postal_code: yup.string().required('Por favor insira o seu CEP.'),
   state: yup.string().required('Por favor insira um estado.'),
   city: yup.string().required('Por favor insira uma cidade.'),
@@ -61,17 +74,17 @@ export function Signup() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState(false);
 
-  const { register, handleSubmit, formState, setValue, clearErrors } =
+  const { register, handleSubmit, formState, setValue, clearErrors, watch } =
     useForm<SignupFormData>({
       resolver: yupResolver(signupFormSchema),
     });
+
+  const watchSpeciality = watch('speciality');
 
   async function handleFillAddress(cep: string) {
     if (cep && (cep.length === 8 || cep.length === 9)) {
       const formatedCep = cep.replace(/-/g, '');
       const { state, city, street } = await cepPromise(formatedCep);
-      console.log(state);
-      console.log(city);
       setValue(
         'state',
         String(brazilianStates.find(item => item.abbreviation === state)?.name),
@@ -192,6 +205,28 @@ export function Signup() {
             errorMessage={formState.errors.password_confirmation?.message}
             {...register('password_confirmation')}
           />
+
+          <Select
+            required
+            label="Especialidade"
+            options={specialitiesType.map(item => ({
+              value: item,
+              label: item,
+            }))}
+            error={!!formState.errors.speciality}
+            errorMessage={formState.errors.speciality?.message}
+            {...register('speciality')}
+          />
+
+          {watchSpeciality === 'Outro' && (
+            <Input
+              label="Especialidade"
+              required
+              error={!!formState.errors.speciality_input}
+              errorMessage={formState.errors.speciality_input?.message}
+              {...register('speciality_input')}
+            />
+          )}
 
           <div className="flex flex-col">
             <div className="flex">
