@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import * as yup from 'yup';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Input from '../../components/Form/Input';
@@ -12,72 +11,24 @@ import cepPromise from 'cep-promise';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { firebaseAuth } from '../../config/firebase';
 import Datepicker from '../../components/Form/Datepicker/index';
-import CountrySelector from '../../components/Form/CountrySelector';
-import { specialitiesType } from './types';
-
-type SignupFormData = {
-  name: string;
-  email: string;
-  cpf: string;
-  phone: string;
-  birth_date: string;
-  password: string;
-  password_confirmation: string;
-  speciality: string;
-  speciality_input?: string;
-  postal_code: string;
-  state: string;
-  city: string;
-  street: string;
-  number: string;
-};
-
-const signupFormSchema = yup.object().shape({
-  email: yup
-    .string()
-    .required('Por favor insira um E-mail.')
-    .email('E-mail inválido.'),
-  cpf: yup.string().required('Por favor insira o seu CPF.'),
-  phone: yup.string().required('Por favor insira o seu telefone.'),
-  birth_date: yup
-    .string()
-    .required('Por favor insira a sua data de nascimento.'),
-  name: yup.string().required('Por favor insira o seu Nome.'),
-  password: yup
-    .string()
-    .required('Por favor insira uma Senha.')
-    .min(6, 'A senha deve ter no mínimo 6 caracteres.'),
-  password_confirmation: yup
-    .string()
-    .required('Por favor insira a confirmação da senha.')
-    .min(6, 'A senha deve ter no mínimo 6 caracteres.')
-    .oneOf([yup.ref('password')], 'As senhas precisam ser iguais.'),
-  speciality: yup.string().required(),
-  speciality_input: yup
-    .string()
-    .test('Required', 'Por favor insira a sua especialidade.', (value, ctx) => {
-      if (ctx.parent.speciality === 'Outro') {
-        return value!.length > 0;
-      } else {
-        return true;
-      }
-    }),
-  postal_code: yup.string().required('Por favor insira o seu CEP.'),
-  state: yup.string().required('Por favor insira um estado.'),
-  city: yup.string().required('Por favor insira uma cidade.'),
-  street: yup.string().required('Por favor insira uma rua.'),
-  number: yup.string().required('Por favor insira um Número.'),
-});
+import { SignupFormData, signupFormSchema, specialitiesType } from './types';
 
 export function Signup() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState(false);
 
-  const { register, handleSubmit, formState, setValue, clearErrors, watch } =
-    useForm<SignupFormData>({
-      resolver: yupResolver(signupFormSchema),
-    });
+  const {
+    register,
+    handleSubmit,
+    formState,
+    setValue,
+    clearErrors,
+    watch,
+    control,
+  } = useForm<SignupFormData>({
+    resolver: yupResolver(signupFormSchema),
+  });
 
   const watchSpeciality = watch('speciality');
 
@@ -104,6 +55,16 @@ export function Signup() {
         data.email,
         data.password,
       );
+
+      const formData = {
+        ...data,
+        phone: data.ddi + data.phone,
+        speciality:
+          data.speciality !== 'Outro' ? data.speciality : data.speciality_input,
+      };
+
+      delete formData['ddi'];
+      delete formData.speciality_input;
 
       navigate('/');
     } catch (err) {
@@ -154,22 +115,24 @@ export function Signup() {
           />
 
           <div className="flex flex-col">
-            <label className="block mb-2 ml-1 text-sm font-medium text-gray-900">
-              {<span className="text-red-500 mr-1">*</span>}
-              Telefone
-            </label>
             <div className="flex">
               <div className="sm:w-2/6 w-full">
-                <CountrySelector
+                <Input
+                  label="DDI"
+                  type="number"
                   required
+                  placeholder="+55"
                   className="rounded-r-none rounded-l-lg"
-                  error={!!formState.errors.state}
-                  errorMessage={formState.errors.state?.message}
+                  error={!!formState.errors.ddi}
+                  errorMessage={formState.errors.ddi?.message}
+                  {...register('ddi')}
                 />
               </div>
               <div className="w-full">
                 <Input
+                  label="Telefone"
                   autoComplete="phone"
+                  type="number"
                   required
                   className="rounded-l-none rounded-r-lg"
                   error={!!formState.errors.phone}
@@ -183,6 +146,7 @@ export function Signup() {
           <Datepicker
             label="Data de nascimento"
             required
+            control={control}
             error={!!formState.errors.birth_date}
             errorMessage={formState.errors.birth_date?.message}
             {...register('birth_date')}
