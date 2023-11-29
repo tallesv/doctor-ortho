@@ -39,7 +39,6 @@ const Select = forwardRef(
           </label>
         )}
         <select
-          id="countries"
           ref={ref}
           className={bindClassNames(
             'bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full p-2.5',
