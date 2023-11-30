@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Input from '../../components/Form/Input';
-import { LoginLayout } from '../../layout/LoginLayout';
 import { Button } from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
 import Select from '../../components/Form/Select';
@@ -75,7 +74,7 @@ export function Signup() {
   };
 
   return (
-    <LoginLayout>
+    <>
       <div className="flex p-0.5 rounded-md">
         <span className="text-xl text-gray-900">Criar conta</span>
       </div>
@@ -260,6 +259,6 @@ export function Signup() {
           {isSubmitting ? 'Criando' : 'Criar'}
         </Button>
       </form>
-    </LoginLayout>
+    </>
   );
 }

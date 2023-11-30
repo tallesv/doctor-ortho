@@ -1,25 +1,15 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { UserMenuDropdown } from './components/UserMenuDropdown';
 import { SideBar } from './components/SideBar';
 import logo from '../../assets/LogoDrOrtho.png';
-import { useAuth } from '../../hooks/auth';
-import { useNavigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
 interface DefaultLayoutProps {
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 export function DefaultLayout({ children }: DefaultLayoutProps) {
   const [theme, setTheme] = useState('white');
-
-  const navigate = useNavigate();
-  const { isLogged } = useAuth();
-
-  useEffect(() => {
-    if (!isLogged) {
-      navigate('/login', { replace: true });
-    }
-  }, [isLogged]);
 
   return (
     <div className={`${theme} antialiased bg-gray-50 dark:bg-gray-900`}>
@@ -122,7 +112,7 @@ export function DefaultLayout({ children }: DefaultLayoutProps) {
       </aside>
 
       <main className="h-screen p-4 md:ml-64 pt-20 bg-gray-100 dark:bg-gray-900">
-        {children}
+        {children ?? <Outlet />}
       </main>
     </div>
   );

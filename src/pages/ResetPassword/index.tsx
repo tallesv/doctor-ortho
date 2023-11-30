@@ -3,7 +3,6 @@ import * as yup from 'yup';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Input from '../../components/Form/Input';
-import { LoginLayout } from '../../layout/LoginLayout';
 import { Button } from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
 
@@ -51,7 +50,7 @@ export function ResetPassword() {
   };
 
   return (
-    <LoginLayout>
+    <>
       <div className="flex p-0.5 rounded-md">
         <span className="text-xl text-gray-900">Alterar senha</span>
       </div>
@@ -87,6 +86,6 @@ export function ResetPassword() {
           {isSubmitting ? 'Alterarndo' : 'Alterar'}
         </Button>
       </form>
-    </LoginLayout>
+    </>
   );
 }

@@ -3,7 +3,6 @@ import * as yup from 'yup';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Input from '../../components/Form/Input';
-import { LoginLayout } from '../../layout/LoginLayout';
 import { Button } from '../../components/Button';
 import { useAuth } from '../../hooks/auth';
 import { useNavigate } from 'react-router-dom';
@@ -49,7 +48,7 @@ export function Login() {
   };
 
   return (
-    <LoginLayout>
+    <>
       {loginError && (
         <div className="flex justify-center p-0.5 rounded-md">
           <span className="ml-1 text-red-500">
@@ -98,6 +97,6 @@ export function Login() {
           {isSubmitting ? 'Entrando' : 'Entrar'}
         </Button>
       </form>
-    </LoginLayout>
+    </>
   );
 }

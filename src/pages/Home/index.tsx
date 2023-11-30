@@ -1,5 +1,4 @@
 //import { Button } from '../../components/Button';
-import { DefaultLayout } from '../../layout/DefaultLayout/index';
 // import { Label, Radio } from 'flowbite-react';
 // import { useState } from 'react';
 // import * as yup from 'yup';
@@ -43,7 +42,8 @@ export function Home() {
   //   }
   // };
   return (
-    <DefaultLayout>
+    <>
+      <p>home</p>
       {/* <form
         onSubmit={handleSubmit(handleNextQuestion)}
         className="flex max-w-md flex-col gap-4"
@@ -67,6 +67,6 @@ export function Home() {
           Proximo
         </Button>
       </form> */}
-    </DefaultLayout>
+    </>
   );
 }
