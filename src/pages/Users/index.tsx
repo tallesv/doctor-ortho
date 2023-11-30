@@ -1,5 +1,4 @@
 import { Table } from 'flowbite-react';
-import { DefaultLayout } from '../../layout/DefaultLayout';
 
 const mockedUsers = [
   {
@@ -27,7 +26,7 @@ const mockedUsers = [
 
 export function Users() {
   return (
-    <DefaultLayout>
+    <>
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
         <div className="flex items-center justify-between pb-4">
           <div>
@@ -227,6 +226,6 @@ export function Users() {
           </Table.Body>
         </Table>
       </div>
-    </DefaultLayout>
+    </>
   );
 }

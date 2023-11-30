@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 interface AuthContextData {
   //user: User;
   //setUser: (data: User) => void;
-  refreshToken: string;
+  refreshToken: string | undefined;
   login: (data: LoginProps) => Promise<void>;
   logout: () => void;
   isLogged: boolean;
@@ -26,15 +26,16 @@ interface LoginProps {
 }
 
 interface AuthContext {
+  token?: string;
   children: ReactNode;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
-function AuthProvider({ children }: AuthContext) {
+function AuthProvider({ token, children }: AuthContext) {
   const navigate = useNavigate();
-  const [refreshToken, setRefreshToken] = useState('');
-  const [isLogged, setIsLogged] = useState(false);
+  const [refreshToken, setRefreshToken] = useState(token);
+  const [isLogged, setIsLogged] = useState(!!token);
 
   useEffect(() => {
     const cookies = parseCookies();
@@ -83,9 +84,8 @@ function AuthProvider({ children }: AuthContext) {
       destroyCookie(undefined, 'doctor-ortho.token');
       destroyCookie(undefined, 'doctor-ortho.user-firebase-id');
       setIsLogged(false);
-      setRefreshToken('');
+      setRefreshToken(undefined);
       //setUser({} as User);
-      console.log('veiooo');
     });
   }, []);
 

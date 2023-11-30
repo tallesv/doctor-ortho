@@ -3,7 +3,6 @@ import * as yup from 'yup';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Input from '../../components/Form/Input';
-import { LoginLayout } from '../../layout/LoginLayout';
 import { Button } from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
 
@@ -47,7 +46,7 @@ export function ForgotPassword() {
   };
 
   return (
-    <LoginLayout>
+    <>
       <div className="flex justify-center p-0.5 rounded-md">
         <span className="ml-1 text-gray-900 text-center">
           Informe o seu email e enviaremos um link para você resetar a sua
@@ -81,6 +80,6 @@ export function ForgotPassword() {
           {isSubmitting ? 'Enviando' : 'Enviar'}
         </Button>
       </form>
-    </LoginLayout>
+    </>
   );
 }

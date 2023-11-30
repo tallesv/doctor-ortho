@@ -1,22 +1,12 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode } from 'react';
 import logo from '../assets/LogoDrOrtho.png';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/auth';
+import { Outlet } from 'react-router-dom';
 
 interface LogiinLayoutProps {
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 export function LoginLayout({ children }: LogiinLayoutProps) {
-  const navigate = useNavigate();
-  const { isLogged } = useAuth();
-
-  useEffect(() => {
-    if (isLogged) {
-      navigate('/', { replace: true });
-    }
-  }, [isLogged]);
-
   return (
     <div className="flex min-h-full items-center justify-center py-24 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-3 m-auto">
@@ -31,7 +21,7 @@ export function LoginLayout({ children }: LogiinLayoutProps) {
           </h2> */}
         </div>
 
-        {children}
+        {children ?? <Outlet />}
       </div>
     </div>
   );
