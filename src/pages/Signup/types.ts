@@ -23,7 +23,16 @@ export const signupFormSchema = yup.object().shape({
     .string()
     .required('Por favor insira um E-mail.')
     .email('E-mail inválido.'),
-  cpf: yup.string().required('Por favor insira o seu CPF.'),
+  cpf: yup
+    .string()
+    .required('Por favor insira o seu CPF.')
+    .test(
+      'len',
+      'CPF incorreto.',
+      val =>
+        val.replace('.', '').replace('.', '').replace('-', '').replace(' ', '')
+          .length === 11,
+    ),
   ddi: yup
     .string()
     .test(

@@ -11,6 +11,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { firebaseAuth } from '../../config/firebase';
 import Datepicker from '../../components/Form/Datepicker/index';
 import { SignupFormData, signupFormSchema, specialitiesType } from './types';
+import InputMask from '../../components/Form/InputMask';
 
 export function Signup() {
   const navigate = useNavigate();
@@ -33,8 +34,8 @@ export function Signup() {
   const watchSpeciality = watch('speciality');
 
   async function handleFillAddress(cep: string) {
-    if (cep && (cep.length === 8 || cep.length === 9)) {
-      const formatedCep = cep.replace(/-/g, '');
+    const formatedCep = cep.replace(/[ -]/g, '');
+    if (formatedCep && (formatedCep.length === 8 || formatedCep.length === 9)) {
       const { state, city, street } = await cepPromise(formatedCep);
       setValue(
         'state',
@@ -65,6 +66,8 @@ export function Signup() {
 
       delete formData['ddi'];
       delete formData.speciality_input;
+
+      console.log(formData);
 
       setIsSignUpFinished(true);
     } catch (err) {
@@ -119,7 +122,9 @@ export function Signup() {
               errorMessage={formState.errors.email?.message}
               {...register('email')}
             />
-            <Input
+
+            <InputMask
+              format="###.###.###-##"
               autoComplete="cpf"
               label="CPF"
               required
@@ -131,9 +136,10 @@ export function Signup() {
             <div className="flex flex-col">
               <div className="flex">
                 <div className="sm:w-2/6 w-full">
-                  <Input
+                  <InputMask
+                    format="+###"
+                    mask="+"
                     label="DDI"
-                    type="number"
                     required
                     placeholder="+55"
                     className="rounded-r-none rounded-l-lg"
@@ -209,8 +215,9 @@ export function Signup() {
             <div className="flex flex-col">
               <div className="flex">
                 <div className="w-full">
-                  <Input
+                  <InputMask
                     required
+                    format="#####-###"
                     label="CEP"
                     className="rounded-l-lg rounded-r-none"
                     error={!!formState.errors.postal_code}
