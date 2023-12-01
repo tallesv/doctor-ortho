@@ -15,6 +15,7 @@ import { SignupFormData, signupFormSchema, specialitiesType } from './types';
 export function Signup() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSignUpFinished, setIsSignUpFinished] = useState(false);
   const [formError, setFormError] = useState(false);
 
   const {
@@ -65,7 +66,7 @@ export function Signup() {
       delete formData['ddi'];
       delete formData.speciality_input;
 
-      navigate('/');
+      setIsSignUpFinished(true);
     } catch (err) {
       setFormError(true);
     } finally {
@@ -75,190 +76,205 @@ export function Signup() {
 
   return (
     <>
-      <div className="flex p-0.5 rounded-md">
-        <span className="text-xl text-gray-900">Criar conta</span>
-      </div>
+      {/* ease-in-out */}
+      {isSignUpFinished ? (
+        <div className="animate-up-down">
+          <div className="flex flex-col items-center p-0.5 rounded-md">
+            <span className="font-medium text-xl text-sky-700">Parabéns!</span>
+            <p className="text-gray-900">A sua conta foi criada com sucesso.</p>
 
-      {formError && (
-        <div className="flex justify-center p-0.5 rounded-md">
-          <span className="ml-1 text-red-500">Tente novamente.</span>
+            <Button className="mt-8 w-full" onClick={() => navigate('/login')}>
+              Fazer login
+            </Button>
+          </div>
         </div>
-      )}
-      <form className="space-y-6" onSubmit={handleSubmit(handleSignup)}>
-        <div className="flex flex-col space-y-4 rounded-md">
-          <Input
-            autoComplete="name"
-            label="Nome"
-            required
-            error={!!formState.errors.name}
-            errorMessage={formState.errors.name?.message}
-            {...register('name')}
-          />
-          <Input
-            id="email-address"
-            type="email"
-            autoComplete="email"
-            label="Email"
-            required
-            error={!!formState.errors.email}
-            errorMessage={formState.errors.email?.message}
-            {...register('email')}
-          />
-          <Input
-            autoComplete="cpf"
-            label="CPF"
-            required
-            error={!!formState.errors.cpf}
-            errorMessage={formState.errors.cpf?.message}
-            {...register('cpf')}
-          />
-
-          <div className="flex flex-col">
-            <div className="flex">
-              <div className="sm:w-2/6 w-full">
-                <Input
-                  label="DDI"
-                  type="number"
-                  required
-                  placeholder="+55"
-                  className="rounded-r-none rounded-l-lg"
-                  error={!!formState.errors.ddi}
-                  errorMessage={formState.errors.ddi?.message}
-                  {...register('ddi')}
-                />
-              </div>
-              <div className="w-full">
-                <Input
-                  label="Telefone"
-                  autoComplete="phone"
-                  type="number"
-                  required
-                  className="rounded-l-none rounded-r-lg"
-                  error={!!formState.errors.phone}
-                  errorMessage={formState.errors.phone?.message}
-                  {...register('phone')}
-                />
-              </div>
-            </div>
+      ) : (
+        <form className="space-y-6" onSubmit={handleSubmit(handleSignup)}>
+          <div className="flex p-0.5 rounded-md">
+            <span className="text-xl text-gray-900">Criar conta</span>
           </div>
 
-          <Datepicker
-            label="Data de nascimento"
-            required
-            control={control}
-            error={!!formState.errors.birth_date}
-            errorMessage={formState.errors.birth_date?.message}
-            {...register('birth_date')}
-          />
-
-          <Input
-            type="password"
-            label="Senha"
-            required
-            error={!!formState.errors.password}
-            errorMessage={formState.errors.password?.message}
-            {...register('password')}
-          />
-
-          <Input
-            type="password"
-            label="Confirmação da senha"
-            required
-            error={!!formState.errors.password_confirmation}
-            errorMessage={formState.errors.password_confirmation?.message}
-            {...register('password_confirmation')}
-          />
-
-          <Select
-            required
-            label="Especialidade"
-            options={specialitiesType.map(item => ({
-              value: item,
-              label: item,
-            }))}
-            error={!!formState.errors.speciality}
-            errorMessage={formState.errors.speciality?.message}
-            {...register('speciality')}
-          />
-
-          {watchSpeciality === 'Outro' && (
-            <Input
-              label="Especialidade"
-              required
-              error={!!formState.errors.speciality_input}
-              errorMessage={formState.errors.speciality_input?.message}
-              {...register('speciality_input')}
-            />
+          {formError && (
+            <div className="flex justify-center p-0.5 rounded-md">
+              <span className="ml-1 text-red-500">Tente novamente.</span>
+            </div>
           )}
 
-          <div className="flex flex-col">
-            <div className="flex">
-              <div className="w-full">
-                <Input
-                  required
-                  label="CEP"
-                  className="rounded-l-lg rounded-r-none"
-                  error={!!formState.errors.postal_code}
-                  errorMessage={formState.errors.postal_code?.message}
-                  {...register('postal_code')}
-                  onChange={e => handleFillAddress(e.target.value)}
-                />
+          <div className="flex flex-col space-y-4 rounded-md">
+            <Input
+              autoComplete="name"
+              label="Nome"
+              required
+              error={!!formState.errors.name}
+              errorMessage={formState.errors.name?.message}
+              {...register('name')}
+            />
+            <Input
+              id="email-address"
+              type="email"
+              autoComplete="email"
+              label="Email"
+              required
+              error={!!formState.errors.email}
+              errorMessage={formState.errors.email?.message}
+              {...register('email')}
+            />
+            <Input
+              autoComplete="cpf"
+              label="CPF"
+              required
+              error={!!formState.errors.cpf}
+              errorMessage={formState.errors.cpf?.message}
+              {...register('cpf')}
+            />
+
+            <div className="flex flex-col">
+              <div className="flex">
+                <div className="sm:w-2/6 w-full">
+                  <Input
+                    label="DDI"
+                    type="number"
+                    required
+                    placeholder="+55"
+                    className="rounded-r-none rounded-l-lg"
+                    error={!!formState.errors.ddi}
+                    errorMessage={formState.errors.ddi?.message}
+                    {...register('ddi')}
+                  />
+                </div>
+                <div className="w-full">
+                  <Input
+                    label="Telefone"
+                    autoComplete="phone"
+                    type="number"
+                    required
+                    className="rounded-l-none rounded-r-lg"
+                    error={!!formState.errors.phone}
+                    errorMessage={formState.errors.phone?.message}
+                    {...register('phone')}
+                  />
+                </div>
               </div>
-              <div className="sm:w-9/12 w-full">
-                <Select
-                  required
-                  label="Estado"
-                  className="rounded-l-none rounded-r-lg"
-                  options={brazilianStates.map(item => ({
-                    value: item.name,
-                    label: item.name,
-                  }))}
-                  error={!!formState.errors.state}
-                  errorMessage={formState.errors.state?.message}
-                  {...register('state')}
-                />
+            </div>
+
+            <Datepicker
+              label="Data de nascimento"
+              required
+              control={control}
+              error={!!formState.errors.birth_date}
+              errorMessage={formState.errors.birth_date?.message}
+              {...register('birth_date')}
+            />
+
+            <Input
+              type="password"
+              label="Senha"
+              required
+              error={!!formState.errors.password}
+              errorMessage={formState.errors.password?.message}
+              {...register('password')}
+            />
+
+            <Input
+              type="password"
+              label="Confirmação da senha"
+              required
+              error={!!formState.errors.password_confirmation}
+              errorMessage={formState.errors.password_confirmation?.message}
+              {...register('password_confirmation')}
+            />
+
+            <Select
+              required
+              label="Especialidade"
+              options={specialitiesType.map(item => ({
+                value: item,
+                label: item,
+              }))}
+              error={!!formState.errors.speciality}
+              errorMessage={formState.errors.speciality?.message}
+              {...register('speciality')}
+            />
+
+            {watchSpeciality === 'Outro' && (
+              <Input
+                label="Especialidade"
+                required
+                error={!!formState.errors.speciality_input}
+                errorMessage={formState.errors.speciality_input?.message}
+                {...register('speciality_input')}
+              />
+            )}
+
+            <div className="flex flex-col">
+              <div className="flex">
+                <div className="w-full">
+                  <Input
+                    required
+                    label="CEP"
+                    className="rounded-l-lg rounded-r-none"
+                    error={!!formState.errors.postal_code}
+                    errorMessage={formState.errors.postal_code?.message}
+                    {...register('postal_code')}
+                    onChange={e => handleFillAddress(e.target.value)}
+                  />
+                </div>
+                <div className="sm:w-9/12 w-full">
+                  <Select
+                    required
+                    label="Estado"
+                    className="rounded-l-none rounded-r-lg"
+                    options={brazilianStates.map(item => ({
+                      value: item.name,
+                      label: item.name,
+                    }))}
+                    error={!!formState.errors.state}
+                    errorMessage={formState.errors.state?.message}
+                    {...register('state')}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <Input
+              required
+              label="Cidade"
+              error={!!formState.errors.city}
+              errorMessage={formState.errors.city?.message}
+              {...register('city')}
+            />
+
+            <div className="flex flex-col">
+              <div className="flex">
+                <div className="w-full">
+                  <Input
+                    required
+                    label="Rua"
+                    className="rounded-l-lg rounded-r-none"
+                    error={!!formState.errors.street}
+                    errorMessage={formState.errors.street?.message}
+                    {...register('street')}
+                  />
+                </div>
+                <div className="w-1/3">
+                  <Input
+                    required
+                    label="Número"
+                    className="rounded-l-none rounded-r-lg"
+                    error={!!formState.errors.number}
+                    errorMessage={formState.errors.number?.message}
+                    {...register('number')}
+                  />
+                </div>
               </div>
             </div>
           </div>
 
-          <Input
-            required
-            label="Cidade"
-            error={!!formState.errors.city}
-            errorMessage={formState.errors.city?.message}
-            {...register('city')}
-          />
-
-          <div className="flex flex-col">
-            <div className="flex">
-              <div className="w-full">
-                <Input
-                  required
-                  label="Rua"
-                  className="rounded-l-lg rounded-r-none"
-                  error={!!formState.errors.street}
-                  errorMessage={formState.errors.street?.message}
-                  {...register('street')}
-                />
-              </div>
-              <div className="w-1/3">
-                <Input
-                  required
-                  label="Número"
-                  className="rounded-l-none rounded-r-lg"
-                  error={!!formState.errors.number}
-                  errorMessage={formState.errors.number?.message}
-                  {...register('number')}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <Button type="submit" isLoading={isSubmitting} className="w-full">
-          {isSubmitting ? 'Criando' : 'Criar'}
-        </Button>
-      </form>
+          <Button type="submit" isLoading={isSubmitting} className="w-full">
+            {isSubmitting ? 'Criando' : 'Criar'}
+          </Button>
+        </form>
+      )}
     </>
   );
 }
