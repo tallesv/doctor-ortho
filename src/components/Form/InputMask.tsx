@@ -1,0 +1,58 @@
+import { ForwardedRef, forwardRef } from 'react';
+import { PatternFormat, PatternFormatProps } from 'react-number-format';
+
+import bindClassNames from '../../utils/bindClassNames';
+import { getInputBorderStyle } from '../../utils/inputBorderStyle';
+
+interface InputMaskProps extends PatternFormatProps {
+  label?: string;
+  error?: boolean;
+  errorMessage?: string;
+}
+
+const InputMask = forwardRef(
+  (
+    {
+      label,
+      mask,
+      type,
+      required,
+      className,
+      error,
+      errorMessage,
+      ...rest
+    }: InputMaskProps,
+    ref: ForwardedRef<HTMLInputElement>,
+  ) => {
+    const inputBorderStyle = getInputBorderStyle(error);
+
+    return (
+      <div className="w-full">
+        {!!label && (
+          <label
+            htmlFor={rest.id}
+            className="block mb-2 ml-1 text-sm font-medium text-gray-900"
+          >
+            {required && <span className="text-red-500 mr-1">*</span>}
+            {label}
+          </label>
+        )}
+        <PatternFormat
+          id={rest.id}
+          getInputRef={ref}
+          className={bindClassNames(
+            `shadow-sm bg-gray-50 border text-gray-900 text-sm rounded-lg w-full block p-2.5`,
+            className || '',
+            inputBorderStyle,
+          )}
+          {...rest}
+        />
+        {errorMessage && (
+          <span className="mt-2 text-sm text-red-600">{errorMessage}</span>
+        )}
+      </div>
+    );
+  },
+);
+
+export default InputMask;
