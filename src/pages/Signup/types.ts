@@ -9,7 +9,7 @@ export type SignupFormData = {
   birth_date: Date;
   password: string;
   password_confirmation: string;
-  speciality: string;
+  speciality: string[];
   speciality_input?: string;
   postal_code: string;
   state: string;
@@ -52,11 +52,15 @@ export const signupFormSchema = yup.object().shape({
     .required('Por favor insira a confirmação da senha.')
     .min(6, 'A senha deve ter no mínimo 6 caracteres.')
     .oneOf([yup.ref('password')], 'As senhas precisam ser iguais.'),
-  speciality: yup.string().required(),
+  speciality: yup
+    .array()
+    .of(yup.string().required())
+    .min(1, 'Por favor selecione pelo menos uma especialidade.')
+    .required(),
   speciality_input: yup
     .string()
     .test('Required', 'Por favor insira a sua especialidade.', (value, ctx) => {
-      if (ctx.parent.speciality === 'Outro') {
+      if (ctx.parent.speciality.includes('Outro')) {
         return value!.length > 0;
       } else {
         return true;

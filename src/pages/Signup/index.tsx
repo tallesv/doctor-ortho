@@ -12,6 +12,7 @@ import { firebaseAuth } from '../../config/firebase';
 import Datepicker from '../../components/Form/Datepicker/index';
 import { SignupFormData, signupFormSchema, specialitiesType } from './types';
 import InputMask from '../../components/Form/InputMask';
+import Checkbox from '../../components/Form/Checkbox';
 
 export function Signup() {
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ export function Signup() {
     control,
   } = useForm<SignupFormData>({
     resolver: yupResolver(signupFormSchema),
+    defaultValues: { speciality: [] },
   });
 
   const watchSpeciality = watch('speciality');
@@ -60,8 +62,11 @@ export function Signup() {
       const formData = {
         ...data,
         phone: data.ddi + data.phone,
-        speciality:
-          data.speciality !== 'Outro' ? data.speciality : data.speciality_input,
+        speciality: data.speciality.includes('Outro')
+          ? [...data.speciality, data.speciality_input].filter(
+              item => item !== 'Outro',
+            )
+          : data.speciality,
       };
 
       delete formData['ddi'];
@@ -190,19 +195,28 @@ export function Signup() {
               {...register('password_confirmation')}
             />
 
-            <Select
-              required
-              label="Especialidade"
-              options={specialitiesType.map(item => ({
-                value: item,
-                label: item,
-              }))}
-              error={!!formState.errors.speciality}
-              errorMessage={formState.errors.speciality?.message}
-              {...register('speciality')}
-            />
+            <div className="flex max-w-md flex-col gap-3" id="checkbox">
+              <label className="block ml-1 text-sm font-medium text-gray-900">
+                {<span className="text-red-500 mr-1">*</span>}
+                Especialidade
+              </label>
+              {specialitiesType.map(speciality => (
+                <Checkbox
+                  key={speciality}
+                  label={speciality}
+                  value={speciality}
+                  error={!!formState.errors.speciality}
+                  {...register('speciality')}
+                />
+              ))}
+              {formState.errors.speciality && (
+                <span className="mt-2 text-sm text-red-600">
+                  {formState.errors.speciality.message}
+                </span>
+              )}
+            </div>
 
-            {watchSpeciality === 'Outro' && (
+            {watchSpeciality?.includes('Outro') && (
               <Input
                 label="Especialidade"
                 required
