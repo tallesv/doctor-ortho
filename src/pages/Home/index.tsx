@@ -1,72 +1,114 @@
-//import { Button } from '../../components/Button';
-// import { Label, Radio } from 'flowbite-react';
-// import { useState } from 'react';
-// import * as yup from 'yup';
-// import { useForm, SubmitHandler } from 'react-hook-form';
-// import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import {
+  useForm,
+  SubmitHandler,
+  FormProvider,
+  UseFormReturn,
+} from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useState } from 'react';
+import { FormTreeNode, exampleForm } from '../../utils/mockedQuestionary';
+import { Button } from '../../components/Button';
+import { FieldRender } from './components/FieldRender';
 
-// type QuestionFormData = {
-//   answer: string;
-// };
+type FormData = {
+  [key: string]: string;
+};
 
-// const questionFormSchema = yup.object().shape({
-//   answer: yup.string().required('Por favor escolha uma opcao.'),
-// });
+interface FormBuildProps {
+  reactHookFormsMethods: UseFormReturn<FormData, any, undefined>;
+  form: FormTreeNode[];
+}
+
+function FormBuild({ reactHookFormsMethods, form }: FormBuildProps) {
+  const iterateFormTree = (node: FormTreeNode) => {
+    const elements = [];
+
+    elements.push(
+      <FieldRender key={node.field.id} field={node.field} form={form} />,
+    );
+
+    if (node.children) {
+      node.children.forEach(child => {
+        elements.push(...iterateFormTree(child));
+      });
+    }
+    return elements;
+  };
+
+  return (
+    <FormProvider {...reactHookFormsMethods}>
+      {form.map(item => iterateFormTree(item))}
+    </FormProvider>
+  );
+}
 
 export function Home() {
-  // const [currentQuestion, setCurrentQuestion] = useState<Question>(myForm[0]);
+  const [fieldIndex, setFieldIndex] = useState(0);
+  const form = exampleForm[fieldIndex].section;
 
-  // const { register, handleSubmit, formState } = useForm<QuestionFormData>({
-  //   resolver: yupResolver(questionFormSchema),
-  // });
+  const { field } = form[0];
 
-  // const handleNextQuestion: SubmitHandler<QuestionFormData> = async ({
-  //   answer,
-  // }) => {
-  //   const findNextQuestionLinked = myForm.find(
-  //     item =>
-  //       item.dependsOnLabel === currentQuestion.label &&
-  //       item.dependsOnValue === answer,
-  //   );
-  //   const nextQuestionIndex =
-  //     findNextQuestionLinked ||
-  //     myForm
-  //       .slice(
-  //         myForm.findIndex(item => item.label === currentQuestion.label) + 1,
-  //       )
-  //       .find(item => !item.dependsOnLabel);
-  //   if (!nextQuestionIndex) {
-  //     console.log('Finish');
-  //   } else {
-  //     setCurrentQuestion(nextQuestionIndex);
-  //   }
-  // };
+  const formSchema = yup.object().shape({});
+
+  const reactHookFormsMethods = useForm<FormData>({
+    resolver: yupResolver(formSchema),
+  });
+
+  const { handleSubmit, setError } = reactHookFormsMethods;
+
+  function itareateFromChild(node: FormTreeNode) {
+    const elements = [];
+
+    elements.push(node.field.id);
+
+    if (node.children) {
+      node.children.forEach(child => {
+        elements.push(...itareateFromChild(child));
+      });
+    }
+
+    return elements;
+  }
+
+  const handleSubmitForm: SubmitHandler<FormData> = async data => {
+    const fields = form.map(item => itareateFromChild(item)).flat();
+    const emptyFields = fields.filter(item => data[item] === null);
+    if (emptyFields.length > 0) {
+      emptyFields.map(field =>
+        setError(field, {
+          type: 'required',
+          message: 'Por favor escolha uma opcao',
+        }),
+      );
+    } else {
+      if (exampleForm.length - 1 === fieldIndex) {
+        console.log(data);
+      } else {
+        setFieldIndex(prevState => prevState + 1);
+      }
+    }
+  };
+
   return (
-    <>
-      <p>home</p>
-      {/* <form
-        onSubmit={handleSubmit(handleNextQuestion)}
-        className="flex max-w-md flex-col gap-4"
-        id="radio"
+    <FormProvider {...reactHookFormsMethods}>
+      <form
+        className="flex-row justify-center"
+        key={field.id}
+        onSubmit={handleSubmit(handleSubmitForm)}
       >
-        <legend className="mb-4">{currentQuestion.label}</legend>
-        {currentQuestion.options?.map(item => (
-          <div key={item} className="flex items-center gap-2">
-            <Radio id={item} value={item} {...register('answer')} />
-            <Label>{item}</Label>
-          </div>
-        ))}
+        <FormBuild reactHookFormsMethods={reactHookFormsMethods} form={form} />
 
-        {formState.errors.answer && (
-          <span className="text-sm text-red-600">
-            {formState.errors.answer.message}
-          </span>
-        )}
-
-        <Button type="submit" className="">
-          Proximo
-        </Button>
-      </form> */}
-    </>
+        <div className="flex mt-2">
+          <Button
+            disabled={fieldIndex === 0}
+            onClick={() => setFieldIndex(prev => prev - 1)}
+          >
+            Voltar
+          </Button>
+          <Button type="submit">Seguir</Button>
+        </div>
+      </form>
+    </FormProvider>
   );
 }
