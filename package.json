@@ -12,6 +12,7 @@
   "dependencies": {
     "@hookform/resolvers": "^3.3.2",
     "@tanstack/react-query": "^5.17.19",
+    "axios": "^1.6.6",
     "cep-promise": "^4.4.0",
     "firebase": "^10.6.0",
     "flowbite": "^1.8.1",
