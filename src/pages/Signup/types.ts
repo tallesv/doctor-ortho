@@ -5,8 +5,8 @@ export type SignupFormData = {
   email: string;
   cpf: string;
   ddi?: string;
-  phone: string;
-  birth_date: Date;
+  phone_number: string;
+  birthdate: Date;
   password: string;
   password_confirmation: string;
   speciality: string[];
@@ -16,6 +16,25 @@ export type SignupFormData = {
   city: string;
   street: string;
   number: string;
+};
+
+export type CreateUserProps = {
+  name: string;
+  email: string;
+  cpf: string;
+  ddi?: string;
+  phone_number: string;
+  birthdate: Date;
+  password: string;
+  password_confirmation: string;
+  speciality: (string | undefined)[];
+  speciality_input?: string;
+  postal_code: string;
+  state: string;
+  city: string;
+  street: string;
+  number: string;
+  firebase_id: string;
 };
 
 export const signupFormSchema = yup.object().shape({
@@ -40,8 +59,8 @@ export const signupFormSchema = yup.object().shape({
       'Por favor insira o DDI do seu telefone.',
       value => value!.length > 0,
     ),
-  phone: yup.string().required('Por favor insira o seu telefone.'),
-  birth_date: yup.date().required('Por favor insira a sua data de nascimento.'),
+  phone_number: yup.string().required('Por favor insira o seu telefone.'),
+  birthdate: yup.date().required('Por favor insira a sua data de nascimento.'),
   name: yup.string().required('Por favor insira o seu Nome.'),
   password: yup
     .string()

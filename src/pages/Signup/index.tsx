@@ -10,15 +10,23 @@ import cepPromise from 'cep-promise';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { firebaseAuth } from '../../config/firebase';
 import Datepicker from '../../components/Form/Datepicker/index';
-import { SignupFormData, signupFormSchema, specialitiesType } from './types';
+import {
+  CreateUserProps,
+  SignupFormData,
+  signupFormSchema,
+  specialitiesType,
+} from './types';
 import InputMask from '../../components/Form/InputMask';
 import Checkbox from '../../components/Form/Checkbox';
+import { useMutation } from '@tanstack/react-query';
+import { api } from '../../client/api';
+import { FirebaseError } from 'firebase/app';
 
 export function Signup() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSignUpFinished, setIsSignUpFinished] = useState(false);
-  const [formError, setFormError] = useState(false);
+  const [formError, setFormError] = useState<string | undefined>();
 
   const {
     register,
@@ -49,11 +57,23 @@ export function Signup() {
     }
   }
 
+  const { mutate } = useMutation({
+    mutationFn: (data: CreateUserProps) => {
+      return api.post('/users', data);
+    },
+    onError: () => {
+      setFormError('Tente novamente');
+    },
+    onSuccess: () => {
+      setIsSignUpFinished(true);
+    },
+  });
+
   const handleSignup: SubmitHandler<SignupFormData> = async data => {
     try {
-      setFormError(false);
+      setFormError(undefined);
       setIsSubmitting(true);
-      await createUserWithEmailAndPassword(
+      const firebaseResponse = await createUserWithEmailAndPassword(
         firebaseAuth,
         data.email,
         data.password,
@@ -61,22 +81,28 @@ export function Signup() {
 
       const formData = {
         ...data,
-        phone: data.ddi + data.phone,
+        phone_number: data.ddi + data.phone_number,
         speciality: data.speciality.includes('Outro')
           ? [...data.speciality, data.speciality_input].filter(
               item => item !== 'Outro',
             )
           : data.speciality,
+        firebase_id: firebaseResponse.user.uid,
       };
 
       delete formData['ddi'];
       delete formData.speciality_input;
 
-      console.log(formData);
-
-      setIsSignUpFinished(true);
+      mutate(formData);
     } catch (err) {
-      setFormError(true);
+      if (
+        err instanceof FirebaseError &&
+        err.code === 'auth/email-already-in-use'
+      ) {
+        setFormError('O Email já está sendo utilizado');
+      } else {
+        setFormError('Tente novamente');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -97,14 +123,14 @@ export function Signup() {
           </div>
         </div>
       ) : (
-        <form className="space-y-6" onSubmit={handleSubmit(handleSignup)}>
+        <form className="space-y-4" onSubmit={handleSubmit(handleSignup)}>
           <div className="flex p-0.5 rounded-md">
             <span className="text-xl text-gray-900">Criar conta</span>
           </div>
 
           {formError && (
             <div className="flex justify-center p-0.5 rounded-md">
-              <span className="ml-1 text-red-500">Tente novamente.</span>
+              <span className="ml-1 text-red-500">{formError}</span>
             </div>
           )}
 
@@ -156,13 +182,13 @@ export function Signup() {
                 <div className="w-full">
                   <Input
                     label="Telefone"
-                    autoComplete="phone"
+                    autoComplete="phone_number"
                     type="number"
                     required
                     className="rounded-l-none rounded-r-lg"
-                    error={!!formState.errors.phone}
-                    errorMessage={formState.errors.phone?.message}
-                    {...register('phone')}
+                    error={!!formState.errors.phone_number}
+                    errorMessage={formState.errors.phone_number?.message}
+                    {...register('phone_number')}
                   />
                 </div>
               </div>
@@ -172,9 +198,9 @@ export function Signup() {
               label="Data de nascimento"
               required
               control={control}
-              error={!!formState.errors.birth_date}
-              errorMessage={formState.errors.birth_date?.message}
-              {...register('birth_date')}
+              error={!!formState.errors.birthdate}
+              errorMessage={formState.errors.birthdate?.message}
+              {...register('birthdate')}
             />
 
             <Input
