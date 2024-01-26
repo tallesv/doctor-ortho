@@ -25,8 +25,6 @@ export type CreateUserProps = {
   ddi?: string;
   phone_number: string;
   birthdate: Date;
-  password: string;
-  password_confirmation: string;
   speciality: (string | undefined)[];
   speciality_input?: string;
   postal_code: string;

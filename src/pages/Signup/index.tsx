@@ -79,8 +79,10 @@ export function Signup() {
         data.password,
       );
 
-      const formData = {
-        ...data,
+      const { password, password_confirmation, ...formData } = data;
+
+      const createUserData = {
+        ...formData,
         phone_number: data.ddi + data.phone_number,
         speciality: data.speciality.includes('Outro')
           ? [...data.speciality, data.speciality_input].filter(
@@ -90,10 +92,10 @@ export function Signup() {
         firebase_id: firebaseResponse.user.uid,
       };
 
-      delete formData['ddi'];
-      delete formData.speciality_input;
+      delete createUserData['ddi'];
+      delete createUserData.speciality_input;
 
-      mutate(formData);
+      mutate(createUserData);
     } catch (err) {
       if (
         err instanceof FirebaseError &&
