@@ -80,15 +80,22 @@ export function Signup() {
       );
 
       const { password, password_confirmation, ...formData } = data;
-
+      let specialityFormatted = '';
+      data.speciality.forEach((item, index) => {
+        if (item !== 'Outro') {
+          if (index === data.speciality.length - 1) {
+            specialityFormatted += `${item}`;
+          } else {
+            specialityFormatted += `${item},`;
+          }
+        }
+      });
       const createUserData = {
         ...formData,
         phone_number: data.ddi + data.phone_number,
-        speciality: data.speciality.includes('Outro')
-          ? [...data.speciality, data.speciality_input].filter(
-              item => item !== 'Outro',
-            )
-          : data.speciality,
+        specialty: data.speciality.includes('Outro')
+          ? `${specialityFormatted}${data.speciality_input}`
+          : specialityFormatted,
         firebase_id: firebaseResponse.user.uid,
       };
 
