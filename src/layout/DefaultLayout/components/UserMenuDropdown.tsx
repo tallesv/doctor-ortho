@@ -2,7 +2,7 @@ import { Avatar, Dropdown } from 'flowbite-react';
 import { useAuth } from '../../../hooks/auth';
 
 export function UserMenuDropdown() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   async function handleSignOut() {
     logout();
@@ -25,14 +25,10 @@ export function UserMenuDropdown() {
       )}
     >
       <Dropdown.Header>
-        <span className="block text-sm">usuario admin</span>
-        <span className="block truncate text-sm font-medium">
-          admin@doctor-ortho.com
-        </span>
+        <span className="block text-sm">{user.name}</span>
+        <span className="block truncate text-sm font-medium">{user.email}</span>
       </Dropdown.Header>
       <Dropdown.Item>Perfil</Dropdown.Item>
-      {/* <Dropdown.Item>Settings</Dropdown.Item>
-      <Dropdown.Item>Earnings</Dropdown.Item> */}
       <Dropdown.Divider />
       <Dropdown.Item onClick={handleSignOut}>Sair</Dropdown.Item>
     </Dropdown>

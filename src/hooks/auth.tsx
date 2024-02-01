@@ -10,10 +10,17 @@ import { destroyCookie, parseCookies, setCookie } from 'nookies';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { firebaseAuth } from '../config/firebase';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../client/api';
+
+type User = {
+  name: string;
+  email: string;
+  firebase_id: string;
+  avatar: string;
+};
 
 interface AuthContextData {
-  //user: User;
-  //setUser: (data: User) => void;
+  user: User;
   refreshToken: string | undefined;
   login: (data: LoginProps) => Promise<void>;
   logout: () => void;
@@ -36,19 +43,9 @@ function AuthProvider({ token, children }: AuthContext) {
   const navigate = useNavigate();
   const [refreshToken, setRefreshToken] = useState(token);
   const [isLogged, setIsLogged] = useState(!!token);
+  const [user, setUser] = useState<User>({} as User);
 
-  useEffect(() => {
-    const cookies = parseCookies();
-    const token = cookies['doctor-ortho.token'];
-    //const userFromLocalStorage = cookies['doctor-ortho.user'];
-
-    if (token) {
-      //setUser(JSON.parse(userFromLocalStorage));
-      setRefreshToken(token);
-      setIsLogged(true);
-      //api.defaults.headers.common.Authorization = `Bearer ${token}`;
-    }
-  }, []);
+  const cookies = parseCookies();
 
   const login = useCallback(async ({ email, password }: LoginProps) => {
     try {
@@ -68,14 +65,11 @@ function AuthProvider({ token, children }: AuthContext) {
         maxAge: 60 * 60 * 24 * 1,
         path: '/',
       });
-
-      setIsLogged(true);
       setRefreshToken(token.token);
-      //api.defaults.headers.common.Authorization = `Bearer ${token}`;
+      setIsLogged(true);
       navigate('/');
     } catch (err) {
       throw err;
-      //message.error('Credenciais invalidas!');
     }
   }, []);
 
@@ -85,9 +79,23 @@ function AuthProvider({ token, children }: AuthContext) {
       destroyCookie(undefined, 'doctor-ortho.user-firebase-id');
       setIsLogged(false);
       setRefreshToken(undefined);
-      //setUser({} as User);
+      setUser({} as User);
     });
   }, []);
+
+  useEffect(() => {
+    const token = cookies['doctor-ortho.token'];
+    const firebaseId = cookies['doctor-ortho.user-firebase-id'];
+
+    if (token) {
+      setRefreshToken(token);
+      setIsLogged(true);
+    }
+
+    if (firebaseId && !user.name) {
+      api.get(`/users/${firebaseId}`).then(response => setUser(response.data));
+    }
+  }, [login]);
 
   return (
     <AuthContext.Provider
@@ -96,6 +104,7 @@ function AuthProvider({ token, children }: AuthContext) {
         login,
         logout,
         isLogged,
+        user,
       }}
     >
       {children}
