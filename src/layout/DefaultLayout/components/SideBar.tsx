@@ -1,5 +1,5 @@
 import { Sidebar } from 'flowbite-react';
-import { HiChartPie, HiInbox, HiShoppingBag, HiUser } from 'react-icons/hi';
+import { HiChartPie, HiShoppingBag, HiUser, HiPencilAlt } from 'react-icons/hi';
 import { useNavigate } from 'react-router-dom';
 
 const paths = [
@@ -23,12 +23,12 @@ const paths = [
     ],
   },
   {
-    label: 'Inbox',
-    path: '/',
-    icon: HiInbox,
+    label: 'Questionário',
+    path: '/questionary',
+    icon: HiPencilAlt,
   },
   {
-    label: 'Users',
+    label: 'Usuários',
     path: '/users',
     icon: HiUser,
   },

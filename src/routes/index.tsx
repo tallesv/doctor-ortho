@@ -8,6 +8,7 @@ import { Users } from '../pages/Users';
 import { ProtectedRoute } from './ProtectedRoute';
 import { LoginLayout } from '../layout/LoginLayout';
 import { DefaultLayout } from '../layout/DefaultLayout';
+import { Questionary } from '../pages/Questionary';
 
 export function Router() {
   return (
@@ -32,6 +33,7 @@ export function Router() {
         }
       >
         <Route path="/" Component={Home} />
+        <Route path="/questionary" Component={Questionary} />
         <Route path="/users" Component={Users} />
       </Route>
     </Routes>
