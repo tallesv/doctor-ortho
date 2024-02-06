@@ -79,7 +79,7 @@ export function QuestionGenerator({
           disabled={questionIndex === 0}
           onClick={() => setQuestionIndex(previousQuestionIndex)}
         />
-        <h3 className="w-full font-bold text-xl text-center dark:text-gray-200">
+        <h3 className="w-full font-bold text-xl text-center text-gray-800 dark:text-gray-200">
           {currentQuestion?.query}
         </h3>
       </div>
