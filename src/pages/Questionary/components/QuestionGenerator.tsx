@@ -2,10 +2,11 @@ import { RadioGroup } from '@headlessui/react';
 import { useState } from 'react';
 import { HiCheckCircle, HiArrowLeft } from 'react-icons/hi';
 import bindClassNames from '../../../utils/bindClassNames';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, QueryKey } from '@tanstack/react-query';
 import { api } from '../../../client/api';
 import { LoadingLayout } from '../../../layout/LoadingLayout';
 import { useFormContext } from 'react-hook-form';
+import { queryClient } from '../../../config/queryClient';
 
 type Reply = {
   answer: string;
@@ -24,41 +25,69 @@ type QuestionaryFormData = {
   [key: string]: string;
 };
 
-interface QuestionGenerator {
+interface QuestionGeneratorProps {
   blockId: number;
+  previousBlockId: number;
+  isLastBlock: boolean;
   handleNextBlock: () => void;
+  handlePreviousBlock: () => void;
 }
 
 export function QuestionGenerator({
   blockId,
+  previousBlockId,
+  isLastBlock,
   handleNextBlock,
-}: QuestionGenerator) {
-  const { setValue } = useFormContext<QuestionaryFormData>();
+  handlePreviousBlock,
+}: QuestionGeneratorProps) {
+  const { setValue, getValues, unregister } =
+    useFormContext<QuestionaryFormData>();
 
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [previousQuestionIndex, setPreviousQuestionIndex] = useState(0);
 
   function handleSelectReply(reply: Reply) {
-    setValue(`${currentQuestion.id}`, reply.answer);
+    setValue(`${currentQuestion.id}`, reply.id);
 
+    const findNextQuestionIndex = questions.findIndex(
+      question => question.id === reply.next_question_id,
+    );
     setTimeout(() => {
-      const findNextQuestionIndex = questions.findIndex(
-        question => question.id === reply.next_question_id,
-      );
       if (findNextQuestionIndex !== -1) {
-        setPreviousQuestionIndex(questionIndex);
         setQuestionIndex(findNextQuestionIndex);
       } else {
-        setQuestionIndex(0);
-        handleNextBlock();
+        if (!isLastBlock) {
+          setQuestionIndex(0);
+          handleNextBlock();
+        }
       }
     }, 500);
   }
 
+  async function handleBackPreviousQuestion() {
+    const lastAnsweredQuestionId = Object.keys(getValues()).pop();
+    unregister(lastAnsweredQuestionId);
+    const findPreviousQuestionIndex = questions.findIndex(
+      question => question.id === +String(lastAnsweredQuestionId),
+    );
+    if (findPreviousQuestionIndex !== -1) {
+      setQuestionIndex(findPreviousQuestionIndex);
+    } else {
+      handlePreviousBlock();
+      const [questionsCache] = queryClient.getQueriesData({
+        queryKey: ['questions', previousBlockId],
+      });
+      const [_, previousQuestions]: [QueryKey, any] = questionsCache;
+      const previousQuestionIndex = previousQuestions.data.findIndex(
+        (question: Question) => question.id === +String(lastAnsweredQuestionId),
+      );
+      setQuestionIndex(previousQuestionIndex);
+    }
+  }
+
   const { data, isLoading } = useQuery({
     queryKey: ['questions', blockId],
-    queryFn: () => api.get(`/questions_sets/${blockId}/questions/`),
-    gcTime: 0,
+    queryFn: ({ queryKey }) =>
+      api.get(`/questions_sets/${queryKey[1]}/questions/`),
   });
 
   if (isLoading) {
@@ -68,17 +97,27 @@ export function QuestionGenerator({
   const questions: Question[] = data?.data;
   const currentQuestion = questions[questionIndex];
 
+  const disablePreviousQuestionButton =
+    questionIndex === 0 && blockId === previousBlockId;
+
   return (
     <div>
       <div className="flex items-center">
-        <HiArrowLeft
-          className={bindClassNames(
-            previousQuestionIndex != 0 ? 'cursor-pointer' : '',
-            'h-6 w-6 mr-2 text-gray-800 dark:text-gray-200 cursor-pointer',
-          )}
-          disabled={questionIndex === 0}
-          onClick={() => setQuestionIndex(previousQuestionIndex)}
-        />
+        <button
+          type="button"
+          disabled={disablePreviousQuestionButton}
+          onClick={() => handleBackPreviousQuestion()}
+        >
+          <HiArrowLeft
+            className={bindClassNames(
+              disablePreviousQuestionButton
+                ? 'text-gray-200 dark:text-gray-800'
+                : 'text-gray-800 dark:text-gray-200 cursor-pointer',
+              'h-6 w-6 mr-2',
+            )}
+          />
+        </button>
+
         <h3 className="w-full font-bold text-xl text-center text-gray-800 dark:text-gray-200">
           {currentQuestion?.query}
         </h3>
@@ -87,7 +126,7 @@ export function QuestionGenerator({
         <div className="mx-auto w-full max-w-md">
           <RadioGroup onChange={handleSelectReply}>
             <div className="space-y-2">
-              {currentQuestion.replies.map(reply => (
+              {currentQuestion?.replies?.map(reply => (
                 <RadioGroup.Option
                   key={reply.id}
                   value={reply}

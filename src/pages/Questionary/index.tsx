@@ -42,6 +42,8 @@ export function Questionary() {
   const questionBlocks: QuestionBlocksProps[] = data?.data;
 
   const currentBlock = questionBlocks[blockIndex];
+  const previousBlock =
+    blockIndex === 0 ? questionBlocks[0] : questionBlocks[blockIndex - 1];
   const progressPercentage = ((blockIndex + 1) * 100) / questionBlocks.length;
   const isInLastBlock = blockIndex + 1 === questionBlocks.length;
 
@@ -51,8 +53,13 @@ export function Questionary() {
     }
   }
 
+  function handlePreviousBlock() {
+    setBlockIndex(state => state - 1);
+  }
+
   function handleSubmitForm(data: QuestionaryFormData) {
-    console.log(data);
+    const formattedData = Object.values(data);
+    console.log(formattedData);
   }
 
   return (
@@ -80,7 +87,10 @@ export function Questionary() {
         >
           <QuestionGenerator
             blockId={currentBlock.id}
+            previousBlockId={previousBlock.id}
+            isLastBlock={isInLastBlock}
             handleNextBlock={handleNextBlock}
+            handlePreviousBlock={handlePreviousBlock}
           />
 
           {isInLastBlock && (
