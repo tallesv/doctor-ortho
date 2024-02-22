@@ -118,7 +118,7 @@ export function DefaultLayout({ children }: DefaultLayoutProps) {
         <SideBar />
       </aside>
 
-      <main className="h-screen p-4 md:ml-64 pt-20 bg-gray-100 dark:bg-gray-900">
+      <main className="h-screen overflow-auto  p-4 md:ml-64 pt-20 bg-gray-100 dark:bg-gray-900">
         {children ?? <Outlet />}
       </main>
     </div>
