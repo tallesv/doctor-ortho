@@ -1,7 +1,9 @@
 import { Avatar, Dropdown } from 'flowbite-react';
 import { useAuth } from '../../../hooks/auth';
+import { useNavigate } from 'react-router-dom';
 
 export function UserMenuDropdown() {
+  const navigate = useNavigate();
   const { logout, user } = useAuth();
 
   async function handleSignOut() {
@@ -28,7 +30,7 @@ export function UserMenuDropdown() {
         <span className="block text-sm">{user.name}</span>
         <span className="block truncate text-sm font-medium">{user.email}</span>
       </Dropdown.Header>
-      <Dropdown.Item>Perfil</Dropdown.Item>
+      <Dropdown.Item onClick={() => navigate('/profile')}>Perfil</Dropdown.Item>
       <Dropdown.Divider />
       <Dropdown.Item onClick={handleSignOut}>Sair</Dropdown.Item>
     </Dropdown>
