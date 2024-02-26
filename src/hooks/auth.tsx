@@ -17,6 +17,7 @@ interface AuthContextData {
   refreshToken: string | undefined;
   login: (data: LoginProps) => Promise<void>;
   logout: () => void;
+  setUser: React.Dispatch<React.SetStateAction<UserProps>>;
   isLogged: boolean;
 }
 
@@ -96,6 +97,7 @@ function AuthProvider({ token, children }: AuthContext) {
         refreshToken,
         login,
         logout,
+        setUser,
         isLogged,
         user,
       }}
