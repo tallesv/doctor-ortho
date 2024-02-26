@@ -12,15 +12,8 @@ import { firebaseAuth } from '../config/firebase';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../client/api';
 
-type User = {
-  name: string;
-  email: string;
-  firebase_id: string;
-  avatar: string;
-};
-
 interface AuthContextData {
-  user: User;
+  user: UserProps;
   refreshToken: string | undefined;
   login: (data: LoginProps) => Promise<void>;
   logout: () => void;
@@ -43,7 +36,7 @@ function AuthProvider({ token, children }: AuthContext) {
   const navigate = useNavigate();
   const [refreshToken, setRefreshToken] = useState(token);
   const [isLogged, setIsLogged] = useState(!!token);
-  const [user, setUser] = useState<User>({} as User);
+  const [user, setUser] = useState<UserProps>({} as UserProps);
 
   const cookies = parseCookies();
 
@@ -79,7 +72,7 @@ function AuthProvider({ token, children }: AuthContext) {
       destroyCookie(undefined, 'doctor-ortho.user-firebase-id');
       setIsLogged(false);
       setRefreshToken(undefined);
-      setUser({} as User);
+      setUser({} as UserProps);
     });
   }, []);
 
