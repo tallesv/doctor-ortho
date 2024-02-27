@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../client/api';
 import { LoadingLayout } from '../../layout/LoadingLayout';
+import { useSearchParams } from 'react-router-dom';
 
 type Treatment = {
   id: number;
@@ -8,9 +9,12 @@ type Treatment = {
 };
 
 export function Treatment() {
+  const [searchParams] = useSearchParams();
+  const answers = searchParams.get('answers');
+
   const { data, isLoading } = useQuery({
-    queryKey: ['treatments'],
-    queryFn: () => api.get('/treatments/35,76,103,107'),
+    queryKey: ['treatments', { answers }],
+    queryFn: () => api.get(`/treatments/${answers}`),
   });
 
   if (isLoading) {

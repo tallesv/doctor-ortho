@@ -8,6 +8,7 @@ import * as yup from 'yup';
 import { useForm, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button } from '../../components/Button';
+import { useNavigate } from 'react-router-dom';
 
 type QuestionBlocksProps = {
   id: number;
@@ -19,6 +20,7 @@ type QuestionaryFormData = {
 };
 
 export function Questionary() {
+  const navigate = useNavigate();
   const formSchema = yup.object().shape({});
 
   const reactHookFormsMethods = useForm<QuestionaryFormData>({
@@ -70,6 +72,7 @@ export function Questionary() {
   function handleSubmitForm(data: QuestionaryFormData) {
     const formattedData = Object.values(data);
     console.log(formattedData);
+    navigate(`/treatment?answers=35,76,103,107`);
   }
 
   return (
