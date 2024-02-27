@@ -28,6 +28,7 @@ export function Questionary() {
   const { handleSubmit } = reactHookFormsMethods;
 
   const [blockIndex, setBlockIndex] = useState(0);
+  const [showFinishButton, setShowFinishButton] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['questions-blocks'],
@@ -55,6 +56,15 @@ export function Questionary() {
 
   function handlePreviousBlock() {
     setBlockIndex(state => state - 1);
+  }
+
+  function handleShowFinishButton(isInLastQuestion: boolean) {
+    if (!isInLastQuestion && showFinishButton) {
+      setShowFinishButton(false);
+    }
+    if (isInLastQuestion && !showFinishButton) {
+      setShowFinishButton(true);
+    }
   }
 
   function handleSubmitForm(data: QuestionaryFormData) {
@@ -91,9 +101,10 @@ export function Questionary() {
             isLastBlock={isInLastBlock}
             handleNextBlock={handleNextBlock}
             handlePreviousBlock={handlePreviousBlock}
+            handleShowFinishButton={handleShowFinishButton}
           />
 
-          {isInLastBlock && (
+          {showFinishButton && (
             <Button type="submit" className="w-full sm:w-96 h-12 self-center">
               Finalizar
             </Button>

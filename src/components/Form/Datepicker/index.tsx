@@ -33,7 +33,7 @@ const DatepickerComponent = forwardRef(
     return (
       <div className="w-full">
         {label && (
-          <label className="block mb-2 ml-1 text-sm font-medium text-gray-900">
+          <label className="block mb-2 ml-1 text-sm font-medium text-gray-900 dark:text-gray-300">
             {required && <span className="text-red-500 mr-1">*</span>}
             {label}
           </label>
@@ -52,7 +52,7 @@ const DatepickerComponent = forwardRef(
                   selected={field.value}
                   wrapperClassName="w-full"
                   className={bindClassNames(
-                    `shadow-sm bg-gray-50 border text-gray-900 text-sm rounded-lg w-full block p-2.5`,
+                    `shadow-sm bg-gray-50 border text-gray-900 text-sm rounded-lg w-full block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 dark:shadow-sm-light`,
                     className || '',
                     inputBorderStyle,
                   )}

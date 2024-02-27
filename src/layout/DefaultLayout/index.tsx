@@ -3,13 +3,22 @@ import { UserMenuDropdown } from './components/UserMenuDropdown';
 import { SideBar } from './components/SideBar';
 import logo from '../../assets/LogoDrOrtho.png';
 import { Outlet } from 'react-router-dom';
+import { parseCookies, setCookie } from 'nookies';
 
 interface DefaultLayoutProps {
   children?: ReactNode;
 }
 
 export function DefaultLayout({ children }: DefaultLayoutProps) {
-  const [theme, setTheme] = useState('white');
+  const cookies = parseCookies();
+  const themeSaved = cookies['doctor-ortho.theme'];
+
+  const [theme, setTheme] = useState(themeSaved ?? 'white');
+
+  function handleChangeTheme(themeToUse: string) {
+    setCookie(undefined, 'doctor-ortho.theme', themeToUse);
+    setTheme(themeToUse);
+  }
 
   return (
     <div className={`${theme} antialiased bg-gray-50 dark:bg-gray-900`}>
@@ -64,9 +73,7 @@ export function DefaultLayout({ children }: DefaultLayoutProps) {
               type="button"
               className="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
               onClick={() =>
-                setTheme(prevTheme =>
-                  prevTheme === 'white' ? 'dark' : 'white',
-                )
+                handleChangeTheme(theme === 'white' ? 'dark' : 'white')
               }
             >
               <span className="sr-only">Change theme</span>
@@ -111,7 +118,7 @@ export function DefaultLayout({ children }: DefaultLayoutProps) {
         <SideBar />
       </aside>
 
-      <main className="h-screen p-4 md:ml-64 pt-20 bg-gray-100 dark:bg-gray-900">
+      <main className="h-screen overflow-auto  p-4 md:ml-64 pt-20 bg-gray-100 dark:bg-gray-900">
         {children ?? <Outlet />}
       </main>
     </div>

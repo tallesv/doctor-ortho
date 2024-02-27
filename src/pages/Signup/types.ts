@@ -35,7 +35,7 @@ export type CreateUserProps = {
   firebase_id: string;
 };
 
-export const signupFormSchema = yup.object().shape({
+export const userDataFormSchema = yup.object().shape({
   email: yup
     .string()
     .required('Por favor insira um E-mail.')
@@ -60,15 +60,6 @@ export const signupFormSchema = yup.object().shape({
   phone_number: yup.string().required('Por favor insira o seu telefone.'),
   birthdate: yup.date().required('Por favor insira a sua data de nascimento.'),
   name: yup.string().required('Por favor insira o seu Nome.'),
-  password: yup
-    .string()
-    .required('Por favor insira uma Senha.')
-    .min(6, 'A senha deve ter no mínimo 6 caracteres.'),
-  password_confirmation: yup
-    .string()
-    .required('Por favor insira a confirmação da senha.')
-    .min(6, 'A senha deve ter no mínimo 6 caracteres.')
-    .oneOf([yup.ref('password')], 'As senhas precisam ser iguais.'),
   speciality: yup
     .array()
     .of(yup.string().required())
@@ -89,6 +80,21 @@ export const signupFormSchema = yup.object().shape({
   street: yup.string().required('Por favor insira uma rua.'),
   number: yup.string().required('Por favor insira um Número.'),
 });
+
+export const signupFormSchema = yup
+  .object()
+  .shape({
+    password: yup
+      .string()
+      .required('Por favor insira uma Senha.')
+      .min(6, 'A senha deve ter no mínimo 6 caracteres.'),
+    password_confirmation: yup
+      .string()
+      .required('Por favor insira a confirmação da senha.')
+      .min(6, 'A senha deve ter no mínimo 6 caracteres.')
+      .oneOf([yup.ref('password')], 'As senhas precisam ser iguais.'),
+  })
+  .concat(userDataFormSchema);
 
 export const specialitiesType = [
   'Ortodontia',

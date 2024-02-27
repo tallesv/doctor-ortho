@@ -30,7 +30,7 @@ const Checkbox = forwardRef(
             inputBorderStyle,
           )}
         />
-        <Label className="ml-1 text-sm font-medium text-gray-900">
+        <Label className="ml-1 text-sm font-medium text-gray-900 dark:text-gray-300">
           {label}
         </Label>
       </div>

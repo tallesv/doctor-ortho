@@ -31,6 +31,7 @@ interface QuestionGeneratorProps {
   isLastBlock: boolean;
   handleNextBlock: () => void;
   handlePreviousBlock: () => void;
+  handleShowFinishButton: (isInLastQuestion: boolean) => void;
 }
 
 export function QuestionGenerator({
@@ -39,6 +40,7 @@ export function QuestionGenerator({
   isLastBlock,
   handleNextBlock,
   handlePreviousBlock,
+  handleShowFinishButton,
 }: QuestionGeneratorProps) {
   const { setValue, getValues, unregister } =
     useFormContext<QuestionaryFormData>();
@@ -51,13 +53,17 @@ export function QuestionGenerator({
     const findNextQuestionIndex = questions.findIndex(
       question => question.id === reply.next_question_id,
     );
+
     setTimeout(() => {
       if (findNextQuestionIndex !== -1) {
         setQuestionIndex(findNextQuestionIndex);
+        handleShowFinishButton(false);
       } else {
         if (!isLastBlock) {
           setQuestionIndex(0);
           handleNextBlock();
+        } else {
+          handleShowFinishButton(true);
         }
       }
     }, 500);
@@ -71,6 +77,7 @@ export function QuestionGenerator({
     );
     if (findPreviousQuestionIndex !== -1) {
       setQuestionIndex(findPreviousQuestionIndex);
+      handleShowFinishButton(false);
     } else {
       handlePreviousBlock();
       const [questionsCache] = queryClient.getQueriesData({
