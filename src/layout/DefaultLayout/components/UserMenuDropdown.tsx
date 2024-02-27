@@ -16,13 +16,13 @@ export function UserMenuDropdown() {
       renderTrigger={() => (
         <button
           type="button"
-          className="flex mx-4 p-2 text-sm bg-gray-800 rounded-lg md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+          className="flex mx-4 p-2 text-sm bg-white dark:bg-gray-800 rounded-lg md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
           id="user-menu-button"
           aria-expanded="false"
         >
           <span className="sr-only">Open user menu</span>
 
-          <Avatar rounded className="w-4 h-4 " />
+          <Avatar img={user.avatar} rounded />
         </button>
       )}
     >
