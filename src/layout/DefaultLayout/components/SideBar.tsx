@@ -1,6 +1,5 @@
 import { Sidebar } from 'flowbite-react';
-import { ReactNode } from 'react';
-import { HiChartPie, HiShoppingBag, HiUser, HiPencilAlt } from 'react-icons/hi';
+import { HiUser, HiPencilAlt } from 'react-icons/hi';
 import { useNavigate } from 'react-router-dom';
 
 type Path = {
