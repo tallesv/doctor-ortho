@@ -1,9 +1,20 @@
 import { Sidebar } from 'flowbite-react';
+import { ReactNode } from 'react';
 import { HiChartPie, HiShoppingBag, HiUser, HiPencilAlt } from 'react-icons/hi';
 import { useNavigate } from 'react-router-dom';
 
-const paths = [
-  {
+type Path = {
+  label: string;
+  path?: string;
+  icon: React.FC<React.SVGProps<SVGSVGElement>>;
+  children?: {
+    label: string;
+    path: string;
+  }[];
+};
+
+const paths: Path[] = [
+  /*  {
     label: 'Dashboard',
     path: '/',
     icon: HiChartPie,
@@ -21,7 +32,7 @@ const paths = [
         path: '/',
       },
     ],
-  },
+  }, */
   {
     label: 'Questionário',
     path: '/questionary',
@@ -44,7 +55,7 @@ export function SideBar() {
   return (
     <Sidebar
       aria-label="Sidebar with multi-level dropdown example"
-      className="border-r border-gray-200 dark:border-gray-700"
+      className="border-r border-gray-200 dark:border-gray-700 py-4"
     >
       <Sidebar.Items>
         <Sidebar.ItemGroup>
@@ -67,7 +78,7 @@ export function SideBar() {
             ) : (
               <Sidebar.Item
                 key={path.label}
-                onClick={() => handleClickItem(path.path)}
+                onClick={() => path.path && handleClickItem(path.path)}
                 icon={path.icon}
                 className="cursor-pointer"
               >
