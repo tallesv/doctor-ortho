@@ -59,6 +59,9 @@ function AuthProvider({ token, children }: AuthContext) {
         maxAge: 60 * 60 * 24 * 1,
         path: '/',
       });
+
+      const { data } = await api.get(`/users/${userFirebaseId}`);
+      setUser(data);
       setRefreshToken(token.token);
       setIsLogged(true);
       navigate('/');
