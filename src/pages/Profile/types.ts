@@ -6,7 +6,7 @@ import {
 } from '../Signup/types';
 
 export type EditUserFormData = {
-  avatar?: string;
+  avatar?: string | File;
   name: string;
   email: string;
   cpf: string;
@@ -23,14 +23,12 @@ export type EditUserFormData = {
 };
 
 export type EditUserProps = Omit<CreateUserProps, 'firebase_id'> & {
-  avatar?: string;
+  avatar: string | null;
 };
 
 export const editUserFormSchema = yup
   .object()
-  .shape({
-    avatar: yup.string(),
-  })
+  .shape({})
   .concat(userDataFormSchema);
 
 export function formatDefaultEditUserData(user: UserProps) {

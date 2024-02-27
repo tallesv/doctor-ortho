@@ -1,4 +1,3 @@
-import { Avatar, Tooltip } from 'flowbite-react';
 import Input from '../../../components/Form/Input';
 import InputMask from '../../../components/Form/InputMask';
 import Checkbox from '../../../components/Form/Checkbox';
@@ -17,8 +16,9 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import cepPromise from 'cep-promise';
 import { useState } from 'react';
-import { HiOutlineXCircle } from 'react-icons/hi';
-import { parseCookies } from 'nookies';
+import { AvatarComponent } from './AvatarComponent';
+import uploadFile from '../../../utils/uploadFile';
+import deleteFile from '../../../utils/deleteFile';
 
 interface EditUserprofileProps {
   user: UserProps;
@@ -33,10 +33,6 @@ export function EditUserprofile({
 }: EditUserprofileProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const cookies = parseCookies();
-  const themeSaved =
-    cookies['doctor-ortho.theme'] === 'dark' ? 'dark' : 'light';
-
   const userFormData = formatDefaultEditUserData(user);
 
   const {
@@ -47,12 +43,14 @@ export function EditUserprofile({
     clearErrors,
     watch,
     control,
+    getValues,
   } = useForm<EditUserFormData>({
     resolver: yupResolver(editUserFormSchema),
     defaultValues: userFormData,
   });
 
   const watchSpeciality = watch('speciality');
+  watch('avatar');
 
   async function handleFillAddress(cep: string) {
     const formatedCep = cep.replace(/[ -]/g, '');
@@ -82,8 +80,21 @@ export function EditUserprofile({
           }
         }
       });
+
+      console.log(userFormData.avatar);
+
+      let userAvatar = formData.avatar;
+      if (typeof formData.avatar === 'object') {
+        userAvatar = await uploadFile(formData.avatar);
+      }
+
+      if (userFormData.avatar && formData.avatar !== userFormData.avatar) {
+        await deleteFile(userFormData.avatar);
+      }
+
       const editUserData = {
         ...formData,
+        avatar: userAvatar ? userAvatar.toString() : null,
         phone_number: data.ddi + data.phone_number,
         specialty: data.speciality.includes('Outro')
           ? `${specialityFormatted}${data.speciality_input}`
@@ -92,8 +103,6 @@ export function EditUserprofile({
 
       delete editUserData['ddi'];
       delete editUserData.speciality_input;
-
-      //console.log(editUserData);
 
       onClickEditUser(editUserData);
     } catch (err) {
@@ -106,20 +115,12 @@ export function EditUserprofile({
   return (
     <form className="space-y-4" onSubmit={handleSubmit(handleEditUser)}>
       <div className="flex pb-2 justify-between items-center">
-        <div>
-          <div className="cursor-pointer relative left-16 top-3 z-10">
-            <Tooltip content="Excluir avatar" style={themeSaved}>
-              <HiOutlineXCircle
-                className="text-red-500 bh-white dark:bg-gray-700 rounded-full w-6 h-6"
-                onClick={() => console.log('kac')}
-              />
-            </Tooltip>
-          </div>
-          <Avatar
-            img="https://avatars.githubusercontent.com/u/23642593?v=4"
-            size={'lg'}
-          />
-        </div>
+        <AvatarComponent
+          showTooltip={!!getValues().avatar}
+          avatarUrl={getValues().avatar?.toString()}
+          handleRemoveAvatar={() => setValue('avatar', undefined)}
+          handleAddAvatar={imageFile => setValue('avatar', imageFile)}
+        />
       </div>
 
       <div className="flex flex-col space-y-2 rounded-md">
