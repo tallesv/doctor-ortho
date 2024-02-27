@@ -10,6 +10,20 @@ export function DisplayUserProfile({
   user,
   onClickEditUser,
 }: DisplayUserProfileProps) {
+  let formatSpecialities = '';
+  const userSpecialitiesArray = user.specialty.split(',');
+  userSpecialitiesArray.forEach((speciality, index) => {
+    if (index === 0) {
+      formatSpecialities += speciality;
+    }
+    if (index !== 0 && index === userSpecialitiesArray.length - 1) {
+      formatSpecialities += ` e ${speciality}`;
+    }
+    if (index > 0 && index < userSpecialitiesArray.length - 1) {
+      formatSpecialities += `, ${speciality}`;
+    }
+  });
+
   return (
     <form action="#" className="space-y-4">
       <div className="flex pb-2 justify-between items-center">
@@ -74,7 +88,7 @@ export function DisplayUserProfile({
           Escpecialidade
         </span>
         <span className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">
-          {user.specialty}
+          {formatSpecialities}
         </span>
       </div>
 
