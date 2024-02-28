@@ -191,6 +191,7 @@ export function EditUserprofile({
           label="Data de nascimento"
           required
           control={control}
+          placeholderText="dd/mm/aaaa"
           error={!!formState.errors.birthdate}
           errorMessage={formState.errors.birthdate?.message}
           {...register('birthdate')}

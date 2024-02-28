@@ -1,11 +1,14 @@
 import { ForwardedRef, forwardRef } from 'react';
-import DatePicker, { ReactDatePicker } from 'react-datepicker';
+import DatePicker, {
+  ReactDatePicker,
+  ReactDatePickerProps,
+} from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { getInputBorderStyle } from '../../../utils/inputBorderStyle';
 import bindClassNames from '../../../utils/bindClassNames';
 import { Control, Controller } from 'react-hook-form';
 
-interface DatepickerProps {
+interface DatepickerProps extends Omit<ReactDatePickerProps, 'onChange'> {
   label?: string;
   name?: string;
   className?: string;
