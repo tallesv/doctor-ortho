@@ -21,12 +21,7 @@ export function Treatment() {
     return <LoadingLayout />;
   }
 
-  const treatments: Treatment[] = [
-    ...data?.data,
-    ...data?.data,
-    ...data?.data,
-    ...data?.data,
-  ];
+  const treatments: Treatment[] = data?.data;
 
   return (
     <section className="bg-gray-100 dark:bg-gray-900">
@@ -36,7 +31,7 @@ export function Treatment() {
             Tratamento
           </h2>
 
-          <div className="mx-auto max-w-4xl mt-8 p-2 xl:p-6 bg-white rounded-lg border border-gray-100 shadow dark:border-gray-600 dark:bg-gray-800">
+          <div className="mx-auto max-w-4xl mt-8 p-6 bg-white rounded-lg border border-gray-100 shadow dark:border-gray-600 dark:bg-gray-800">
             <div className="mx-auto">
               {/*  <p className="mb-4 font-light">Texto teste</p> */}
               {treatments.map((treatment, index) => (
