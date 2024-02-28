@@ -40,6 +40,7 @@ export function Login() {
       setIsSubmitting(true);
 
       await login({ email, password });
+      navigate('/');
     } catch (err) {
       setLoginError(true);
     } finally {

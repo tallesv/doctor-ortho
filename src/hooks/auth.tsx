@@ -64,7 +64,6 @@ function AuthProvider({ token, children }: AuthContext) {
       setUser(data);
       setRefreshToken(token.token);
       setIsLogged(true);
-      navigate('/');
     } catch (err) {
       throw err;
     }
