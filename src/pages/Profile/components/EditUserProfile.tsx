@@ -177,6 +177,7 @@ export function EditUserprofile({
                 autoComplete="phone_number"
                 type="number"
                 required
+                placeholder="99 99999 9999"
                 className="rounded-l-none rounded-r-lg"
                 error={!!formState.errors.phone_number}
                 errorMessage={formState.errors.phone_number?.message}
