@@ -21,12 +21,15 @@ import Checkbox from '../../components/Form/Checkbox';
 import { useMutation } from '@tanstack/react-query';
 import { api } from '../../client/api';
 import { FirebaseError } from 'firebase/app';
+import { useAuth } from '../../hooks/auth';
 
 export function Signup() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSignUpFinished, setIsSignUpFinished] = useState(false);
   const [formError, setFormError] = useState<string | undefined>();
+
+  const { login } = useAuth();
 
   const {
     register,
@@ -35,6 +38,7 @@ export function Signup() {
     setValue,
     clearErrors,
     watch,
+    getValues,
     control,
   } = useForm<SignupFormData>({
     resolver: yupResolver(signupFormSchema),
@@ -114,8 +118,21 @@ export function Signup() {
       }
     } finally {
       setIsSubmitting(false);
+      setIsSignUpFinished(true);
     }
   };
+
+  async function handleNavigateToProfilePage() {
+    const { email, password } = getValues();
+    try {
+      setIsSubmitting(true);
+      await login({ email, password });
+      navigate('/profile');
+    } catch (err) {
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <>
@@ -126,8 +143,12 @@ export function Signup() {
             <span className="font-medium text-xl text-sky-700">Parabéns!</span>
             <p className="text-gray-900">A sua conta foi criada com sucesso.</p>
 
-            <Button className="mt-8 w-full" onClick={() => navigate('/login')}>
-              Fazer login
+            <Button
+              className="mt-8 w-full"
+              onClick={() => handleNavigateToProfilePage()}
+              isLoading={isSubmitting}
+            >
+              Ir para o Doctor Ortho
             </Button>
           </div>
         </div>
