@@ -9,7 +9,6 @@ import {
 import { destroyCookie, parseCookies, setCookie } from 'nookies';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { firebaseAuth } from '../config/firebase';
-import { useNavigate } from 'react-router-dom';
 import { api } from '../client/api';
 
 interface AuthContextData {
@@ -34,7 +33,6 @@ interface AuthContext {
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 function AuthProvider({ token, children }: AuthContext) {
-  const navigate = useNavigate();
   const [refreshToken, setRefreshToken] = useState(token);
   const [isLogged, setIsLogged] = useState(!!token);
   const [user, setUser] = useState<UserProps>({} as UserProps);
