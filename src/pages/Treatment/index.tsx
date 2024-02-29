@@ -21,7 +21,7 @@ export function Treatment() {
     return <LoadingLayout />;
   }
 
-  const treatments: Treatment[] = data?.data;
+  const treatments: Treatment[] | string = data?.data;
 
   return (
     <section className="bg-gray-100 dark:bg-gray-900">
@@ -34,15 +34,19 @@ export function Treatment() {
           <div className="mx-auto max-w-4xl mt-8 p-6 bg-white rounded-lg border border-gray-100 shadow dark:border-gray-600 dark:bg-gray-800">
             <div className="mx-auto">
               {/*  <p className="mb-4 font-light">Texto teste</p> */}
-              {treatments.map((treatment, index) => (
-                <div key={`${treatment.id}-${index}`}>
-                  <span className="text-gray-800 dark:text-white font-semibold text-xl">{`Treatment: ${treatment.id}`}</span>
-                  <p className="mt-1">{treatment.description}</p>
-                  {index !== treatments.length - 1 && (
-                    <div className="my-6 border-t border-gray-200 dark:border-gray-700 w-full"></div>
-                  )}
-                </div>
-              ))}
+              {typeof treatments === 'string' && (
+                <span className="">{treatments}</span>
+              )}
+              {Array.isArray(treatments) &&
+                treatments.map((treatment, index) => (
+                  <div key={`${treatment.id}-${index}`}>
+                    <span className="text-gray-800 dark:text-white font-semibold text-xl">{`Treatment: ${treatment.id}`}</span>
+                    <p className="mt-1">{treatment.description}</p>
+                    {index !== treatments.length - 1 && (
+                      <div className="my-6 border-t border-gray-200 dark:border-gray-700 w-full"></div>
+                    )}
+                  </div>
+                ))}
             </div>
           </div>
         </div>

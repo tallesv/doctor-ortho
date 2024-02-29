@@ -71,8 +71,7 @@ export function Questionary() {
 
   function handleSubmitForm(data: QuestionaryFormData) {
     const formattedData = Object.values(data);
-    console.log(formattedData);
-    navigate(`/treatment?answers=35,76,103,107`);
+    navigate(`/treatment?answers=${formattedData.toString()}`);
   }
 
   return (
