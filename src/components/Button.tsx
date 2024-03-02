@@ -1,8 +1,11 @@
 import { ButtonHTMLAttributes, ReactNode } from 'react';
 import bindClassNames from '../utils/bindClassNames';
+import { twMerge } from 'tailwind-merge';
+import { getButtonColorStyle } from '../utils/getButtonColorStyle';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
+  color?: string;
   isLoading?: boolean;
 }
 
@@ -10,15 +13,21 @@ export function Button({
   isLoading,
   children,
   className,
+  color = 'blue',
   ...rest
 }: ButtonProps) {
+  const buttonColorStyle = getButtonColorStyle(color);
+
   return (
     <button
       type="button"
       disabled={isLoading}
-      className={bindClassNames(
-        'flex items-center justify-center text-white bg-sky-500 disabled:bg-sky-600 disabled:cursor-not-allowed hover:bg-sky-600 focus:ring-2 focus:ring-sky-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2',
-        className || '',
+      className={twMerge(
+        bindClassNames(
+          'flex items-center justify-center text-white border  hover:text-primary-700  disabled:cursor-not-allowed focus:ring-2 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2',
+          buttonColorStyle,
+          className || '',
+        ),
       )}
       {...rest}
     >
