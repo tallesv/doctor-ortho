@@ -11,6 +11,7 @@ import { DefaultLayout } from '../layout/DefaultLayout';
 import { Questionary } from '../pages/Questionary';
 import { Profile } from '../pages/Profile';
 import { Treatment } from '../pages/Treatment';
+import { Blocks } from '../pages/Questionaries/Blocks';
 
 export function Router() {
   return (
@@ -37,6 +38,7 @@ export function Router() {
         <Route path="/" Component={Home} />
         <Route path="/questionary" Component={Questionary} />
         <Route path="/treatment" Component={Treatment} />
+        <Route path="/blocks" Component={Blocks} />
         <Route path="/users" Component={Users} />
         <Route path="/profile" Component={Profile} />
       </Route>
