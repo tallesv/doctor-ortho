@@ -8,6 +8,7 @@ import { api } from '../../../client/api';
 import { LoadingLayout } from '../../../layout/LoadingLayout';
 import { queryClient } from '../../../config/queryClient';
 import { DeleteBlockModal } from './components/DeleteBlockModal';
+import { useNavigate } from 'react-router-dom';
 
 export type Block = {
   id: number;
@@ -22,6 +23,8 @@ export function Blocks() {
   const [blockToDelete, setBlockToDelete] = useState<Block | undefined>(
     undefined,
   );
+
+  const navigate = useNavigate();
 
   const { data, isLoading } = useQuery({
     queryKey: ['blocks'],
@@ -177,7 +180,14 @@ export function Blocks() {
                         </div>
                       </div>
                       <div className="shrink-0 flex items-center">
-                        <Button color="light">Ver bloco</Button>
+                        <Button
+                          color="light"
+                          onClick={() =>
+                            navigate(`/questions?block_id=${block.id}`)
+                          }
+                        >
+                          Questões
+                        </Button>
                         <Dropdown
                           label="User menu dropdown"
                           renderTrigger={() => (
