@@ -201,7 +201,11 @@ export function Questions() {
                           </a>
                           <a
                             className="font-medium text-sky-500 hover:underline dark:text-sky-600 cursor-pointer"
-                            //onClick={() => setQuestionToEdit(question)}
+                            onClick={() =>
+                              navigate(
+                                `/replies?block_id=${blockId}&question_id=${question.id}`,
+                              )
+                            }
                           >
                             <p>Respostas</p>
                           </a>

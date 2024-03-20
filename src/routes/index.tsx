@@ -13,6 +13,7 @@ import { Profile } from '../pages/Profile';
 import { Treatment } from '../pages/Treatment';
 import { Blocks } from '../pages/Questionaries/Blocks';
 import { Questions } from '../pages/Questionaries/Questions';
+import { Replies } from '../pages/Questionaries/Replies';
 
 export function Router() {
   return (
@@ -41,6 +42,7 @@ export function Router() {
         <Route path="/treatment" Component={Treatment} />
         <Route path="/blocks" Component={Blocks} />
         <Route path="/questions" Component={Questions} />
+        <Route path="/replies" Component={Replies} />
         <Route path="/users" Component={Users} />
         <Route path="/profile" Component={Profile} />
       </Route>
