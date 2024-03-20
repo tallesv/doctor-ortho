@@ -43,7 +43,7 @@ export function ReplyModal({
   reply,
   questions,
 }: ReplyModalProps) {
-  const { register, handleSubmit, formState, setValue, reset, getValues } =
+  const { register, handleSubmit, formState, setValue, reset } =
     useForm<ReplyFormData>({
       resolver: yupResolver(replyFormSchema),
     });
