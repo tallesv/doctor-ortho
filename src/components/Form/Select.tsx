@@ -5,7 +5,7 @@ import bindClassNames from '../../utils/bindClassNames';
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   options: {
-    value: string;
+    value: any;
     label: string;
   }[];
   error?: boolean;
@@ -48,7 +48,10 @@ const Select = forwardRef(
           {...rest}
         >
           {options.map(option => (
-            <option key={option.value} value={option.value}>
+            <option
+              key={`${option.label}-${option.value}`}
+              value={option.value}
+            >
               {option.label}
             </option>
           ))}

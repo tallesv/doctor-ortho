@@ -15,13 +15,17 @@ export function DefaultLayout({ children }: DefaultLayoutProps) {
 
   const [theme, setTheme] = useState(themeSaved ?? 'white');
 
+  document.body.classList.add(theme);
+
   function handleChangeTheme(themeToUse: string) {
+    document.body.classList.remove(theme);
     setCookie(undefined, 'doctor-ortho.theme', themeToUse);
     setTheme(themeToUse);
+    document.body.classList.add(themeToUse);
   }
 
   return (
-    <div className={`${theme} antialiased bg-gray-50 dark:bg-gray-900`}>
+    <div className={`antialiased bg-gray-50 dark:bg-gray-900`}>
       <nav className="bg-white border-b border-gray-200 px-4 py-2.5 dark:bg-gray-800 dark:border-gray-700 fixed left-0 right-0 top-0 z-50">
         <div className="flex flex-wrap justify-between items-center">
           <div className="flex justify-start items-center">
