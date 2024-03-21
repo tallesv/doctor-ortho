@@ -153,7 +153,7 @@ export function Blocks() {
         <div className="max-w-screen-lg text-gray-500 sm:text-lg dark:text-gray-400">
           <div className="max-w-2xl my-4 mx-auto">
             <h2 className="mb-4 text-4xl tracking-tight font-bold text-gray-800 dark:text-white">
-              Blocos
+              Blocos de perguntas
             </h2>
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md">
               <div className="py-8 px-4 mx-auto max-w-screen-md">
