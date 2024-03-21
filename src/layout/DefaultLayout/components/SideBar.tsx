@@ -1,5 +1,5 @@
 import { Sidebar } from 'flowbite-react';
-import { HiUser, HiPencilAlt } from 'react-icons/hi';
+import { HiUser, HiPencilAlt, HiOutlinePencil } from 'react-icons/hi';
 import { useNavigate } from 'react-router-dom';
 
 type Path = {
@@ -36,6 +36,11 @@ const paths: Path[] = [
     label: 'Questionário',
     path: '/questionary',
     icon: HiPencilAlt,
+  },
+  {
+    label: 'Editar Questionário',
+    path: '/blocks',
+    icon: HiOutlinePencil,
   },
   {
     label: 'Usuários',

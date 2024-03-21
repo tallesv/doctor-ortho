@@ -8,7 +8,8 @@ import { api } from '../../../client/api';
 import { LoadingLayout } from '../../../layout/LoadingLayout';
 import { queryClient } from '../../../config/queryClient';
 import { DeleteBlockModal } from './components/DeleteBlockModal';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../../../hooks/auth';
 
 export type Block = {
   id: number;
@@ -24,20 +25,20 @@ export function Blocks() {
     undefined,
   );
 
+  const { user } = useAuth();
+
+  const userFirebaseId = user.firebase_id;
+
   const navigate = useNavigate();
 
   const { data, isLoading } = useQuery({
-    queryKey: ['blocks'],
-    queryFn: () =>
-      api.get(`/users/UkfzPFN5F5Zh5UFTxsJSPkDw2In1/questions_sets`),
+    queryKey: ['blocks', userFirebaseId],
+    queryFn: () => api.get(`/users/${userFirebaseId}/questions_sets`),
   });
 
   const { mutate: createBlock, isPending: isCreateBlockPending } = useMutation({
     mutationFn: async (data: BlockFormData): Promise<{ data: Block }> => {
-      return api.post(
-        `/users/UkfzPFN5F5Zh5UFTxsJSPkDw2In1/questions_sets`,
-        data,
-      );
+      return api.post(`/users/${userFirebaseId}/questions_sets`, data);
     },
     onError: err => {
       console.log(err);
@@ -45,10 +46,13 @@ export function Blocks() {
     onSuccess: blockResponse => {
       const { data: newBlock } = blockResponse;
 
-      queryClient.setQueryData(['blocks'], (response: { data: Block[] }) => {
-        response.data = [...response.data, newBlock];
-        return response;
-      });
+      queryClient.setQueryData(
+        ['blocks', userFirebaseId],
+        (response: { data: Block[] }) => {
+          response.data = [...response.data, newBlock];
+          return response;
+        },
+      );
     },
     onSettled: () => {
       setShowBlockModal(false);
@@ -61,7 +65,7 @@ export function Blocks() {
       id: number;
     }): Promise<{ data: Block }> => {
       return api.put(
-        `/users/UkfzPFN5F5Zh5UFTxsJSPkDw2In1/questions_sets/${data.id}`,
+        `/users/${userFirebaseId}/questions_sets/${data.id}`,
         data,
       );
     },
@@ -71,12 +75,15 @@ export function Blocks() {
     onSuccess: blockResponse => {
       const { data: updatedBlock } = blockResponse;
 
-      queryClient.setQueryData(['blocks'], (response: { data: Block[] }) => {
-        response.data = response.data.map(item =>
-          item.id === updatedBlock.id ? updatedBlock : item,
-        );
-        return response;
-      });
+      queryClient.setQueryData(
+        ['blocks', userFirebaseId],
+        (response: { data: Block[] }) => {
+          response.data = response.data.map(item =>
+            item.id === updatedBlock.id ? updatedBlock : item,
+          );
+          return response;
+        },
+      );
     },
     onSettled: () => {
       setBlockToEdit(undefined);
@@ -93,10 +100,13 @@ export function Blocks() {
       console.log(err);
     },
     onSuccess: (_, blockId) => {
-      queryClient.setQueryData(['blocks'], (response: { data: Block[] }) => {
-        response.data = blocks.filter(item => item.id !== blockId);
-        return response;
-      });
+      queryClient.setQueryData(
+        ['blocks', userFirebaseId],
+        (response: { data: Block[] }) => {
+          response.data = blocks.filter(item => item.id !== blockId);
+          return response;
+        },
+      );
       setBlockToDelete(undefined);
     },
     onSettled: () => {
