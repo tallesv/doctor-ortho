@@ -8,7 +8,7 @@ import { api } from '../../../client/api';
 import { LoadingLayout } from '../../../layout/LoadingLayout';
 import { queryClient } from '../../../config/queryClient';
 import { DeleteBlockModal } from './components/DeleteBlockModal';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/auth';
 
 export type Block = {
