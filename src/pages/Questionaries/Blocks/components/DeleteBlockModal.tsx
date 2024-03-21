@@ -32,6 +32,7 @@ export function DeleteBlockModal({
               color="red"
               isLoading={isSubmitting}
               onClick={() => onSubmmit(block.id)}
+              disabled
             >
               Deletar
             </Button>

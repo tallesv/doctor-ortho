@@ -32,6 +32,7 @@ export function DeleteReplyModal({
               color="red"
               isLoading={isSubmitting}
               onClick={() => onSubmmit(reply.id)}
+              disabled
             >
               Deletar
             </Button>
