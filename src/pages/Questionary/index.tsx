@@ -9,6 +9,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button } from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/auth';
 
 type QuestionBlocksProps = {
   id: number;
@@ -32,10 +33,12 @@ export function Questionary() {
   const [blockIndex, setBlockIndex] = useState(0);
   const [showFinishButton, setShowFinishButton] = useState(false);
 
+  const { user } = useAuth();
+  const userFirebaseId = user.firebase_id;
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['questions-blocks'],
-    queryFn: () =>
-      api.get('/users/f8f26fde8ff8a22249e77be7ff818cca90f683a7/questions_sets'),
+    queryKey: ['questions-blocks', userFirebaseId],
+    queryFn: () => api.get(`/users/${userFirebaseId}/questions_sets`),
   });
 
   if (isLoading || isError) {
