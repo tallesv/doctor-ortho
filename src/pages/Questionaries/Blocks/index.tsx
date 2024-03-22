@@ -163,7 +163,7 @@ export function Blocks() {
                     type="button"
                     onClick={() => setShowBlockModal(true)}
                   >
-                    Adcionar Bloco
+                    Adicionar Bloco
                   </Button>
                 </div>
                 <ul
