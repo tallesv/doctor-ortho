@@ -5,9 +5,13 @@ import * as yup from 'yup';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Reply } from '..';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Select from '../../../../components/Form/Select';
 import { Question } from '../../Questions';
+import { Block } from '../../Blocks';
+import { useBlocksQuery, useQuestionsQuery } from '../../useQuestionariesQuery';
+import { useAuth } from '../../../../hooks/auth';
+import { LoadingLayout } from '../../../../layout/LoadingLayout';
 
 interface ReplyModalProps {
   showModal: boolean;
@@ -17,7 +21,7 @@ interface ReplyModalProps {
   isSubmitting: boolean;
   type: 'create' | 'edit';
   reply?: Reply;
-  questions: Question[];
+  questionBlockId: string;
 }
 
 export type ReplyFormData = {
@@ -41,12 +45,34 @@ export function ReplyModal({
   isSubmitting,
   type,
   reply,
-  questions,
+  questionBlockId,
 }: ReplyModalProps) {
   const { register, handleSubmit, formState, setValue, reset } =
     useForm<ReplyFormData>({
       resolver: yupResolver(replyFormSchema),
     });
+
+  useEffect(() => {
+    if (reply) {
+      setValue('answer', reply.answer);
+      setValue('next_question_id', reply.next_question_id);
+    } else {
+      reset();
+    }
+  }, [reply]);
+
+  const [blockIdSelected, setBlockIdSelected] = useState(questionBlockId);
+
+  const { user } = useAuth();
+
+  const userFirebaseId = user.firebase_id;
+  const { data: blocksResponse, isLoading: isBlocksQueryLoading } =
+    useBlocksQuery(userFirebaseId);
+  const { data: questionsResponse, isLoading: isQuestionsQueryLoading } =
+    useQuestionsQuery(blockIdSelected);
+
+  const blocks: Block[] = blocksResponse?.data;
+  const questions: Question[] = questionsResponse?.data;
 
   const handleCreateQuestion: SubmitHandler<ReplyFormData> = async data => {
     try {
@@ -63,22 +89,15 @@ export function ReplyModal({
     }
   };
 
-  useEffect(() => {
-    if (reply) {
-      setValue('answer', reply.answer);
-      setValue('next_question_id', reply.next_question_id);
-    } else {
-      reset();
-    }
-  }, [reply]);
-
-  const selectOptions = [
-    { label: '-', value: 0 },
-    ...questions.map(question => ({
-      label: question.query,
-      value: question.id,
-    })),
-  ];
+  const selectOptions = questions
+    ? [
+        { label: '-', value: 0 },
+        ...questions.map(question => ({
+          label: question.query,
+          value: question.id,
+        })),
+      ]
+    : [];
 
   const modalTitle =
     type === 'create' ? 'Adicionar resposta' : 'Editar resposta';
@@ -94,7 +113,7 @@ export function ReplyModal({
         >
           <div>
             <div className="mb-2 block">
-              <Label htmlFor="blockTitle" value="Título da resposta" />
+              <Label htmlFor="answerTitle" value="Título da resposta" />
             </div>
             <Input
               error={!!formState.errors.answer}
@@ -104,14 +123,33 @@ export function ReplyModal({
           </div>
           <div>
             <div className="mb-2 block">
-              <Label htmlFor="blockTitle" value="Próxima questão" />
+              <Label htmlFor="blockTitle" value="Bloco da próxima questão" />
             </div>
             <Select
-              options={selectOptions}
-              error={!!formState.errors.next_question_id}
-              errorMessage={formState.errors.next_question_id?.message}
-              {...register('next_question_id')}
+              defaultValue={blockIdSelected}
+              options={blocks?.map(block => ({
+                label: block.name,
+                value: block.id,
+              }))}
+              onChange={e => setBlockIdSelected(e.target.value)}
             />
+          </div>
+          <div>
+            {isBlocksQueryLoading || isQuestionsQueryLoading ? (
+              <LoadingLayout />
+            ) : (
+              <>
+                <div className="mb-2 block">
+                  <Label htmlFor="nextQuestionTitle" value="Próxima questão" />
+                </div>
+                <Select
+                  options={selectOptions}
+                  error={!!formState.errors.next_question_id}
+                  errorMessage={formState.errors.next_question_id?.message}
+                  {...register('next_question_id')}
+                />
+              </>
+            )}
           </div>
           <div className="w-full flex justify-end">
             <Button

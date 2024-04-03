@@ -64,8 +64,6 @@ export function BlockModal({
     }
   }, [block]);
 
-  //console.log(getValues());
-
   return (
     <Modal dismissible show={showModal} onClose={onCloseModal}>
       <Modal.Header>{modalTitle}</Modal.Header>

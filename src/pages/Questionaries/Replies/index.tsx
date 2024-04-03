@@ -1,6 +1,6 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../../../components/Button';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { api } from '../../../client/api';
 import { LoadingLayout } from '../../../layout/LoadingLayout';
 import { HiPlus } from 'react-icons/hi';
@@ -13,6 +13,7 @@ import { HiChevronRight } from 'react-icons/hi';
 import { ReplyFormData, ReplyModal } from './components/ReplyModal';
 import { Question } from '../Questions';
 import { DeleteReplyModal } from './components/DeleteReplyModal';
+import { useQuestionsQuery, useRepliesQuery } from '../useQuestionariesQuery';
 
 export type Reply = {
   id: number;
@@ -36,16 +37,14 @@ export function Replies() {
   const questionId = searchParams.get('question_id');
   const blockId = searchParams.get('block_id');
 
-  const { data: questionsResponse, isLoading: isQuestionsRequestLoading } =
-    useQuery({
-      queryKey: ['questions', blockId],
-      queryFn: () => api.get(`questions_sets/${blockId}/questions`),
-    });
+  if (!blockId || !questionId) {
+    return <LoadingLayout />;
+  }
 
-  const { data: repliesResponse, isLoading } = useQuery({
-    queryKey: ['replies', questionId],
-    queryFn: () => api.get(`/questions/${questionId}/replies`),
-  });
+  const { data: questionsResponse, isLoading: isQuestionsRequestLoading } =
+    useQuestionsQuery(blockId);
+
+  const { data: repliesResponse, isLoading } = useRepliesQuery(questionId);
 
   const { mutate: createReply, isPending: isCreateReplyPending } = useMutation({
     mutationFn: async (data: ReplyFormData): Promise<{ data: Reply }> => {
@@ -120,7 +119,6 @@ export function Replies() {
       setShowReplyModal(false);
     },
   });
-
   if (isLoading || isQuestionsRequestLoading) {
     return <LoadingLayout />;
   }
@@ -152,7 +150,7 @@ export function Replies() {
         onCreate={data => createReply(data)}
         onEdit={data => editReply(data)}
         reply={replyToEdit}
-        questions={questions}
+        questionBlockId={blockId}
         type={replyToEdit ? 'edit' : 'create'}
         isSubmitting={isCreateReplyPending || isEditReplyPending}
       />

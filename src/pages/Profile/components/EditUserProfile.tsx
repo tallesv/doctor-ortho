@@ -81,8 +81,6 @@ export function EditUserprofile({
         }
       });
 
-      console.log(userFormData.avatar);
-
       let userAvatar = formData.avatar;
       if (typeof formData.avatar === 'object') {
         userAvatar = await uploadFile(formData.avatar);

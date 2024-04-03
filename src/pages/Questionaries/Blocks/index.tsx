@@ -3,13 +3,14 @@ import { Button } from '../../../components/Button';
 import { Dropdown } from 'flowbite-react';
 import { useState } from 'react';
 import { BlockFormData, BlockModal } from './components/BlockModal';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { api } from '../../../client/api';
 import { LoadingLayout } from '../../../layout/LoadingLayout';
 import { queryClient } from '../../../config/queryClient';
 import { DeleteBlockModal } from './components/DeleteBlockModal';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/auth';
+import { useBlocksQuery } from '../useQuestionariesQuery';
 
 export type Block = {
   id: number;
@@ -31,10 +32,7 @@ export function Blocks() {
 
   const navigate = useNavigate();
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['blocks', userFirebaseId],
-    queryFn: () => api.get(`/users/${userFirebaseId}/questions_sets`),
-  });
+  const { data, isLoading } = useBlocksQuery(userFirebaseId);
 
   const { mutate: createBlock, isPending: isCreateBlockPending } = useMutation({
     mutationFn: async (data: BlockFormData): Promise<{ data: Block }> => {
