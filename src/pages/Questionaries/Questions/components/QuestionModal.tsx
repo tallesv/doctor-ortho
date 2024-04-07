@@ -4,8 +4,8 @@ import { Button } from '../../../../components/Button';
 import * as yup from 'yup';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Question } from '..';
 import { useEffect } from 'react';
+import { QuestionType } from '../../types';
 
 interface QuestionModalProps {
   showModal: boolean;
@@ -14,7 +14,7 @@ interface QuestionModalProps {
   onEdit: (data: { query: string; id: number }) => void;
   isSubmitting: boolean;
   type: 'create' | 'edit';
-  question?: Question;
+  question?: QuestionType;
 }
 
 export type QuestionFormData = {

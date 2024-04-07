@@ -1,29 +1,25 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../../../components/Button';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { api } from '../../../client/api';
 import { LoadingLayout } from '../../../layout/LoadingLayout';
 import { HiPlus } from 'react-icons/hi';
 import { Table } from 'flowbite-react';
 import { QuestionFormData, QuestionModal } from './components/QuestionModal';
 import { useState } from 'react';
-import { queryClient } from '../../../config/queryClient';
 import { DeleteQuestionModal } from './components/DeleteQuestionModal';
 import { HiChevronRight } from 'react-icons/hi';
-
-export type Question = {
-  id: number;
-  query: string;
-  replies: any;
-};
+import { BlockType, QuestionType } from '../types';
+import { useBlocksQuery } from '../useQuestionariesQuery';
+import { useAuth } from '../../../hooks/auth';
 
 export function Questions() {
   const [showQuestionModal, setShowQuestionModal] = useState(false);
-  const [questionToEdit, setQuestionToEdit] = useState<Question | undefined>(
-    undefined,
-  );
+  const [questionToEdit, setQuestionToEdit] = useState<
+    QuestionType | undefined
+  >(undefined);
   const [questionToDelete, setQuestionToDelete] = useState<
-    Question | undefined
+    QuestionType | undefined
   >(undefined);
 
   const navigate = useNavigate();
@@ -32,31 +28,31 @@ export function Questions() {
 
   const blockId = searchParams.get('block_id');
 
-  const { data: questionsResponse, isLoading } = useQuery({
-    queryKey: ['questions', blockId],
-    queryFn: () => api.get(`questions_sets/${blockId}/questions`),
-  });
+  const { user } = useAuth();
+  const userFirebaseId = user.firebase_id;
+
+  if (!blockId) {
+    return <LoadingLayout />;
+  }
+
+  const {
+    data: blocksResponse,
+    refetch: refetchBlocksQuery,
+    isLoading: isBlocksQueryLoading,
+  } = useBlocksQuery(userFirebaseId);
 
   const { mutate: createQuestion, isPending: isCreateQuestoinPending } =
     useMutation({
       mutationFn: async (
         data: QuestionFormData,
-      ): Promise<{ data: Question }> => {
+      ): Promise<{ data: QuestionType }> => {
         return api.post(`/questions_sets/${blockId}/questions`, data);
       },
       onError: err => {
         console.log(err);
       },
-      onSuccess: blockResponse => {
-        const { data: newQuestion } = blockResponse;
-
-        queryClient.setQueryData(
-          ['questions', blockId],
-          (response: { data: Question[] }) => {
-            response.data = [...response.data, newQuestion];
-            return response;
-          },
-        );
+      onSuccess: () => {
+        refetchBlocksQuery();
       },
       onSettled: () => {
         setShowQuestionModal(false);
@@ -68,24 +64,14 @@ export function Questions() {
       mutationFn: async (data: {
         query: string;
         id: number;
-      }): Promise<{ data: Question }> => {
+      }): Promise<{ data: QuestionType }> => {
         return api.put(`/questions_sets/${blockId}/questions/${data.id}`, data);
       },
       onError: err => {
         console.log(err);
       },
-      onSuccess: blockResponse => {
-        const { data: updatedQuestion } = blockResponse;
-
-        queryClient.setQueryData(
-          ['questions', blockId],
-          (response: { data: Question[] }) => {
-            response.data = response.data.map(item =>
-              item.id === updatedQuestion.id ? updatedQuestion : item,
-            );
-            return response;
-          },
-        );
+      onSuccess: () => {
+        refetchBlocksQuery();
       },
       onSettled: () => {
         setQuestionToEdit(undefined);
@@ -94,20 +80,14 @@ export function Questions() {
 
   const { mutate: deleteQuestion, isPending: isDeleteQuestionPending } =
     useMutation({
-      mutationFn: async (id: number): Promise<{ data: Question }> => {
+      mutationFn: async (id: number): Promise<{ data: QuestionType }> => {
         return api.delete(`/questions_sets/${blockId}/questions/${id}`);
       },
       onError: err => {
         console.log(err);
       },
-      onSuccess: (_, questiondId) => {
-        queryClient.setQueryData(
-          ['questions', blockId],
-          (response: { data: Question[] }) => {
-            response.data = questions.filter(item => item.id !== questiondId);
-            return response;
-          },
-        );
+      onSuccess: () => {
+        refetchBlocksQuery();
         setQuestionToDelete(undefined);
       },
       onSettled: () => {
@@ -115,11 +95,14 @@ export function Questions() {
       },
     });
 
-  if (isLoading) {
+  if (isBlocksQueryLoading) {
     return <LoadingLayout />;
   }
 
-  const questions: Question[] = questionsResponse?.data;
+  const currentBlock: BlockType = blocksResponse?.data.find(
+    (block: BlockType) => block.id === +blockId,
+  );
+  const questions: QuestionType[] = currentBlock.questions;
 
   function handleCloseQuestionModal() {
     if (showQuestionModal) {
@@ -162,7 +145,7 @@ export function Questions() {
                 Blocos
               </a>
               <HiChevronRight className="h-10 w-5" />
-              <span className="font-bold">{`Questões do bloco ${blockId}`}</span>
+              <span className="font-bold">{`${currentBlock.name}`}</span>
             </div>
 
             <h2 className="my-4 text-4xl tracking-tight font-bold text-gray-800 dark:text-white">

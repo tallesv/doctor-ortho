@@ -5,28 +5,20 @@ import { api } from '../../../client/api';
 import { LoadingLayout } from '../../../layout/LoadingLayout';
 import { HiPlus } from 'react-icons/hi';
 import { Table } from 'flowbite-react';
-//import { QuestionFormData, QuestionModal } from './components/QuestionModal';
 import { useState } from 'react';
-import { queryClient } from '../../../config/queryClient';
-//import { DeleteQuestionModal } from './components/DeleteQuestionModal';
 import { HiChevronRight } from 'react-icons/hi';
 import { ReplyFormData, ReplyModal } from './components/ReplyModal';
-import { Question } from '../Questions';
 import { DeleteReplyModal } from './components/DeleteReplyModal';
-import { useQuestionsQuery, useRepliesQuery } from '../useQuestionariesQuery';
-
-export type Reply = {
-  id: number;
-  answer: string;
-  question_id: number;
-  next_question_id: number;
-  treatment_id: number;
-};
+import { useBlocksQuery } from '../useQuestionariesQuery';
+import { useAuth } from '../../../hooks/auth';
+import { BlockType, QuestionType, ReplyType } from '../types';
 
 export function Replies() {
   const [showReplyModal, setShowReplyModal] = useState(false);
-  const [replyToEdit, setReplyToEdit] = useState<Reply | undefined>(undefined);
-  const [replyToDelete, setReplyToDelete] = useState<Reply | undefined>(
+  const [replyToEdit, setReplyToEdit] = useState<ReplyType | undefined>(
+    undefined,
+  );
+  const [replyToDelete, setReplyToDelete] = useState<ReplyType | undefined>(
     undefined,
   );
 
@@ -37,32 +29,28 @@ export function Replies() {
   const questionId = searchParams.get('question_id');
   const blockId = searchParams.get('block_id');
 
+  const { user } = useAuth();
+  const userFirebaseId = user.firebase_id;
+
   if (!blockId || !questionId) {
     return <LoadingLayout />;
   }
 
-  const { data: questionsResponse, isLoading: isQuestionsRequestLoading } =
-    useQuestionsQuery(blockId);
-
-  const { data: repliesResponse, isLoading } = useRepliesQuery(questionId);
+  const {
+    data: blocksResponse,
+    refetch: refetchBlocksQuery,
+    isLoading: isBlocksQueryLoading,
+  } = useBlocksQuery(userFirebaseId);
 
   const { mutate: createReply, isPending: isCreateReplyPending } = useMutation({
-    mutationFn: async (data: ReplyFormData): Promise<{ data: Reply }> => {
+    mutationFn: async (data: ReplyFormData): Promise<{ data: ReplyType }> => {
       return api.post(`/questions/${questionId}/replies`, data);
     },
     onError: err => {
       console.log(err);
     },
-    onSuccess: repliesResponse => {
-      const { data: newReply } = repliesResponse;
-
-      queryClient.setQueryData(
-        ['replies', questionId],
-        (response: { data: Reply[] }) => {
-          response.data = [...response.data, newReply];
-          return response;
-        },
-      );
+    onSuccess: () => {
+      refetchBlocksQuery();
     },
     onSettled: () => {
       setShowReplyModal(false);
@@ -73,25 +61,15 @@ export function Replies() {
     mutationFn: async (data: {
       reply: ReplyFormData;
       replyId: number;
-    }): Promise<{ data: Reply }> => {
+    }): Promise<{ data: ReplyType }> => {
       const { reply, replyId } = data;
       return api.put(`/questions/${questionId}/replies/${replyId}`, reply);
     },
     onError: err => {
       console.log(err);
     },
-    onSuccess: repliesResponse => {
-      const { data: updatedReplies } = repliesResponse;
-
-      queryClient.setQueryData(
-        ['replies', questionId],
-        (response: { data: Reply[] }) => {
-          response.data = response.data.map(item =>
-            item.id === updatedReplies.id ? updatedReplies : item,
-          );
-          return response;
-        },
-      );
+    onSuccess: () => {
+      refetchBlocksQuery();
     },
     onSettled: () => {
       setReplyToEdit(undefined);
@@ -99,32 +77,30 @@ export function Replies() {
   });
 
   const { mutate: deleteReply, isPending: isDeleteReplyPending } = useMutation({
-    mutationFn: async (id: number): Promise<{ data: Reply }> => {
+    mutationFn: async (id: number): Promise<{ data: ReplyType }> => {
       return api.delete(`/questions/${questionId}/replies/${id}`);
     },
     onError: err => {
       console.log(err);
     },
-    onSuccess: (_, replyId) => {
-      queryClient.setQueryData(
-        ['replies', questionId],
-        (response: { data: Reply[] }) => {
-          response.data = replies.filter(item => item.id !== replyId);
-          return response;
-        },
-      );
+    onSuccess: () => {
+      refetchBlocksQuery();
       setReplyToDelete(undefined);
     },
     onSettled: () => {
       setShowReplyModal(false);
     },
   });
-  if (isLoading || isQuestionsRequestLoading) {
+  if (isBlocksQueryLoading) {
     return <LoadingLayout />;
   }
 
-  const replies: Reply[] = repliesResponse?.data;
-  const questions: Question[] = questionsResponse?.data;
+  const blocks: BlockType[] = blocksResponse?.data;
+  const currentBlock = blocks.find((block: BlockType) => block.id === +blockId);
+  const currentQuestion = currentBlock?.questions.find(
+    question => question.id === +questionId,
+  );
+  const replies = currentQuestion?.replies;
 
   function handleCloseQuestionModal() {
     if (showReplyModal) {
@@ -139,7 +115,16 @@ export function Replies() {
     if (!next_question_id) {
       return '-';
     }
-    return questions.find(question => question.id === next_question_id)?.query;
+    let findNextQuestion: QuestionType | undefined;
+    blocks.forEach(block => {
+      const questionFinded = block.questions.find(
+        question => question.id === next_question_id,
+      );
+      if (questionFinded) {
+        findNextQuestion = questionFinded;
+      }
+    });
+    return findNextQuestion?.query;
   }
 
   return (
@@ -151,6 +136,7 @@ export function Replies() {
         onEdit={data => editReply(data)}
         reply={replyToEdit}
         questionBlockId={blockId}
+        blocks={blocks}
         type={replyToEdit ? 'edit' : 'create'}
         isSubmitting={isCreateReplyPending || isEditReplyPending}
       />
@@ -179,10 +165,10 @@ export function Replies() {
                 className="cursor-pointer font-bold underline"
                 onClick={() => navigate(`/questions?block_id=${blockId}`)}
               >
-                {`Questões do bloco ${blockId}`}
+                {`${currentBlock?.name}`}
               </a>
               <HiChevronRight className="h-10 w-5" />
-              <span className="font-bold">{`Respostas da questão ${questionId}`}</span>
+              <span className="font-bold">{`${currentQuestion?.query}`}</span>
             </div>
 
             <h2 className="my-4 text-4xl tracking-tight font-bold text-gray-800 dark:text-white">
@@ -205,7 +191,7 @@ export function Replies() {
                     <Table.HeadCell>Ações</Table.HeadCell>
                   </Table.Head>
                   <Table.Body className="divide-y">
-                    {replies.map(reply => (
+                    {replies?.map(reply => (
                       <Table.Row
                         key={reply.id}
                         className="bg-white dark:border-gray-700 dark:bg-gray-800"

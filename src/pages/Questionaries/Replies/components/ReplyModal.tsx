@@ -4,14 +4,9 @@ import { Button } from '../../../../components/Button';
 import * as yup from 'yup';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Reply } from '..';
 import { useEffect, useState } from 'react';
 import Select from '../../../../components/Form/Select';
-import { Question } from '../../Questions';
-import { Block } from '../../Blocks';
-import { useBlocksQuery, useQuestionsQuery } from '../../useQuestionariesQuery';
-import { useAuth } from '../../../../hooks/auth';
-import { LoadingLayout } from '../../../../layout/LoadingLayout';
+import { BlockType, ReplyType } from '../../types';
 
 interface ReplyModalProps {
   showModal: boolean;
@@ -20,8 +15,9 @@ interface ReplyModalProps {
   onEdit: (data: { reply: ReplyFormData; replyId: number }) => void;
   isSubmitting: boolean;
   type: 'create' | 'edit';
-  reply?: Reply;
+  reply?: ReplyType;
   questionBlockId: string;
+  blocks: BlockType[];
 }
 
 export type ReplyFormData = {
@@ -46,6 +42,7 @@ export function ReplyModal({
   type,
   reply,
   questionBlockId,
+  blocks,
 }: ReplyModalProps) {
   const { register, handleSubmit, formState, setValue, reset } =
     useForm<ReplyFormData>({
@@ -63,16 +60,8 @@ export function ReplyModal({
 
   const [blockIdSelected, setBlockIdSelected] = useState(questionBlockId);
 
-  const { user } = useAuth();
-
-  const userFirebaseId = user.firebase_id;
-  const { data: blocksResponse, isLoading: isBlocksQueryLoading } =
-    useBlocksQuery(userFirebaseId);
-  const { data: questionsResponse, isLoading: isQuestionsQueryLoading } =
-    useQuestionsQuery(blockIdSelected);
-
-  const blocks: Block[] = blocksResponse?.data;
-  const questions: Question[] = questionsResponse?.data;
+  const questions = blocks.find(block => block.id === +blockIdSelected)
+    ?.questions;
 
   const handleCreateQuestion: SubmitHandler<ReplyFormData> = async data => {
     try {
@@ -135,21 +124,15 @@ export function ReplyModal({
             />
           </div>
           <div>
-            {isBlocksQueryLoading || isQuestionsQueryLoading ? (
-              <LoadingLayout />
-            ) : (
-              <>
-                <div className="mb-2 block">
-                  <Label htmlFor="nextQuestionTitle" value="Próxima questão" />
-                </div>
-                <Select
-                  options={selectOptions}
-                  error={!!formState.errors.next_question_id}
-                  errorMessage={formState.errors.next_question_id?.message}
-                  {...register('next_question_id')}
-                />
-              </>
-            )}
+            <div className="mb-2 block">
+              <Label htmlFor="nextQuestionTitle" value="Próxima questão" />
+            </div>
+            <Select
+              options={selectOptions}
+              error={!!formState.errors.next_question_id}
+              errorMessage={formState.errors.next_question_id?.message}
+              {...register('next_question_id')}
+            />
           </div>
           <div className="w-full flex justify-end">
             <Button

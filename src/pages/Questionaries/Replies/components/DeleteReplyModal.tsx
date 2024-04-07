@@ -1,11 +1,11 @@
 import { Modal } from 'flowbite-react';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
-import { Reply } from '..';
+import { ReplyType } from '../../types';
 import { Button } from '../../../../components/Button';
 
 interface DeleteReplyModalProps {
   showModal: boolean;
-  reply: Reply;
+  reply: ReplyType;
   onCloseModal: () => void;
   onSubmmit: (blcokId: number) => void;
   isSubmitting: boolean;
