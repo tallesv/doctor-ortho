@@ -4,14 +4,14 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect } from 'react';
 import { Button } from '../../../components/Button';
-import { TreatmentPayloadData, TreatmentType } from '..';
+import { TreatmentType } from '..';
 import Textarea from '../../../components/Form/Textarea';
 
 interface TreatmentModalProps {
   showModal: boolean;
   onCloseModal: () => void;
   onCreate: (data: TreatmentFormData) => void;
-  onEdit: (data: TreatmentPayloadData) => void;
+  onEdit: (data: { id: number; description: string }) => void;
   isSubmitting: boolean;
   type: 'create' | 'edit';
   treatment?: TreatmentType;
@@ -49,8 +49,7 @@ export function TreatmentModal({
         onCreate({ description });
       }
       if (type === 'edit' && treatment) {
-        const reply_ids = treatment.replies.map(reply => reply.id);
-        onEdit({ description, id: treatment.id, reply_ids });
+        onEdit({ description, id: treatment.id });
       }
     } catch (err) {
       console.log(err);

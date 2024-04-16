@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { HiPlus } from 'react-icons/hi';
 import { Table } from 'flowbite-react';
@@ -31,8 +31,6 @@ export function TreatmentsTable() {
   const [treatmentToDelete, setTreatmentToDelete] = useState<
     TreatmentType | undefined
   >(undefined);
-
-  const navigate = useNavigate();
 
   const { data: treatmentsQuery, isLoading: isLoadingTreatmentsQuery } =
     useQuery({
@@ -69,10 +67,11 @@ export function TreatmentsTable() {
 
   const { mutate: editTreatment, isPending: isEditTreatmentPending } =
     useMutation({
-      mutationFn: async (
-        data: TreatmentPayloadData,
-      ): Promise<{ data: TreatmentType }> => {
-        return api.put(`/treatment/${data.id}`, data);
+      mutationFn: async (data: {
+        id: number;
+        description: string;
+      }): Promise<{ data: TreatmentType }> => {
+        return api.put(`/treatments/${data.id}`, data);
       },
       onError: err => {
         console.log(err);
@@ -113,9 +112,12 @@ export function TreatmentsTable() {
         setTreatmentToDelete(undefined);
       },
       onSettled: () => {
+        console.log('veie');
         setShowTreatmentModal(false);
       },
     });
+
+  console.log(showTreatmentModal);
 
   if (isLoadingTreatmentsQuery) {
     return <LoadingLayout />;
@@ -190,16 +192,12 @@ export function TreatmentsTable() {
                           >
                             <p>Editar</p>
                           </a>
-                          <a
+                          <NavLink
                             className="font-medium text-sky-500 hover:underline dark:text-sky-600 cursor-pointer"
-                            /* onClick={() =>
-                              navigate(
-                                `/replies?block_id=${blockId}&question_id=${question.id}`,
-                              )
-                            } */
+                            to={`/treatments-table/${treatment.id}/replies`}
                           >
-                            <p>Respostas</p>
-                          </a>
+                            Respostas
+                          </NavLink>
 
                           <a
                             className="font-medium text-sky-500 hover:underline dark:text-sky-600 cursor-pointer"
