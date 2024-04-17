@@ -80,12 +80,7 @@ export function BlockModal({
             />
           </div>
           <div className="w-full flex justify-end">
-            <Button
-              disabled
-              type="submit"
-              isLoading={isSubmitting}
-              className="w-24"
-            >
+            <Button type="submit" isLoading={isSubmitting} className="w-24">
               {modalButtonTitle}
             </Button>
           </div>

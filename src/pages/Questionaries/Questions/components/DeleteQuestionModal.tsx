@@ -32,7 +32,6 @@ export function DeleteQuestionModal({
               color="red"
               isLoading={isSubmitting}
               onClick={() => onSubmmit(question.id)}
-              disabled
             >
               Deletar
             </Button>

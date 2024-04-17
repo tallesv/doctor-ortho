@@ -135,12 +135,7 @@ export function ReplyModal({
             />
           </div>
           <div className="w-full flex justify-end">
-            <Button
-              type="submit"
-              isLoading={isSubmitting}
-              className="w-24"
-              disabled
-            >
+            <Button type="submit" isLoading={isSubmitting} className="w-24">
               {modalButtonTitle}
             </Button>
           </div>
