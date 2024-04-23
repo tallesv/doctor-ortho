@@ -17,5 +17,6 @@ export type BlockType = {
   name: string;
   user_id: number;
   updated_at: string;
+  created_at: string;
   questions: QuestionType[];
 };

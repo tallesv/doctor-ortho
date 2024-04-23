@@ -11,18 +11,14 @@ import { DeleteBlockModal } from './components/DeleteBlockModal';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/auth';
 import { useBlocksQuery } from '../useQuestionariesQuery';
-
-export type Block = {
-  id: number;
-  name: string;
-  user_id: number;
-  updated_at: string;
-};
+import { BlockType } from '../types';
 
 export function Blocks() {
   const [showBlockModal, setShowBlockModal] = useState(false);
-  const [blockToEdit, setBlockToEdit] = useState<Block | undefined>(undefined);
-  const [blockToDelete, setBlockToDelete] = useState<Block | undefined>(
+  const [blockToEdit, setBlockToEdit] = useState<BlockType | undefined>(
+    undefined,
+  );
+  const [blockToDelete, setBlockToDelete] = useState<BlockType | undefined>(
     undefined,
   );
 
@@ -35,7 +31,7 @@ export function Blocks() {
   const { data, isLoading } = useBlocksQuery(userFirebaseId);
 
   const { mutate: createBlock, isPending: isCreateBlockPending } = useMutation({
-    mutationFn: async (data: BlockFormData): Promise<{ data: Block }> => {
+    mutationFn: async (data: BlockFormData): Promise<{ data: BlockType }> => {
       return api.post(`/users/${userFirebaseId}/questions_sets`, data);
     },
     onError: err => {
@@ -46,7 +42,7 @@ export function Blocks() {
 
       queryClient.setQueryData(
         ['blocks', userFirebaseId],
-        (response: { data: Block[] }) => {
+        (response: { data: BlockType[] }) => {
           response.data = [...response.data, newBlock];
           return response;
         },
@@ -61,7 +57,7 @@ export function Blocks() {
     mutationFn: async (data: {
       name: string;
       id: number;
-    }): Promise<{ data: Block }> => {
+    }): Promise<{ data: BlockType }> => {
       return api.put(
         `/users/${userFirebaseId}/questions_sets/${data.id}`,
         data,
@@ -75,7 +71,7 @@ export function Blocks() {
 
       queryClient.setQueryData(
         ['blocks', userFirebaseId],
-        (response: { data: Block[] }) => {
+        (response: { data: BlockType[] }) => {
           response.data = response.data.map(item =>
             item.id === updatedBlock.id ? updatedBlock : item,
           );
@@ -89,7 +85,7 @@ export function Blocks() {
   });
 
   const { mutate: deleteBlock, isPending: isDeleteBlockPending } = useMutation({
-    mutationFn: async (id: number): Promise<{ data: Block }> => {
+    mutationFn: async (id: number): Promise<{ data: BlockType }> => {
       return api.delete(
         `/users/UkfzPFN5F5Zh5UFTxsJSPkDw2In1/questions_sets/${id}`,
       );
@@ -100,7 +96,7 @@ export function Blocks() {
     onSuccess: (_, blockId) => {
       queryClient.setQueryData(
         ['blocks', userFirebaseId],
-        (response: { data: Block[] }) => {
+        (response: { data: BlockType[] }) => {
           response.data = blocks.filter(item => item.id !== blockId);
           return response;
         },
@@ -116,7 +112,10 @@ export function Blocks() {
     return <LoadingLayout />;
   }
 
-  const blocks: Block[] = data?.data;
+  const blocks: BlockType[] = data?.data.sort(
+    (a: BlockType, b: BlockType) =>
+      new Date(a.created_at).valueOf() - new Date(b.created_at).valueOf(),
+  );
 
   function handleCloseBlockModal() {
     if (showBlockModal) {
