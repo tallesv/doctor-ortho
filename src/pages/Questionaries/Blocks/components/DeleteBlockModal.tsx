@@ -1,11 +1,11 @@
 import { Modal } from 'flowbite-react';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
-import { Block } from '..';
 import { Button } from '../../../../components/Button';
+import { BlockType } from '../../types';
 
 interface DeleteBlockModalProps {
   showModal: boolean;
-  block: Block;
+  block: BlockType;
   onCloseModal: () => void;
   onSubmmit: (blcokId: number) => void;
   isSubmitting: boolean;

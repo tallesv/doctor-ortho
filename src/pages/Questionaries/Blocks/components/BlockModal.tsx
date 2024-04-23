@@ -4,8 +4,8 @@ import { Button } from '../../../../components/Button';
 import * as yup from 'yup';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Block } from '..';
 import { useEffect } from 'react';
+import { BlockType } from '../../types';
 
 interface BlockModalProps {
   showModal: boolean;
@@ -14,7 +14,7 @@ interface BlockModalProps {
   onEdit: (data: { name: string; id: number }) => void;
   isSubmitting: boolean;
   type: 'create' | 'edit';
-  block?: Block;
+  block?: BlockType;
 }
 
 export type BlockFormData = {
