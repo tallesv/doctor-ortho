@@ -16,6 +16,9 @@ import { Questions } from '../pages/Questionaries/Questions';
 import { Replies } from '../pages/Questionaries/Replies';
 import { TreatmentsTable } from '../pages/TreatmentsTable';
 import { TreatmentReply } from '../pages/TreatmentsTable/Replies';
+import { Showcase } from '../pages/Showcase';
+
+const isDevEnv = import.meta.env.DEV;
 
 export function Router() {
   return (
@@ -52,6 +55,7 @@ export function Router() {
         />
         <Route path="/users" Component={Users} />
         <Route path="/profile" Component={Profile} />
+        {isDevEnv && <Route path="/showcase" Component={Showcase} />}
       </Route>
     </Routes>
   );
