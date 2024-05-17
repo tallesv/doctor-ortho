@@ -186,6 +186,7 @@ export function Replies() {
               <div className="overflow-x-auto sm:rounded-lg">
                 <Table hoverable>
                   <Table.Head>
+                    <Table.HeadCell>Coordenada</Table.HeadCell>
                     <Table.HeadCell>Resposta</Table.HeadCell>
                     <Table.HeadCell>Próxima questão</Table.HeadCell>
                     <Table.HeadCell>Ações</Table.HeadCell>
@@ -196,6 +197,9 @@ export function Replies() {
                         key={reply.id}
                         className="bg-white dark:border-gray-700 dark:bg-gray-800"
                       >
+                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                          {reply.coordinate}
+                        </Table.Cell>
                         <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                           {reply.answer}
                         </Table.Cell>

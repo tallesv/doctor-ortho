@@ -22,11 +22,13 @@ interface ReplyModalProps {
 
 export type ReplyFormData = {
   answer: string;
+  coordinate?: string;
   next_question_id?: number | null;
 };
 
 const replyFormSchema = yup.object().shape({
   answer: yup.string().required('Por favor insira a resposta'),
+  coordinate: yup.string(),
   next_question_id: yup
     .number()
     .nullable()
@@ -108,6 +110,16 @@ export function ReplyModal({
               error={!!formState.errors.answer}
               errorMessage={formState.errors.answer?.message}
               {...register('answer')}
+            />
+          </div>{' '}
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="answerTitle" value="Coordenada" />
+            </div>
+            <Input
+              error={!!formState.errors.coordinate}
+              errorMessage={formState.errors.coordinate?.message}
+              {...register('coordinate')}
             />
           </div>
           <div>
