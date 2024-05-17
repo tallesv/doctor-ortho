@@ -8,7 +8,7 @@ import {
 } from 'flowbite-react';
 
 interface CheckboxProps extends FlowbiteCheckboxProps {
-  label: string;
+  label?: string;
   error?: boolean;
 }
 
@@ -30,9 +30,11 @@ const Checkbox = forwardRef(
             inputBorderStyle,
           )}
         />
-        <Label className="ml-1 text-sm font-medium text-gray-900 dark:text-gray-300">
-          {label}
-        </Label>
+        {label && (
+          <Label className="ml-1 text-sm font-medium text-gray-900 dark:text-gray-300">
+            {label}
+          </Label>
+        )}
       </div>
     );
   },

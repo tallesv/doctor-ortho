@@ -1,8 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { HiPlus } from 'react-icons/hi';
-import { Table } from 'flowbite-react';
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { Button } from '../../../components/Button';
 import { LoadingLayout } from '../../../layout/LoadingLayout';
 import { api } from '../../../client/api';
@@ -10,8 +8,11 @@ import { queryClient } from '../../../config/queryClient';
 import { BlockType, QuestionType, ReplyType } from '../../Questionaries/types';
 import { useBlocksQuery } from '../../Questionaries/useQuestionariesQuery';
 import { useAuth } from '../../../hooks/auth';
-import { AddReplyModal } from './components/AddReplyModal';
-import { RemoveReplyModal } from './components/RemoveReplyModal';
+import Checkbox from '../../../components/Form/Checkbox';
+import { RepliesTable } from './components/RepliesTable';
+import * as yup from 'yup';
+import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 export type TreatmentType = {
   id: number;
@@ -25,13 +26,24 @@ export type TreatmentPayloadData = {
   reply_ids: number[];
 };
 
-export function TreatmentReply() {
-  const [showAddReplyModal, setShowAddReplyModal] = useState(false);
-  const [replyToDelete, setReplyToDelete] = useState<ReplyType | undefined>(
-    undefined,
-  );
+export type AddReplyFormData = {
+  [x: string]: string | null;
+};
 
+const addReplyFormSchema = yup.object().shape({});
+
+export function TreatmentReply() {
   const { treatmentId } = useParams();
+
+  let questions: QuestionType[];
+
+  const formMethods = useForm<AddReplyFormData>({
+    resolver: yupResolver(addReplyFormSchema),
+    shouldUnregister: false,
+  });
+
+  const { handleSubmit, getValues, setValue } = formMethods;
+
   const { user } = useAuth();
   const userFirebaseId = user.firebase_id;
 
@@ -45,16 +57,14 @@ export function TreatmentReply() {
     });
 
   const {
-    mutate: addReplyToTreatment,
-    isPending: isAddReplyToTreatmentPending,
+    mutate: editRepliesToTreatment,
+    isPending: isEditRepliesToTreatment,
   } = useMutation({
     mutationFn: async (data: {
-      reply_id: number;
+      replies_id: number[];
     }): Promise<{ data: TreatmentType }> => {
-      const { reply_id } = data;
-      const reply_ids = treatment.replies.map(reply => reply.id);
-      reply_ids.push(reply_id);
-      const treatmentData = { ...treatment, reply_ids };
+      const { replies_id } = data;
+      const treatmentData = { ...treatment, reply_ids: replies_id };
       return api.put(`/treatments/${treatment.id}`, treatmentData);
     },
     onError: err => {
@@ -73,153 +83,120 @@ export function TreatmentReply() {
         },
       );
     },
-    onSettled: () => {
-      setShowAddReplyModal(false);
-    },
   });
 
-  const {
-    mutate: removeReplyIdFromTreatment,
-    isPending: isRemoveReplyIdFromTreatmentPending,
-  } = useMutation({
-    mutationFn: async (data: {
-      replyIdToRemove: number;
-    }): Promise<{ data: TreatmentType }> => {
-      const { replyIdToRemove } = data;
-      const reply_ids = treatment.replies
-        .map(reply => reply.id)
-        .filter(replyId => replyId !== replyIdToRemove);
-      return api.put(`/treatments/${treatment.id}`, {
-        ...treatment,
-        reply_ids,
-      });
-    },
-    onError: err => {
-      console.log(err);
-    },
-    onSuccess: ({ data: updatedTreatment }) => {
-      queryClient.setQueryData(
-        ['treatments'],
-        (response: { data: TreatmentType[] }) => {
-          response.data = response.data.map(item =>
-            item.id === updatedTreatment.id ? updatedTreatment : item,
-          );
-          return response;
-        },
-      );
-    },
-    onSettled: () => {
-      setReplyToDelete(undefined);
-    },
-  });
+  const blocks: BlockType[] = useMemo(() => blocksQuery?.data, [blocksQuery]);
 
-  if (isLoadingBlocksQuery || !treatmentId || isLoadingTreatmentsQuery) {
+  if (
+    isLoadingBlocksQuery ||
+    !treatmentId ||
+    isLoadingTreatmentsQuery ||
+    isEditRepliesToTreatment
+  ) {
     return <LoadingLayout />;
   }
 
-  const blocks: BlockType[] = blocksQuery?.data;
+  questions = blocks.map(block => block.questions).flat(1);
+  const replies = questions.map(question => question.replies).flat(1);
+
+  const repliesSelected = replies.filter(reply =>
+    Object.values(getValues()).includes(String(reply.id)),
+  );
+
   const treatment: TreatmentType = treatmentsQuery?.data.find(
     (treatment: TreatmentType) => treatment.id === +treatmentId,
   );
-  const replies = treatment.replies;
 
-  function getQuestionByQuestionId(questionId: number) {
-    let findQuestion: QuestionType | undefined = {} as QuestionType;
-    blocks.some(block =>
-      block.questions.find(question => {
-        if (question.id === questionId) {
-          findQuestion = question;
-        }
-        return question.id === questionId;
-      }),
-    );
-    return findQuestion.query;
-  }
+  const handleEditTreatmentRepliesSubmit: SubmitHandler<
+    AddReplyFormData
+  > = async data => {
+    try {
+      const replies_id = Object.values(data).filter(Number).map(Number);
+      editRepliesToTreatment({ replies_id });
+    } catch (err) {
+      console.log(err);
+    } finally {
+    }
+  };
 
-  function getBlockByQuestionId(questionId: number) {
-    const block = blocks.find(block =>
-      block.questions.some(question => question.id === questionId),
-    );
-    return block?.name;
+  function handleRemoveReply(replyId: string) {
+    const formEntries = Object.entries(getValues());
+    const questionEntry = formEntries.find(entry => entry[1] === replyId);
+    if (questionEntry) {
+      setValue(questionEntry[0], null);
+    }
   }
 
   return (
-    <section className="bg-gray-100 dark:bg-gray-900">
-      <AddReplyModal
-        onCloseModal={() => setShowAddReplyModal(false)}
-        showModal={showAddReplyModal}
-        onAddReply={data => addReplyToTreatment(data)}
-        blocks={blocks}
-        isSubmitting={isAddReplyToTreatmentPending}
-      />
-
-      {replyToDelete && (
-        <RemoveReplyModal
-          showModal={!!replyToDelete}
-          reply={replyToDelete}
-          onCloseModal={() => setReplyToDelete(undefined)}
-          onSubmmit={replyId =>
-            removeReplyIdFromTreatment({ replyIdToRemove: replyId })
-          }
-          isSubmitting={isRemoveReplyIdFromTreatmentPending}
-        />
-      )}
-
+    <main className="bg-gray-100 dark:bg-gray-900">
       <div className="py-8 px-4 mx-auto max-w-screen-2xl lg:py-8 lg:px-6">
         <div className="max-w-screen-2xl text-gray-500 sm:text-lg dark:text-gray-400">
           <div className="px-3 sm:px-5 mx-auto">
             <h2 className="my-4 text-4xl tracking-tight font-bold text-gray-800 dark:text-white">
               Respostas do tratamento
             </h2>
-            <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
-              <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
-                <div className="w-full flex justify-end">
-                  <Button onClick={() => setShowAddReplyModal(true)}>
-                    <HiPlus className="mr-2" />
-                    Adicionar resposta
-                  </Button>
+            <FormProvider {...formMethods}>
+              <form
+                onSubmit={handleSubmit(handleEditTreatmentRepliesSubmit)}
+                className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden"
+              >
+                <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
+                  <div className="w-full flex justify-end">
+                    <Button type="submit">Salvar</Button>
+                  </div>
                 </div>
-              </div>
-              <div className="overflow-x-auto sm:rounded-lg">
-                <Table hoverable>
-                  <Table.Head>
-                    <Table.HeadCell>Resposta</Table.HeadCell>
-                    <Table.HeadCell>Questão</Table.HeadCell>
-                    <Table.HeadCell>Bloco</Table.HeadCell>
-                    <Table.HeadCell>Ações</Table.HeadCell>
-                  </Table.Head>
-                  <Table.Body className="divide-y">
-                    {replies?.map(reply => (
-                      <Table.Row
-                        key={reply.id}
-                        className="bg-white dark:border-gray-700 dark:bg-gray-800"
-                      >
-                        <Table.Cell className="font-medium text-gray-900 dark:text-white">
-                          {reply.answer}
-                        </Table.Cell>
-                        <Table.Cell className="font-medium text-gray-900 dark:text-white">
-                          {getQuestionByQuestionId(reply.question_id)}
-                        </Table.Cell>
-                        <Table.Cell className="font-medium text-gray-900 dark:text-white">
-                          {getBlockByQuestionId(reply.question_id)}
-                        </Table.Cell>
-                        <Table.Cell className="flex space-x-2">
-                          <a
-                            className="font-medium text-sky-500 hover:underline dark:text-sky-600 cursor-pointer"
-                            onClick={() => setReplyToDelete(reply)}
-                          >
-                            <p>Excluir</p>
-                          </a>
-                        </Table.Cell>
-                      </Table.Row>
-                    ))}
-                  </Table.Body>
-                </Table>
-              </div>
-            </div>
+
+                <section
+                  aria-labelledby="products-heading"
+                  className="pb-24 pt-6"
+                >
+                  <h2 id="products-heading" className="sr-only">
+                    Products
+                  </h2>
+
+                  <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4">
+                    <div className="lg:col-span-3">
+                      <RepliesTable
+                        blocks={blocks}
+                        questions={questions}
+                        treatment={treatment}
+                      />
+                    </div>
+
+                    <div className="hidden lg:block">
+                      <div className="border-b border-gray-200 py-1 max-h-[700px] overflow-auto">
+                        <h3 className="-my-3 flow-root">
+                          <div className="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
+                            <span className="font-medium text-gray-900">
+                              Respostas salvas
+                            </span>
+                          </div>
+                        </h3>
+                        <div className="pt-6">
+                          <div className="space-y-4">
+                            {repliesSelected?.map(reply => (
+                              <div key={reply.id} className="flex items-center">
+                                <Checkbox
+                                  key={reply.id}
+                                  label={reply.answer}
+                                  checked={true}
+                                  onChange={() =>
+                                    handleRemoveReply(String(reply.id))
+                                  }
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </form>
+            </FormProvider>
           </div>
         </div>
       </div>
-    </section>
+    </main>
   );
 }
