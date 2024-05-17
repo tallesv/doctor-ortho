@@ -46,7 +46,7 @@ export default function Pagination({
       initialDataCount = 0;
     }
   } else {
-    initialDataCount = 10 * (currentPage - 1);
+    initialDataCount = dataPerPage * (currentPage - 1);
   }
 
   return (
@@ -87,7 +87,11 @@ export default function Pagination({
             className="isolate inline-flex -space-x-px rounded-md shadow-sm"
             aria-label="Pagination"
           >
-            <button className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0">
+            <button
+              className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0"
+              type="button"
+              onClick={() => onPageChange(1)}
+            >
               <span className="sr-only">Previous</span>
               <HiChevronLeft className="h-5 w-5" aria-hidden="true" />
             </button>
@@ -125,7 +129,11 @@ export default function Pagination({
                 </button>
               ))}
 
-            <button className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0">
+            <button
+              className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:z-20 focus:outline-offset-0"
+              type="button"
+              onClick={() => onPageChange(lastPage)}
+            >
               <span className="sr-only">Next</span>
               <HiChevronRight className="h-5 w-5" aria-hidden="true" />
             </button>
