@@ -164,10 +164,10 @@ export function TreatmentReply() {
                     </div>
 
                     <div className="hidden lg:block">
-                      <div className="border-b border-gray-200 py-1 max-h-[700px] overflow-auto">
+                      <div className="border-b border-gray-200 dark:border-gray-700 py-4 max-h-[700px] overflow-auto">
                         <h3 className="-my-3 flow-root">
-                          <div className="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
-                            <span className="font-medium text-gray-900">
+                          <div className="flex w-full items-center justify-between bg-white dark:border-gray-700 dark:bg-gray-800 py-3 text-sm text-gray-400 hover:text-gray-500">
+                            <span className="font-medium text-gray-900 dark:text-white">
                               Respostas salvas
                             </span>
                           </div>
