@@ -17,8 +17,9 @@ export function RepliesTable({
   questions,
   treatment,
 }: RepliesTableProps) {
+  const [termSearched, setTermSearched] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const contentPerPage = 3;
+  const contentPerPage = 4;
 
   const { register, control, watch, setValue } = useFormContext();
 
@@ -38,6 +39,28 @@ export function RepliesTable({
 
     return findBlockName;
   }
+
+  const coordinatesSearched = termSearched.split(',');
+
+  const filterQuestionsByCoordinates = (
+    questions: QuestionType[],
+    coordinatesSearched: string[],
+  ) => {
+    if (coordinatesSearched[0] === '') {
+      return questions;
+    }
+
+    return questions.filter(question =>
+      question.replies.some(reply =>
+        coordinatesSearched.includes(String(reply.coordinate)),
+      ),
+    );
+  };
+
+  const questionsFiltered = filterQuestionsByCoordinates(
+    questions,
+    coordinatesSearched,
+  );
 
   useEffect(() => {
     const treatmentReplies = treatment.replies;
@@ -76,16 +99,14 @@ export function RepliesTable({
           <input
             type="text"
             id="table-search"
+            placeholder="Ex: B1,B2,C2..."
             className="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            //onChange={e => handleSearchContent(e.target.value)}
+            onChange={e => setTermSearched(e.target.value)}
           />
         </div>
       </div>
-      {questions
-        ?.slice(
-          (currentPage - 1) * contentPerPage,
-          contentPerPage * currentPage,
-        )
+      {questionsFiltered
+        .slice((currentPage - 1) * contentPerPage, contentPerPage * currentPage)
         .map(question => (
           <Table key={question.id} hoverable>
             <Table.Head>
@@ -101,7 +122,7 @@ export function RepliesTable({
                   className="bg-white dark:border-gray-700 dark:bg-gray-800"
                 >
                   <Table.Cell className="font-medium text-gray-900 dark:text-white">
-                    {reply.answer}
+                    {`${reply.coordinate} - ${reply.answer}`}
                   </Table.Cell>
                   <Table.Cell className="flex justify-end mx-4">
                     <Controller
@@ -124,7 +145,11 @@ export function RepliesTable({
 
       <Pagination
         currentPage={currentPage}
-        totalQuantityOfData={questions.length}
+        totalQuantityOfData={
+          coordinatesSearched[0] != ''
+            ? questionsFiltered.length
+            : questions.length
+        }
         dataPerPage={contentPerPage}
         onPageChange={page => setCurrentPage(page)}
       />

@@ -85,7 +85,14 @@ export function TreatmentReply() {
     },
   });
 
-  const blocks: BlockType[] = useMemo(() => blocksQuery?.data, [blocksQuery]);
+  const blocks: BlockType[] = useMemo(
+    () =>
+      blocksQuery?.data.sort(
+        (a: BlockType, b: BlockType) =>
+          new Date(a.created_at).valueOf() - new Date(b.created_at).valueOf(),
+      ),
+    [blocksQuery],
+  );
 
   if (
     isLoadingBlocksQuery ||
