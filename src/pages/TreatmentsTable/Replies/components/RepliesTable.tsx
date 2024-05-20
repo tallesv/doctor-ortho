@@ -69,7 +69,7 @@ export function RepliesTable({
         const question = questions.find(
           question => question.id === reply.question_id,
         );
-        if (question) setValue(question?.query, String(reply.id));
+        if (question) setValue(question?.id.toString(), String(reply.id));
       });
     }
   }, []);
