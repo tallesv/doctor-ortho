@@ -126,12 +126,11 @@ export function RepliesTable({
                   </Table.Cell>
                   <Table.Cell className="flex justify-end mx-4">
                     <Controller
-                      name={question.query}
+                      name={question.id.toString()}
                       control={control}
                       render={() => (
                         <Radio
-                          //key={reply.id}
-                          {...register(question.query)}
+                          {...register(question.id.toString())}
                           value={reply.id}
                         />
                       )}
