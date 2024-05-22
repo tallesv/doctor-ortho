@@ -5,16 +5,23 @@ import { AuthProvider } from './hooks/auth';
 import { parseCookies } from 'nookies';
 import { queryClient } from './config/queryClient';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const cookies = parseCookies();
   const token = cookies['doctor-ortho.token'];
+  const theme =
+    cookies['doctor-ortho.theme'] === 'white'
+      ? 'light'
+      : cookies['doctor-ortho.theme'];
 
   return (
     <BrowserRouter>
       <AuthProvider token={token}>
         <QueryClientProvider client={queryClient}>
           <Router />
+          <ToastContainer theme={theme} />
         </QueryClientProvider>
       </AuthProvider>
     </BrowserRouter>
