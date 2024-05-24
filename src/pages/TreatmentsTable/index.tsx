@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { HiPlus } from 'react-icons/hi';
 import { Table } from 'flowbite-react';
 import { useState } from 'react';
@@ -32,6 +32,8 @@ export function TreatmentsTable() {
   const { data: treatmentsQuery, isLoading: isLoadingTreatmentsQuery } =
     useTreatmentsQuery();
 
+  const queryClient = useQueryClient();
+
   const { mutate: deleteTreatment, isPending: isDeleteTreatmentPending } =
     useMutation({
       mutationFn: async (id: number) => {
@@ -42,14 +44,7 @@ export function TreatmentsTable() {
         console.log(err);
       },
       onSuccess: () => {
-        /* queryClient.setQueryData(
-          ['treatments'],
-          (response: { data: TreatmentType[] }) => {
-            response.data = treatments.filter(item => item.id !== treatmentId);
-            return response;
-          },
-        ); */
-        //setTreatmentToDelete(undefined);
+        queryClient.invalidateQueries({ queryKey: ['treatments'] });
       },
       onSettled: () => {
         setTreatmentToDelete(undefined);
@@ -64,8 +59,6 @@ export function TreatmentsTable() {
     (a: TreatmentType, b: TreatmentType) =>
       new Date(b.created_at).valueOf() - new Date(a.created_at).valueOf(),
   );
-
-  console.log(treatmentToDelete);
 
   return (
     <section className="bg-gray-100 dark:bg-gray-900">
