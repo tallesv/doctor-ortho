@@ -15,8 +15,8 @@ import { Blocks } from '../pages/Questionaries/Blocks';
 import { Questions } from '../pages/Questionaries/Questions';
 import { Replies } from '../pages/Questionaries/Replies';
 import { TreatmentsTable } from '../pages/TreatmentsTable';
-import { TreatmentReply } from '../pages/TreatmentsTable/Replies';
 import { Showcase } from '../pages/Showcase';
+import TreatmentEditor from '../pages/TreatmentEditor';
 
 const isDevEnv = import.meta.env.DEV;
 
@@ -50,8 +50,8 @@ export function Router() {
         <Route path="/replies" Component={Replies} />
         <Route path="/treatments-table" Component={TreatmentsTable} />
         <Route
-          path="/treatments-table/:treatmentId/replies"
-          Component={TreatmentReply}
+          path="/treatment-editor/:treatmentId?"
+          Component={TreatmentEditor}
         />
         <Route path="/users" Component={Users} />
         <Route path="/profile" Component={Profile} />

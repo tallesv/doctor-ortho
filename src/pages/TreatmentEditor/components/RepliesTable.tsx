@@ -1,15 +1,15 @@
 import { Table } from 'flowbite-react';
-import { BlockType, QuestionType } from '../../../Questionaries/types';
-import Pagination from '../../../../components/Pagination';
+import { BlockType, QuestionType } from '../../Questionaries/types';
+import Pagination from '../../../components/Pagination';
 import { useEffect, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import Radio from '../../../../components/Form/Radio';
-import { TreatmentType } from '../..';
+import Radio from '../../../components/Form/Radio';
+import { TreatmentType } from '..';
 
 interface RepliesTableProps {
   blocks: BlockType[];
   questions: QuestionType[];
-  treatment: TreatmentType;
+  treatment?: TreatmentType;
 }
 
 export function RepliesTable({
@@ -21,7 +21,8 @@ export function RepliesTable({
   const [currentPage, setCurrentPage] = useState(1);
   const contentPerPage = 4;
 
-  const { register, control, watch, setValue } = useFormContext();
+  const { register, control, watch, setValue, resetField, getValues } =
+    useFormContext();
 
   watch();
 
@@ -63,8 +64,10 @@ export function RepliesTable({
   );
 
   useEffect(() => {
-    const treatmentReplies = treatment.replies;
-    if (treatmentReplies.length > 0) {
+    const fields = Object.keys(getValues());
+    fields.forEach(field => resetField(field));
+    const treatmentReplies = treatment?.replies;
+    if (treatmentReplies && treatmentReplies.length > 0) {
       treatmentReplies.forEach(reply => {
         const question = questions.find(
           question => question.id === reply.question_id,
@@ -72,7 +75,7 @@ export function RepliesTable({
         if (question) setValue(question?.id.toString(), String(reply.id));
       });
     }
-  }, []);
+  }, [treatment]);
 
   return (
     <div className="overflow-x-auto sm:rounded-lg">

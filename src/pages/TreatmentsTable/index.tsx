@@ -1,20 +1,21 @@
-import { NavLink } from 'react-router-dom';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
 import { HiPlus } from 'react-icons/hi';
 import { Table } from 'flowbite-react';
 import { useState } from 'react';
 import { Button } from '../../components/Button';
 import { LoadingLayout } from '../../layout/LoadingLayout';
 import { api } from '../../client/api';
-import { queryClient } from '../../config/queryClient';
 import { DeleteTreatmentModal } from './components/DeleteTreatmentModal';
-import { TreatmentFormData, TreatmentModal } from './components/TreatmentModal';
 import { ReplyType } from '../Questionaries/types';
+import { useTreatmentsQuery } from '../../shared/api/useTreatmentsQuery';
+import { toast } from 'react-toastify';
 
 export type TreatmentType = {
   id: number;
   description: string;
   replies: ReplyType[];
+  created_at: string;
 };
 
 export type TreatmentPayloadData = {
@@ -24,128 +25,50 @@ export type TreatmentPayloadData = {
 };
 
 export function TreatmentsTable() {
-  const [showTreatmentModal, setShowTreatmentModal] = useState(false);
-  const [treatmentToEdit, setTreatmentToEdit] = useState<
-    TreatmentType | undefined
-  >(undefined);
   const [treatmentToDelete, setTreatmentToDelete] = useState<
     TreatmentType | undefined
   >(undefined);
 
   const { data: treatmentsQuery, isLoading: isLoadingTreatmentsQuery } =
-    useQuery({
-      queryKey: ['treatments'],
-      queryFn: () => api.get(`treatments`),
-    });
-
-  const { mutate: createTreatment, isPending: isCreateTreatmentPending } =
-    useMutation({
-      mutationFn: async (
-        data: TreatmentFormData,
-      ): Promise<{ data: TreatmentType }> => {
-        const treatmentData = { ...data, reply_ids: [] };
-        return api.post(`/treatments`, treatmentData);
-      },
-      onError: err => {
-        console.log(err);
-      },
-      onSuccess: treatmentResponse => {
-        const { data: newTreatment } = treatmentResponse;
-
-        queryClient.setQueryData(
-          ['treatments'],
-          (response: { data: TreatmentType[] }) => {
-            response.data = [...response.data, newTreatment];
-            return response;
-          },
-        );
-      },
-      onSettled: () => {
-        setShowTreatmentModal(false);
-      },
-    });
-
-  const { mutate: editTreatment, isPending: isEditTreatmentPending } =
-    useMutation({
-      mutationFn: async (data: {
-        id: number;
-        description: string;
-      }): Promise<{ data: TreatmentType }> => {
-        return api.put(`/treatments/${data.id}`, data);
-      },
-      onError: err => {
-        console.log(err);
-      },
-      onSuccess: ({ data: updatedTreatment }) => {
-        queryClient.setQueryData(
-          ['treatments'],
-          (response: { data: TreatmentType[] }) => {
-            response.data = response.data.map(item =>
-              item.id === updatedTreatment.id ? updatedTreatment : item,
-            );
-            return response;
-          },
-        );
-      },
-      onSettled: () => {
-        setTreatmentToEdit(undefined);
-      },
-    });
+    useTreatmentsQuery();
 
   const { mutate: deleteTreatment, isPending: isDeleteTreatmentPending } =
     useMutation({
-      mutationFn: async (id: number): Promise<{ data: TreatmentType }> => {
+      mutationFn: async (id: number) => {
         return api.delete(`/treatments/${id}`);
       },
       onError: err => {
+        toast.error('Não foi possível deletar o tratamento.');
         console.log(err);
       },
-      onSuccess: (_, treatmentId) => {
-        queryClient.setQueryData(
+      onSuccess: () => {
+        /* queryClient.setQueryData(
           ['treatments'],
           (response: { data: TreatmentType[] }) => {
             response.data = treatments.filter(item => item.id !== treatmentId);
             return response;
           },
-        );
-
-        setTreatmentToDelete(undefined);
+        ); */
+        //setTreatmentToDelete(undefined);
       },
       onSettled: () => {
-        console.log('veie');
-        setShowTreatmentModal(false);
+        setTreatmentToDelete(undefined);
       },
     });
-
-  console.log(showTreatmentModal);
 
   if (isLoadingTreatmentsQuery) {
     return <LoadingLayout />;
   }
 
-  const treatments: TreatmentType[] = treatmentsQuery?.data;
+  const treatments: TreatmentType[] = treatmentsQuery?.data.sort(
+    (a: TreatmentType, b: TreatmentType) =>
+      new Date(b.created_at).valueOf() - new Date(a.created_at).valueOf(),
+  );
 
-  function handleCloseTreatmentModal() {
-    if (showTreatmentModal) {
-      setShowTreatmentModal(false);
-    }
-    if (treatmentToEdit) {
-      setTreatmentToEdit(undefined);
-    }
-  }
+  console.log(treatmentToDelete);
 
   return (
     <section className="bg-gray-100 dark:bg-gray-900">
-      <TreatmentModal
-        onCloseModal={() => handleCloseTreatmentModal()}
-        showModal={showTreatmentModal || !!treatmentToEdit?.id}
-        onCreate={data => createTreatment(data)}
-        onEdit={data => editTreatment(data)}
-        treatment={treatmentToEdit}
-        type={treatmentToEdit ? 'edit' : 'create'}
-        isSubmitting={isCreateTreatmentPending || isEditTreatmentPending}
-      />
-
       {treatmentToDelete && (
         <DeleteTreatmentModal
           showModal={!!treatmentToDelete?.id}
@@ -164,10 +87,12 @@ export function TreatmentsTable() {
             <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
               <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
                 <div className="w-full flex justify-end">
-                  <Button onClick={() => setShowTreatmentModal(true)}>
-                    <HiPlus className="mr-2" />
-                    Adicionar tratamento
-                  </Button>
+                  <Link to={`/treatment-editor`}>
+                    <Button>
+                      <HiPlus className="mr-2" />
+                      Adicionar tratamento
+                    </Button>
+                  </Link>
                 </div>
               </div>
               <div className="overflow-x-auto sm:rounded-lg">
@@ -186,19 +111,11 @@ export function TreatmentsTable() {
                           {treatment.description}
                         </Table.Cell>
                         <Table.Cell className="flex space-x-2">
-                          <a
-                            className="font-medium text-sky-500 hover:underline dark:text-sky-600 cursor-pointer"
-                            onClick={() => setTreatmentToEdit(treatment)}
-                          >
-                            <p>Editar</p>
-                          </a>
-                          <NavLink
-                            className="font-medium text-sky-500 hover:underline dark:text-sky-600 cursor-pointer"
-                            to={`/treatments-table/${treatment.id}/replies`}
-                          >
-                            Respostas
-                          </NavLink>
-
+                          <Link to={`/treatment-editor/${treatment.id}`}>
+                            <span className="font-medium text-sky-500 hover:underline dark:text-sky-600 cursor-pointer">
+                              <p>Editar</p>
+                            </span>
+                          </Link>
                           <a
                             className="font-medium text-sky-500 hover:underline dark:text-sky-600 cursor-pointer"
                             onClick={() => setTreatmentToDelete(treatment)}
