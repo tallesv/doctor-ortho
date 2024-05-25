@@ -4,6 +4,8 @@ import { SideBar } from './components/SideBar';
 import logo from '../../assets/LogoDrOrtho.png';
 import { Outlet } from 'react-router-dom';
 import { parseCookies, setCookie } from 'nookies';
+import { useAuth } from '../../hooks/auth';
+import { LoadingLayout } from '../LoadingLayout';
 
 interface DefaultLayoutProps {
   children?: ReactNode;
@@ -14,6 +16,8 @@ export function DefaultLayout({ children }: DefaultLayoutProps) {
   const themeSaved = cookies['doctor-ortho.theme'];
 
   const [theme, setTheme] = useState(themeSaved ?? 'white');
+
+  const { user } = useAuth();
 
   document.body.classList.add(theme);
 
@@ -123,7 +127,7 @@ export function DefaultLayout({ children }: DefaultLayoutProps) {
       </aside>
 
       <main className="h-screen overflow-auto  p-4 md:ml-64 pt-20 bg-gray-100 dark:bg-gray-900">
-        {children ?? <Outlet />}
+        {user.id ? children ?? <Outlet /> : <LoadingLayout />}
       </main>
     </div>
   );
