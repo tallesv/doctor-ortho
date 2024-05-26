@@ -10,6 +10,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { Button } from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/auth';
+import { BlockType } from '../Questionaries/types';
 
 type QuestionBlocksProps = {
   id: number;
@@ -45,7 +46,10 @@ export function Questionary() {
     return <LoadingLayout />;
   }
 
-  const questionBlocks: QuestionBlocksProps[] = data?.data;
+  const questionBlocks: QuestionBlocksProps[] = data?.data.sort(
+    (a: BlockType, b: BlockType) =>
+      new Date(a.created_at).valueOf() - new Date(b.created_at).valueOf(),
+  );
 
   const currentBlock = questionBlocks[blockIndex];
   const previousBlock =
