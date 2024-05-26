@@ -43,28 +43,36 @@ export function RepliesTable({
 
   const questionsSearched = termSearched
     .split(',')
-    .map(item => item.toLowerCase());
+    .map(item => item.trim().toLowerCase());
 
   const filterQuestionsByCoordinates = (
     questions: QuestionType[],
     questionsSearched: string[],
   ) => {
-    if (questionsSearched[0] === '') {
+    if (
+      questionsSearched.length === 0 ||
+      (questionsSearched.length === 1 && questionsSearched[0] === '')
+    ) {
       return questions;
     }
 
-    return questions.filter(question =>
-      question.replies.some(
-        reply =>
-          (reply.coordinate &&
-            questionsSearched.includes(
-              String(reply.coordinate.toLowerCase()),
-            )) ||
-          questionsSearched.some(item =>
-            reply.answer.toLowerCase().includes(item),
+    return questions
+      .map(question => {
+        const filteredReplies = question.replies.filter(reply =>
+          questionsSearched.some(
+            term =>
+              (reply.coordinate &&
+                String(reply.coordinate).toLowerCase().includes(term)) ||
+              reply.answer.toLowerCase().includes(term),
           ),
-      ),
-    );
+        );
+
+        if (filteredReplies.length > 0) {
+          return { ...question, replies: filteredReplies };
+        }
+        return null;
+      })
+      .filter(question => question !== null) as QuestionType[];
   };
 
   const questionsFiltered = filterQuestionsByCoordinates(
