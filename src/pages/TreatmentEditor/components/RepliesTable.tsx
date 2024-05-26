@@ -41,26 +41,35 @@ export function RepliesTable({
     return findBlockName;
   }
 
-  const coordinatesSearched = termSearched.split(',');
+  const questionsSearched = termSearched
+    .split(',')
+    .map(item => item.toLowerCase());
 
   const filterQuestionsByCoordinates = (
     questions: QuestionType[],
-    coordinatesSearched: string[],
+    questionsSearched: string[],
   ) => {
-    if (coordinatesSearched[0] === '') {
+    if (questionsSearched[0] === '') {
       return questions;
     }
 
     return questions.filter(question =>
-      question.replies.some(reply =>
-        coordinatesSearched.includes(String(reply.coordinate)),
+      question.replies.some(
+        reply =>
+          (reply.coordinate &&
+            questionsSearched.includes(
+              String(reply.coordinate.toLowerCase()),
+            )) ||
+          questionsSearched.some(item =>
+            reply.answer.toLowerCase().includes(item),
+          ),
       ),
     );
   };
 
   const questionsFiltered = filterQuestionsByCoordinates(
     questions,
-    coordinatesSearched,
+    questionsSearched,
   );
 
   useEffect(() => {
@@ -148,7 +157,7 @@ export function RepliesTable({
       <Pagination
         currentPage={currentPage}
         totalQuantityOfData={
-          coordinatesSearched[0] != ''
+          questionsSearched[0] != ''
             ? questionsFiltered.length
             : questions.length
         }
