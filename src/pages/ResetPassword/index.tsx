@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Input from '../../components/Form/Input';
 import { Button } from '../../components/Button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { auth } from '../../config/firebase';
+import { toast } from 'react-toastify';
 
 type ResetPasswordFormData = {
   new_password: string;
@@ -26,7 +28,10 @@ const resetPasswordFormSchema = yup.object().shape({
 export function ResetPassword() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formError, setFormError] = useState(false);
+
+  const [searchParams] = useSearchParams();
+
+  const code = searchParams.get('oobCode');
 
   const { register, handleSubmit, formState } = useForm<ResetPasswordFormData>({
     resolver: yupResolver(resetPasswordFormSchema),
@@ -36,18 +41,35 @@ export function ResetPassword() {
     new_password,
   }) => {
     try {
-      setFormError(false);
       setIsSubmitting(true);
-      console.log(new_password);
+      await auth.confirmPasswordReset(code!, new_password);
+      toast.success('Senha alterada.');
+      navigate('/');
     } catch (err) {
-      setFormError(true);
+      toast.error(
+        'Ocorreu um erro ao alterar a senha, por favor tente novamente.',
+      );
     } finally {
-      setTimeout(() => {
-        setIsSubmitting(false);
-        navigate('/');
-      }, 4000);
+      setIsSubmitting(false);
     }
   };
+
+  async function verifyCode(code: string) {
+    try {
+      await auth.verifyPasswordResetCode(code);
+    } catch (err) {
+      toast.warning('O link para resetar a senha expirou!');
+      navigate('/login');
+    }
+  }
+
+  useEffect(() => {
+    if (code) {
+      verifyCode(code);
+    } else {
+      navigate('/');
+    }
+  }, []);
 
   return (
     <>
@@ -55,11 +77,6 @@ export function ResetPassword() {
         <span className="text-xl text-gray-900">Alterar senha</span>
       </div>
 
-      {formError && (
-        <div className="flex justify-center p-0.5 rounded-md">
-          <span className="ml-1 text-red-500">Tente novamente.</span>
-        </div>
-      )}
       <form
         className="mt-6 space-y-6"
         onSubmit={handleSubmit(handleResetPassword)}

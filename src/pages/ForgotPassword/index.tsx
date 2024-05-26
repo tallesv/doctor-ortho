@@ -4,13 +4,14 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Input from '../../components/Form/Input';
 import { Button } from '../../components/Button';
-import { useNavigate } from 'react-router-dom';
+import { auth } from '../../config/firebase';
+import { toast } from 'react-toastify';
 
 type ForgotPasswordFormData = {
   email: string;
 };
 
-const loginFormSchema = yup.object().shape({
+const forgotPasswordFormSchema = yup.object().shape({
   email: yup
     .string()
     .required('Por favor insira um E-mail')
@@ -18,13 +19,12 @@ const loginFormSchema = yup.object().shape({
 });
 
 export function ForgotPassword() {
-  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState(false);
 
   const { register, handleSubmit, formState } = useForm<ForgotPasswordFormData>(
     {
-      resolver: yupResolver(loginFormSchema),
+      resolver: yupResolver(forgotPasswordFormSchema),
     },
   );
 
@@ -34,14 +34,19 @@ export function ForgotPassword() {
     try {
       setFormError(false);
       setIsSubmitting(true);
-      console.log(email);
-    } catch (err) {
+      await auth.sendPasswordResetEmail(email);
+      toast.success('Email enviado.');
+    } catch (err: any) {
       setFormError(true);
+      if (err.code === `auth/user-not-found`) {
+        toast.error('Email não cadastrado.');
+      } else {
+        toast.error(
+          'Ocorreu um erro ao enviar o email, por favor tente novamente.',
+        );
+      }
     } finally {
-      setTimeout(() => {
-        setIsSubmitting(false);
-        navigate('/');
-      }, 4000);
+      setIsSubmitting(false);
     }
   };
 
