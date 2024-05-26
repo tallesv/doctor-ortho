@@ -74,6 +74,7 @@ function AuthProvider({ token, children }: AuthContext) {
       setIsLogged(false);
       setRefreshToken(undefined);
       setUser({} as UserProps);
+      document.body.classList.remove('dark');
     });
   }, []);
 
