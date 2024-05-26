@@ -6,6 +6,8 @@ import { Outlet } from 'react-router-dom';
 import { parseCookies, setCookie } from 'nookies';
 import { useAuth } from '../../hooks/auth';
 import { LoadingLayout } from '../LoadingLayout';
+import { SidebarDialog } from './components/SidebarDialog';
+import bindClassNames from '../../utils/bindClassNames';
 
 interface DefaultLayoutProps {
   children?: ReactNode;
@@ -16,6 +18,7 @@ export function DefaultLayout({ children }: DefaultLayoutProps) {
   const themeSaved = cookies['doctor-ortho.theme'];
 
   const [theme, setTheme] = useState(themeSaved ?? 'white');
+  const [sidebarIsOpen, setSidebarIsOpen] = useState(false);
 
   const { user } = useAuth();
 
@@ -34,11 +37,13 @@ export function DefaultLayout({ children }: DefaultLayoutProps) {
         <div className="flex flex-wrap justify-between items-center">
           <div className="flex justify-start items-center">
             <button
-              data-drawer-target="drawer-navigation"
-              data-drawer-toggle="drawer-navigation"
-              data-drawer-show="drawer-navigation"
-              aria-controls="drawer-navigation"
-              className="p-2 mr-2 text-gray-600 rounded-lg cursor-pointer md:hidden hover:text-gray-900 hover:bg-gray-100 focus:bg-gray-100 dark:focus:bg-gray-700 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+              className={bindClassNames(
+                'p-2 mr-2 text-gray-600 rounded-lg cursor-pointer md:hidden dark:text-gray-400',
+                sidebarIsOpen
+                  ? ' bg-gray-100 ring-2 ring-gray-100 dark:ring-gray-700 dark:bg-gray-700 hover:text-gray-900 hover:bg-gray-100  dark:hover:bg-gray-700'
+                  : '',
+              )}
+              onClick={() => setSidebarIsOpen(true)}
             >
               <svg
                 aria-hidden="true"
@@ -68,6 +73,7 @@ export function DefaultLayout({ children }: DefaultLayoutProps) {
               </svg>
               <span className="sr-only">Toggle sidebar</span>
             </button>
+
             <a href="/" className="flex items-center justify-between mr-4">
               <img src={logo} className=" h-12" alt="Flowbite Logo" />
               {/* <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
@@ -119,11 +125,15 @@ export function DefaultLayout({ children }: DefaultLayoutProps) {
       {/* <!-- Sidebar --> */}
 
       <aside
-        className="fixed top-0 left-0 z-40 w-64 h-screen pt-14 transition-transform -translate-x-full md:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
+        className="fixed top-0 left-0 z-40 w-64 h-screen pt-14 transition-transform -translate-x-full md:translate-x-0 dark:text-gray-200 dark:bg-gray-800 dark:border-gray-700"
         aria-label="Sidenav"
         id="drawer-navigation"
       >
         <SideBar />
+        <SidebarDialog
+          isOpen={sidebarIsOpen}
+          handleClose={() => setSidebarIsOpen(false)}
+        />
       </aside>
 
       <main className="h-screen overflow-auto  p-4 md:ml-64 pt-20 bg-gray-100 dark:bg-gray-900">
