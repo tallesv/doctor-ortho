@@ -17,6 +17,7 @@ import { Replies } from '../pages/Questionaries/Replies';
 import { TreatmentsTable } from '../pages/TreatmentsTable';
 import { Showcase } from '../pages/Showcase';
 import TreatmentEditor from '../pages/TreatmentEditor';
+import { NotFoundPage } from '../pages/404';
 
 const isDevEnv = import.meta.env.DEV;
 
@@ -56,6 +57,8 @@ export function Router() {
         <Route path="/users" Component={Users} />
         <Route path="/profile" Component={Profile} />
         {isDevEnv && <Route path="/showcase" Component={Showcase} />}
+
+        <Route path="*" Component={NotFoundPage} />
       </Route>
     </Routes>
   );
