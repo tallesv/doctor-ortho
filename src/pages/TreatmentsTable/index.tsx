@@ -10,6 +10,7 @@ import { DeleteTreatmentModal } from './components/DeleteTreatmentModal';
 import { ReplyType } from '../Questionaries/types';
 import { useTreatmentsQuery } from '../../shared/api/useTreatmentsQuery';
 import { toast } from 'react-toastify';
+import Pagination from '../../components/Pagination';
 
 export type TreatmentType = {
   id: number;
@@ -28,6 +29,8 @@ export function TreatmentsTable() {
   const [treatmentToDelete, setTreatmentToDelete] = useState<
     TreatmentType | undefined
   >(undefined);
+  const [currentPage, setCurrentPage] = useState(1);
+  const contentPerPage = 10;
 
   const { data: treatmentsQuery, isLoading: isLoadingTreatmentsQuery } =
     useTreatmentsQuery();
@@ -95,31 +98,43 @@ export function TreatmentsTable() {
                     <Table.HeadCell>Ações</Table.HeadCell>
                   </Table.Head>
                   <Table.Body className="divide-y">
-                    {treatments.map(treatment => (
-                      <Table.Row
-                        key={treatment.id}
-                        className="bg-white dark:border-gray-700 dark:bg-gray-800"
-                      >
-                        <Table.Cell className="font-medium text-gray-900 dark:text-white">
-                          {treatment.description}
-                        </Table.Cell>
-                        <Table.Cell className="flex space-x-2">
-                          <Link to={`/treatment-editor/${treatment.id}`}>
-                            <span className="font-medium text-sky-500 hover:underline dark:text-sky-600 cursor-pointer">
-                              <p>Editar</p>
-                            </span>
-                          </Link>
-                          <a
-                            className="font-medium text-sky-500 hover:underline dark:text-sky-600 cursor-pointer"
-                            onClick={() => setTreatmentToDelete(treatment)}
-                          >
-                            <p>Excluir</p>
-                          </a>
-                        </Table.Cell>
-                      </Table.Row>
-                    ))}
+                    {treatments
+                      .slice(
+                        (currentPage - 1) * contentPerPage,
+                        contentPerPage * currentPage,
+                      )
+                      .map(treatment => (
+                        <Table.Row
+                          key={treatment.id}
+                          className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                        >
+                          <Table.Cell className="font-medium text-gray-900 dark:text-white">
+                            {treatment.description}
+                          </Table.Cell>
+                          <Table.Cell className="flex space-x-2">
+                            <Link to={`/treatment-editor/${treatment.id}`}>
+                              <span className="font-medium text-sky-500 hover:underline dark:text-sky-600 cursor-pointer">
+                                <p>Editar</p>
+                              </span>
+                            </Link>
+                            <a
+                              className="font-medium text-sky-500 hover:underline dark:text-sky-600 cursor-pointer"
+                              onClick={() => setTreatmentToDelete(treatment)}
+                            >
+                              <p>Excluir</p>
+                            </a>
+                          </Table.Cell>
+                        </Table.Row>
+                      ))}
                   </Table.Body>
                 </Table>
+
+                <Pagination
+                  currentPage={currentPage}
+                  totalQuantityOfData={treatments.length}
+                  dataPerPage={contentPerPage}
+                  onPageChange={page => setCurrentPage(page)}
+                />
               </div>
             </div>
           </div>
