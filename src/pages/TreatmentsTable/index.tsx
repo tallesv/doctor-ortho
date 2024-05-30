@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { HiPlus } from 'react-icons/hi';
 import { Table } from 'flowbite-react';
@@ -11,6 +11,7 @@ import { ReplyType } from '../Questionaries/types';
 import { useTreatmentsQuery } from '../../shared/api/useTreatmentsQuery';
 import { toast } from 'react-toastify';
 import Pagination from '../../components/Pagination';
+import SearchInput from '../../components/SearchInput';
 
 export type TreatmentType = {
   id: number;
@@ -31,6 +32,8 @@ export function TreatmentsTable() {
   >(undefined);
   const [currentPage, setCurrentPage] = useState(1);
   const contentPerPage = 10;
+
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const { data: treatmentsQuery, isLoading: isLoadingTreatmentsQuery } =
     useTreatmentsQuery();
@@ -58,10 +61,34 @@ export function TreatmentsTable() {
     return <LoadingLayout />;
   }
 
-  const treatments: TreatmentType[] = treatmentsQuery?.data.sort(
-    (a: TreatmentType, b: TreatmentType) =>
-      new Date(b.created_at).valueOf() - new Date(a.created_at).valueOf(),
-  );
+  const termSearched = searchParams.get('search') || '';
+
+  const treatments: TreatmentType[] = treatmentsQuery?.data
+    .filter(
+      (treatment: TreatmentType) =>
+        treatment.description
+          .toLowerCase()
+          .includes(termSearched.toLowerCase()) ||
+        treatment.description
+          .toLowerCase()
+          .includes(termSearched.toLowerCase()),
+    )
+    .sort(
+      (a: TreatmentType, b: TreatmentType) =>
+        new Date(b.created_at).valueOf() - new Date(a.created_at).valueOf(),
+    );
+
+  function handleSearchContent(data: string) {
+    setCurrentPage(1);
+    setSearchParams(state => {
+      if (data === '') {
+        state.delete('search');
+      } else {
+        state.set('search', data);
+      }
+      return state;
+    });
+  }
 
   return (
     <section className="bg-gray-100 dark:bg-gray-900">
@@ -82,9 +109,12 @@ export function TreatmentsTable() {
             </h2>
             <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
               <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
-                <div className="w-full flex justify-end">
+                <div className="w-full flex items-center justify-between">
+                  <SearchInput
+                    onChange={e => handleSearchContent(e.target.value)}
+                  />
                   <Link to={`/treatment-editor`}>
-                    <Button>
+                    <Button className="mb-0">
                       <HiPlus className="mr-2" />
                       Adicionar tratamento
                     </Button>
