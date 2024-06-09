@@ -9,6 +9,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "test": "jest --config",
     "test:watch": "jest --watch --config",
+    "test:coverage": "jest --config --collectCoverage",
     "preview": "vite preview"
   },
   "dependencies": {
