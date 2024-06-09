@@ -1,17 +1,30 @@
-import { HiDotsVertical } from 'react-icons/hi';
 import { Button } from '../../../components/Button';
-import { Dropdown } from 'flowbite-react';
 import { useState } from 'react';
-import { BlockFormData, BlockModal } from './components/BlockModal';
-import { useMutation } from '@tanstack/react-query';
-import { api } from '../../../client/api';
+import { BlockModal } from './components/BlockModal';
 import { LoadingLayout } from '../../../layout/LoadingLayout';
-import { queryClient } from '../../../config/queryClient';
 import { DeleteBlockModal } from './components/DeleteBlockModal';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/auth';
 import { useBlocksQuery } from '../useQuestionariesQuery';
 import { BlockType } from '../types';
+import {
+  DndContext,
+  DragEndEvent,
+  MouseSensor,
+  TouchSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { SortableBlock } from './components/SortableBlock';
+import {
+  useCreateBlockMutation,
+  useDeleteBlockMutation,
+  useEditBlockMutation,
+} from '../../../shared/api/useBlockMutation';
 
 export function Blocks() {
   const [showBlockModal, setShowBlockModal] = useState(false);
@@ -22,91 +35,25 @@ export function Blocks() {
     undefined,
   );
 
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 10 } }),
+    useSensor(TouchSensor),
+  );
+
   const { user } = useAuth();
 
   const userFirebaseId = user.firebase_id;
 
-  const navigate = useNavigate();
-
   const { data, isLoading } = useBlocksQuery(userFirebaseId);
 
-  const { mutate: createBlock, isPending: isCreateBlockPending } = useMutation({
-    mutationFn: async (data: BlockFormData): Promise<{ data: BlockType }> => {
-      return api.post(`/users/${userFirebaseId}/questions_sets`, data);
-    },
-    onError: err => {
-      console.log(err);
-    },
-    onSuccess: blockResponse => {
-      const { data: newBlock } = blockResponse;
+  const { mutate: createBlock, isPending: isCreateBlockPending } =
+    useCreateBlockMutation(userFirebaseId, setShowBlockModal);
 
-      queryClient.setQueryData(
-        ['blocks', userFirebaseId],
-        (response: { data: BlockType[] }) => {
-          response.data = [...response.data, newBlock];
-          return response;
-        },
-      );
-    },
-    onSettled: () => {
-      setShowBlockModal(false);
-    },
-  });
+  const { mutate: editBlock, isPending: isEditBlockPending } =
+    useEditBlockMutation(userFirebaseId, setBlockToEdit);
 
-  const { mutate: editBlock, isPending: isEditBlockPending } = useMutation({
-    mutationFn: async (data: {
-      name: string;
-      id: number;
-    }): Promise<{ data: BlockType }> => {
-      return api.put(
-        `/users/${userFirebaseId}/questions_sets/${data.id}`,
-        data,
-      );
-    },
-    onError: err => {
-      console.log(err);
-    },
-    onSuccess: blockResponse => {
-      const { data: updatedBlock } = blockResponse;
-
-      queryClient.setQueryData(
-        ['blocks', userFirebaseId],
-        (response: { data: BlockType[] }) => {
-          response.data = response.data.map(item =>
-            item.id === updatedBlock.id ? updatedBlock : item,
-          );
-          return response;
-        },
-      );
-    },
-    onSettled: () => {
-      setBlockToEdit(undefined);
-    },
-  });
-
-  const { mutate: deleteBlock, isPending: isDeleteBlockPending } = useMutation({
-    mutationFn: async (id: number): Promise<{ data: BlockType }> => {
-      return api.delete(
-        `/users/UkfzPFN5F5Zh5UFTxsJSPkDw2In1/questions_sets/${id}`,
-      );
-    },
-    onError: err => {
-      console.log(err);
-    },
-    onSuccess: (_, blockId) => {
-      queryClient.setQueryData(
-        ['blocks', userFirebaseId],
-        (response: { data: BlockType[] }) => {
-          response.data = blocks.filter(item => item.id !== blockId);
-          return response;
-        },
-      );
-      setBlockToDelete(undefined);
-    },
-    onSettled: () => {
-      setShowBlockModal(false);
-    },
-  });
+  const { mutate: deleteBlock, isPending: isDeleteBlockPending } =
+    useDeleteBlockMutation(userFirebaseId, setBlockToDelete);
 
   if (isLoading) {
     return <LoadingLayout />;
@@ -123,6 +70,17 @@ export function Blocks() {
     }
     if (blockToEdit) {
       setBlockToEdit(undefined);
+    }
+  }
+
+  function onDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (over && active.id != over?.id) {
+      //const oldIndex = blocks.findIndex(block => block.id === active.id);
+      //const newIndex = blocks.findIndex(block => block.id === over.id);
+      //const sortedBlocks = arrayMove(blocks, oldIndex, newIndex);
+      //api.put(`/users/${userFirebaseId}/questions_sets/`, sortedBlocks);
+      //console.log(sortedBlocks);
     }
   }
 
@@ -167,59 +125,27 @@ export function Blocks() {
                   role="list"
                   className="divide-y divide-gray-200 dark:divide-gray-600"
                 >
-                  {blocks?.map(block => (
-                    <li
-                      key={block.id}
-                      className="flex justify-between gap-x-6 py-5"
+                  <DndContext
+                    collisionDetection={closestCenter}
+                    onDragEnd={onDragEnd}
+                    sensors={sensors}
+                  >
+                    <SortableContext
+                      items={blocks}
+                      strategy={verticalListSortingStrategy}
                     >
-                      <div className="flex min-w-0 gap-x-4">
-                        <div className="min-w-0 flex-auto">
-                          <p className="text-sm font-semibold leading-6 text-gray-900 dark:text-gray-200">
-                            {block.name}
-                          </p>
-                          <time className="mt-1 truncate text-xs leading-5 text-gray-500 dark:text-gray-400">
-                            {`Atualizado em  ${new Date(
-                              block.updated_at,
-                            ).toLocaleDateString()} às ${new Date(
-                              block.updated_at,
-                            ).toLocaleTimeString()}`}
-                          </time>
-                        </div>
-                      </div>
-                      <div className="shrink-0 flex items-center">
-                        <Button
-                          color="light"
-                          onClick={() =>
-                            navigate(`/questions?block_id=${block.id}`)
+                      {blocks?.map(block => (
+                        <SortableBlock
+                          key={block.id}
+                          block={block}
+                          onSelectBlockToEdit={block => setBlockToEdit(block)}
+                          onSelectBlockToDelete={block =>
+                            setBlockToDelete(block)
                           }
-                        >
-                          Questões
-                        </Button>
-                        <Dropdown
-                          label="User menu dropdown"
-                          renderTrigger={() => (
-                            <button
-                              type="button"
-                              className="px-0 py-2.5 border-0 mr-2 mb-2 focus:ring-0 "
-                              id="user-menu-button"
-                              aria-expanded="false"
-                            >
-                              <HiDotsVertical className="w-5 h-5" />
-                            </button>
-                          )}
-                        >
-                          <Dropdown.Item onClick={() => setBlockToEdit(block)}>
-                            Editar
-                          </Dropdown.Item>
-                          <Dropdown.Item
-                            onClick={() => setBlockToDelete(block)}
-                          >
-                            Deletar
-                          </Dropdown.Item>
-                        </Dropdown>
-                      </div>
-                    </li>
-                  ))}
+                        />
+                      ))}
+                    </SortableContext>
+                  </DndContext>
                 </ul>
               </div>
             </div>
