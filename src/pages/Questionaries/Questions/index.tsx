@@ -10,8 +10,8 @@ import { useState } from 'react';
 import { DeleteQuestionModal } from './components/DeleteQuestionModal';
 import { HiChevronRight } from 'react-icons/hi';
 import { BlockType, QuestionType } from '../types';
-import { useBlocksQuery } from '../useQuestionariesQuery';
 import { useAuth } from '../../../hooks/auth';
+import { useBlocksQuery } from '../../../shared/api/useQuestionariesQuery';
 
 export function Questions() {
   const [showQuestionModal, setShowQuestionModal] = useState(false);

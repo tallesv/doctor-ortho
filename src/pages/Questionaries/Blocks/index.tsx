@@ -4,7 +4,6 @@ import { BlockModal } from './components/BlockModal';
 import { LoadingLayout } from '../../../layout/LoadingLayout';
 import { DeleteBlockModal } from './components/DeleteBlockModal';
 import { useAuth } from '../../../hooks/auth';
-import { useBlocksQuery } from '../useQuestionariesQuery';
 import { BlockType } from '../types';
 import {
   DndContext,
@@ -25,6 +24,7 @@ import {
   useDeleteBlockMutation,
   useEditBlockMutation,
 } from '../../../shared/api/useBlockMutation';
+import { useBlocksQuery } from '../../../shared/api/useQuestionariesQuery';
 
 export function Blocks() {
   const [showBlockModal, setShowBlockModal] = useState(false);

@@ -1,11 +1,11 @@
 import { useAuth } from '../../../hooks/auth';
-import { useBlocksQuery } from '../../Questionaries/useQuestionariesQuery';
 import { BlockType, QuestionType, ReplyType } from '../../Questionaries/types';
 import { ComponentType, useMemo } from 'react';
 import { TreatmentType } from '..';
 import { useParams } from 'react-router-dom';
 import { LoadingLayout } from '../../../layout/LoadingLayout';
 import { useTreatmentsQuery } from '../../../shared/api/useTreatmentsQuery';
+import { useBlocksQuery } from '../../../shared/api/useQuestionariesQuery';
 
 interface WithDataFetchingProps {
   blocks: BlockType[];

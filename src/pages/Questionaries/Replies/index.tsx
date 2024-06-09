@@ -9,9 +9,9 @@ import { useState } from 'react';
 import { HiChevronRight } from 'react-icons/hi';
 import { ReplyFormData, ReplyModal } from './components/ReplyModal';
 import { DeleteReplyModal } from './components/DeleteReplyModal';
-import { useBlocksQuery } from '../useQuestionariesQuery';
 import { useAuth } from '../../../hooks/auth';
 import { BlockType, QuestionType, ReplyType } from '../types';
+import { useBlocksQuery } from '../../../shared/api/useQuestionariesQuery';
 
 export function Replies() {
   const [showReplyModal, setShowReplyModal] = useState(false);
