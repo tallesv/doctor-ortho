@@ -1,6 +1,6 @@
 import { ForwardedRef, forwardRef, InputHTMLAttributes } from 'react';
-import bindClassNames from '../../utils/bindClassNames';
-import { getInputBorderStyle } from '../../utils/inputBorderStyle';
+import bindClassNames from '../../../utils/bindClassNames';
+import { getInputBorderStyle } from '../../../utils/inputBorderStyle';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
