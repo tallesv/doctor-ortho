@@ -12,7 +12,10 @@ describe('Input Component', () => {
   test('renders input with required label', () => {
     render(<Input label="Username" id="username" required />);
 
-    expect(screen.getByText('Username')).toBeInTheDocument();
+    const requiredSymbol = screen.getByText('*');
+
+    expect(requiredSymbol).toBeInTheDocument();
+    expect(requiredSymbol).toHaveClass('text-red-500');
   });
 
   test('renders input with error message', () => {
