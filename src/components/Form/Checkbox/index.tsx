@@ -1,6 +1,6 @@
 import { ForwardedRef, forwardRef } from 'react';
-import bindClassNames from '../../utils/bindClassNames';
-import { getInputBorderStyle } from '../../utils/inputBorderStyle';
+import bindClassNames from '../../../utils/bindClassNames';
+import { getInputBorderStyle } from '../../../utils/inputBorderStyle';
 import {
   Checkbox as FlowbiteCheckbox,
   CheckboxProps as FlowbiteCheckboxProps,
