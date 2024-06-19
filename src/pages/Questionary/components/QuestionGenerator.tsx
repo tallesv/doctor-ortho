@@ -42,7 +42,7 @@ export function QuestionGenerator({
   handlePreviousBlock,
   handleShowFinishButton,
 }: QuestionGeneratorProps) {
-  const { setValue, getValues, unregister } =
+  const { setValue, getValues, unregister, watch } =
     useFormContext<QuestionaryFormData>();
 
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -103,6 +103,7 @@ export function QuestionGenerator({
 
   const questions: Question[] = data?.data;
   const currentQuestion = questions[questionIndex];
+  watch(currentQuestion.id.toString());
 
   const disablePreviousQuestionButton =
     questionIndex === 0 && blockId === previousBlockId;

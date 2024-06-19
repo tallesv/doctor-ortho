@@ -29,7 +29,7 @@ export function Questionary() {
     resolver: yupResolver(formSchema),
   });
 
-  const { handleSubmit } = reactHookFormsMethods;
+  const { handleSubmit, getValues } = reactHookFormsMethods;
 
   const [blockIndex, setBlockIndex] = useState(0);
   const [showFinishButton, setShowFinishButton] = useState(false);
@@ -94,8 +94,9 @@ export function Questionary() {
           />
         </div>
         <div className="font-medium text-gray-700 dark:text-gray-200">
-          <span className="text-sky-600">{blockIndex + 1}</span>
-          <span>{`/${questionBlocks.length}`}</span>
+          <span className="text-sky-600">
+            {Object.keys(getValues()).length + 1}
+          </span>
         </div>
       </div>
 
