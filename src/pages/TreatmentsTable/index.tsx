@@ -12,6 +12,7 @@ import { useTreatmentsQuery } from '../../shared/api/useTreatmentsQuery';
 import { toast } from 'react-toastify';
 import Pagination from '../../components/Pagination';
 import SearchInput from '../../components/SearchInput';
+import { TreatmentDescription } from './components/TreatmentDescription';
 
 export type TreatmentType = {
   id: number;
@@ -139,7 +140,9 @@ export function TreatmentsTable() {
                           className="bg-white dark:border-gray-700 dark:bg-gray-800"
                         >
                           <Table.Cell className="font-medium text-gray-900 dark:text-white">
-                            {treatment.description}
+                            <TreatmentDescription
+                              description={treatment.description}
+                            />
                           </Table.Cell>
                           <Table.Cell className="flex space-x-2">
                             <Link to={`/treatment-editor/${treatment.id}`}>
