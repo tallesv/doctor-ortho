@@ -2,6 +2,32 @@ interface TreatmentDescriptionProps {
   description: string;
 }
 
+function firstPhraseBold(text: string) {
+  // Find the position of the first period or dash
+  const periodIndex = text.indexOf(',');
+  const dashIndex = text.indexOf('-');
+
+  // Determine the index to use for splitting (the smaller of the two positive indices)
+  let splitIndex;
+  if (periodIndex === -1 && dashIndex === -1) {
+    splitIndex = text.length; // No period or dash found, use the whole text
+  } else if (periodIndex === -1) {
+    splitIndex = dashIndex;
+  } else if (dashIndex === -1) {
+    splitIndex = periodIndex;
+  } else {
+    splitIndex = Math.min(periodIndex, dashIndex);
+  }
+  const firstPhrase = text.substring(0, splitIndex + 1);
+  const restOfText = text.substring(splitIndex + 1);
+  return (
+    <div>
+      <span className="font-bold dark:text-white">{firstPhrase}</span>
+      {restOfText}
+    </div>
+  );
+}
+
 export function TreatmentDescription({
   description,
 }: TreatmentDescriptionProps) {
@@ -33,12 +59,12 @@ export function TreatmentDescription({
       <ul>
         {splitDescription.map(description => (
           <li key={description} className="py-2">
-            {description}
+            {firstPhraseBold(description)}
           </li>
         ))}
       </ul>
     );
   }
 
-  return description;
+  return firstPhraseBold(description);
 }

@@ -139,7 +139,7 @@ export function TreatmentsTable() {
                           key={treatment.id}
                           className="bg-white dark:border-gray-700 dark:bg-gray-800"
                         >
-                          <Table.Cell className="font-medium text-gray-900 dark:text-white">
+                          <Table.Cell className="font-medium text-gray-900 dark:text-gray-300">
                             <TreatmentDescription
                               description={treatment.description}
                             />
