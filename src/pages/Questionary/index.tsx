@@ -83,9 +83,6 @@ export function Questionary() {
 
   return (
     <div className="w-4/5 mx-auto">
-      <h1 className="text-center font-medium text-gray-700 dark:text-gray-200">
-        {currentBlock.name}
-      </h1>
       <div className="my-3 grid grid-cols-6 gap-2">
         <div className="col-span-5 my-auto">
           <Progress
