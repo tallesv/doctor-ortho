@@ -55,9 +55,4 @@ export const paths: Path[] = [
     path: '/users',
     icon: HiUser,
   },
-  {
-    label: 'FAQ',
-    path: '/faq',
-    icon: HiOutlineQuestionMarkCircle,
-  },
 ];
