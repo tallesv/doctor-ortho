@@ -18,7 +18,10 @@ import { TreatmentsTable } from '../pages/TreatmentsTable';
 import { Showcase } from '../pages/Showcase';
 import TreatmentEditor from '../pages/TreatmentEditor';
 import { NotFoundPage } from '../pages/404';
+import { Questionaries } from '../pages/Questionaries';
 import { FAQ } from '../pages/FAQ';
+import { Terms } from '../pages/Terms';
+import { PrivacyPolicy } from '../pages/PrivacyPolicy';
 
 const isDevEnv = import.meta.env.DEV;
 
@@ -46,6 +49,7 @@ export function Router() {
       >
         <Route path="/" Component={Home} />
         <Route path="/questionary" Component={Questionary} />
+        <Route path="/questionaries" Component={Questionaries} />
         <Route path="/treatment" Component={Treatment} />
         <Route path="/blocks" Component={Blocks} />
         <Route path="/questions" Component={Questions} />
@@ -58,6 +62,8 @@ export function Router() {
         <Route path="/users" Component={Users} />
         <Route path="/profile" Component={Profile} />
         <Route path="/faq" Component={FAQ} />
+        <Route path="/terms" Component={Terms} />
+        <Route path="/privacy-policy" Component={PrivacyPolicy} />
 
         {isDevEnv && <Route path="/showcase" Component={Showcase} />}
 

@@ -11,6 +11,8 @@ import { Button } from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/auth';
 import { BlockType } from '../Questionaries/types';
+import { HiMenu } from 'react-icons/hi';
+import { DocsDrawer } from './components/DocsDrawer';
 
 type QuestionBlocksProps = {
   id: number;
@@ -33,6 +35,7 @@ export function Questionary() {
 
   const [blockIndex, setBlockIndex] = useState(0);
   const [showFinishButton, setShowFinishButton] = useState(false);
+  const [docsDrawerIsOpen, setDocsDrawerIsOpen] = useState(false);
 
   const { user } = useAuth();
   const userFirebaseId = user.firebase_id;
@@ -83,19 +86,32 @@ export function Questionary() {
 
   return (
     <div className="w-4/5 mx-auto">
-      <div className="my-3 grid grid-cols-6 gap-2">
-        <div className="col-span-5 my-auto">
+      <div className="my-3 flex items-center gap-2">
+        <div className="flex-grow my-auto">
           <Progress
             progress={progressPercentage}
             className="[&>div]:bg-sky-600"
           />
         </div>
-        <div className="font-medium text-gray-700 dark:text-gray-200">
+        <div className="font-medium text-gray-700 dark:text-gray-200 flex-shrink-0">
           <span className="text-sky-600">
             {Object.keys(getValues()).length + 1}
           </span>
         </div>
+        <div className="flex-shrink-0">
+          <button className="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600">
+            <HiMenu
+              className="w-5 h-5"
+              onClick={() => setDocsDrawerIsOpen(prevState => !prevState)}
+            />
+          </button>
+        </div>
       </div>
+
+      <DocsDrawer
+        isOpen={docsDrawerIsOpen}
+        handleClose={() => setDocsDrawerIsOpen(false)}
+      />
 
       <FormProvider {...reactHookFormsMethods}>
         <form

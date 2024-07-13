@@ -1,6 +1,7 @@
 import { DocMenu } from '../../components/DocMenu';
+import DocViewer, { DocViewerRenderers } from 'react-doc-viewer';
 
-export function FAQ() {
+export function PrivacyPolicy() {
   return (
     <section className="bg-gray-100 dark:bg-gray-900">
       <div className="py-8 px-4 mx-auto max-w-screen-2xl lg:py-8 lg:px-6">
@@ -12,9 +13,16 @@ export function FAQ() {
                   <DocMenu />
                 </div>
                 <div className="flex-grow">
-                  <h2 className="my-6 ml-10 text-4xl tracking-tight font-bold text-gray-800 dark:text-white">
-                    FAQ
-                  </h2>
+                  <DocViewer
+                    pluginRenderers={DocViewerRenderers}
+                    documents={[
+                      {
+                        uri: 'https://firebasestorage.googleapis.com/v0/b/doctorortho-a02ef.appspot.com/o/Poli%CC%81tica%20de%20Privacidade%20Padra%CC%83o.docx?alt=media&token=58fe37e3-7746-4d0d-b169-bab0c24dfbe5',
+                        fileType: 'docx',
+                      },
+                    ]}
+                    style={{ height: 1180 }}
+                  />
                 </div>
               </div>
             </div>
