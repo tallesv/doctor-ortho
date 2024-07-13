@@ -65,7 +65,7 @@ export function DocsDrawer({ isOpen, handleClose }: DocsDrawerProps) {
                           <Link
                             to={item.path}
                             onClick={handleClose}
-                            className="flex items-center px-2 my-2 hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-700 rounded-md"
+                            className="flex items-center px-2 my-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
                           >
                             <span className="block px-2 py-3">
                               {item.label}
