@@ -3,7 +3,6 @@ import {
   HiPencilAlt,
   HiOutlinePencil,
   HiDocumentText,
-  HiOutlineQuestionMarkCircle,
 } from 'react-icons/hi';
 type Path = {
   label: string;
