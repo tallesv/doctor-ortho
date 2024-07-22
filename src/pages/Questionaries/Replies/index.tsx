@@ -12,6 +12,8 @@ import { DeleteReplyModal } from './components/DeleteReplyModal';
 import { useAuth } from '../../../hooks/auth';
 import { BlockType, QuestionType, ReplyType } from '../types';
 import { useBlocksQuery } from '../../../shared/api/useQuestionariesQuery';
+import uploadFile from '@/utils/uploadFile';
+import deleteFile from '@/utils/deleteFile';
 
 export function Replies() {
   const [showReplyModal, setShowReplyModal] = useState(false);
@@ -44,7 +46,12 @@ export function Replies() {
 
   const { mutate: createReply, isPending: isCreateReplyPending } = useMutation({
     mutationFn: async (data: ReplyFormData): Promise<{ data: ReplyType }> => {
-      return api.post(`/questions/${questionId}/replies`, data);
+      const replyPayload = data;
+      const { image } = replyPayload;
+      replyPayload.image =
+        image && typeof image === 'object' ? await uploadFile(image[0]) : '';
+
+      return api.post(`/questions/${questionId}/replies`, replyPayload);
     },
     onError: err => {
       console.log(err);
@@ -63,7 +70,24 @@ export function Replies() {
       replyId: number;
     }): Promise<{ data: ReplyType }> => {
       const { reply, replyId } = data;
-      return api.put(`/questions/${questionId}/replies/${replyId}`, reply);
+
+      const editReplyPayload = reply;
+      const { image } = editReplyPayload;
+      const findReply = replies?.find(reply => reply.id === replyId);
+
+      //console.log(editReplyPayload);
+
+      if (findReply?.image !== image) {
+        if (findReply?.image && findReply.image !== '') {
+          await deleteFile(findReply?.image);
+        }
+        editReplyPayload.image =
+          typeof image === 'object' ? await uploadFile(image[0]) : '';
+      }
+      return api.put(
+        `/questions/${questionId}/replies/${replyId}`,
+        editReplyPayload,
+      );
     },
     onError: err => {
       console.log(err);

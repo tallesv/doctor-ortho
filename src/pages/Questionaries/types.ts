@@ -5,6 +5,7 @@ export type ReplyType = {
   next_question_id: number;
   treatment_id: number;
   coordinate: string;
+  image: string;
 };
 
 export type QuestionType = {

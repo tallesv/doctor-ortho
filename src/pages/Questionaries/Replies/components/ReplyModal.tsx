@@ -7,12 +7,18 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect, useState } from 'react';
 import Select from '../../../../components/Form/Select';
 import { BlockType, ReplyType } from '../../types';
+import { Link } from 'react-router-dom';
+import FileInput from '@/components/Form/FileInput';
 
 interface ReplyModalProps {
   showModal: boolean;
   onCloseModal: () => void;
   onCreate: (data: ReplyFormData) => void;
-  onEdit: (data: { reply: ReplyFormData; replyId: number }) => void;
+  onEdit: (data: {
+    reply: ReplyFormData;
+    replyId: number;
+    image?: FileList | string;
+  }) => void;
   isSubmitting: boolean;
   type: 'create' | 'edit';
   reply?: ReplyType;
@@ -24,6 +30,7 @@ export type ReplyFormData = {
   answer: string;
   coordinate?: string;
   next_question_id?: number | null;
+  image?: FileList | string;
 };
 
 const replyFormSchema = yup.object().shape({
@@ -33,6 +40,7 @@ const replyFormSchema = yup.object().shape({
     .number()
     .nullable()
     .transform((_, val) => (val === '0' ? null : +val)),
+  image: yup.mixed(),
 });
 
 export function ReplyModal({
@@ -46,17 +54,22 @@ export function ReplyModal({
   questionBlockId,
   blocks,
 }: ReplyModalProps) {
-  const { register, handleSubmit, formState, setValue, reset } =
+  const { register, handleSubmit, formState, setValue, reset, watch } =
     useForm<ReplyFormData>({
       resolver: yupResolver(replyFormSchema),
     });
+
+  const watchImage = watch('image');
+
+  useEffect(() => {
+    if (showModal) reset();
+  }, [showModal]);
 
   useEffect(() => {
     if (reply) {
       setValue('answer', reply.answer);
       setValue('next_question_id', reply.next_question_id);
-    } else {
-      reset();
+      setValue('image', reply.image);
     }
   }, [reply]);
 
@@ -73,7 +86,6 @@ export function ReplyModal({
       if (type === 'edit' && reply) {
         onEdit({ reply: data, replyId: reply.id });
       }
-      reset();
     } catch (err) {
       console.log(err);
     } finally {
@@ -111,7 +123,7 @@ export function ReplyModal({
               errorMessage={formState.errors.answer?.message}
               {...register('answer')}
             />
-          </div>{' '}
+          </div>
           <div>
             <div className="mb-2 block">
               <Label htmlFor="answerTitle" value="Coordenada" />
@@ -145,6 +157,39 @@ export function ReplyModal({
               errorMessage={formState.errors.next_question_id?.message}
               {...register('next_question_id')}
             />
+          </div>
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="replyImage" value="Imagem da resposta" />
+            </div>
+
+            {typeof watchImage === 'string' && watchImage !== '' && (
+              <div className="flex flex-col space-y-4">
+                <Link
+                  to={watchImage}
+                  target="_blank"
+                  className="text-sky-500 mr-2"
+                >
+                  {watchImage}
+                </Link>
+
+                <Button color="light" onClick={() => setValue('image', '')}>
+                  Remover imagem
+                </Button>
+              </div>
+            )}
+            {(watchImage instanceof FileList ||
+              watchImage === '' ||
+              !watchImage) && (
+              <FileInput
+                fileName={
+                  watchImage instanceof FileList && watchImage[0]?.name
+                    ? watchImage?.[0].name
+                    : ''
+                }
+                {...register('image')}
+              />
+            )}
           </div>
           <div className="w-full flex justify-end">
             <Button type="submit" isLoading={isSubmitting} className="w-24">
