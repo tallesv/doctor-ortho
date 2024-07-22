@@ -11,6 +11,7 @@ import { queryClient } from '../../../config/queryClient';
 type Reply = {
   answer: string;
   id: string;
+  image?: string;
   next_question_id: number;
   question_id: number;
 };
@@ -151,8 +152,14 @@ export function QuestionGenerator({
                 >
                   {({ active, checked }) => (
                     <>
-                      <div className="flex w-full items-center justify-between">
-                        <div className="flex items-center">
+                      <div className="flex w-full items-center justify-between space-x-4">
+                        <div className="h-full flex-shrink-0">
+                          {reply.image && (
+                            <img className="h-16 w-16" src={reply.image} />
+                          )}
+                        </div>
+
+                        <div className="flex items-center flex-grow">
                           <div className="text-sm">
                             <RadioGroup.Label
                               as="p"
@@ -169,11 +176,11 @@ export function QuestionGenerator({
                             </RadioGroup.Label>
                           </div>
                         </div>
-                        {(active || checked) && (
-                          <div className="shrink-0 text-white">
+                        <div className="flex-shrink-0 text-white">
+                          {(active || checked) && (
                             <HiCheckCircle className="h-6 w-6 " />
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     </>
                   )}
