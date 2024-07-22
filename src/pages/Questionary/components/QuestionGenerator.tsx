@@ -18,6 +18,7 @@ type Reply = {
 type Question = {
   id: number;
   query: string;
+  image?: string;
   replies: Reply[];
 };
 
@@ -181,6 +182,16 @@ export function QuestionGenerator({
             </div>
           </RadioGroup>
         </div>
+
+        {currentQuestion.image && (
+          <div className="mt-10 flex">
+            <img
+              className="h-auto mx-auto rounded-lg"
+              src={currentQuestion.image}
+              alt={`question ${currentQuestion.id} image`}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
