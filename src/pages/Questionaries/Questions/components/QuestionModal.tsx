@@ -119,7 +119,7 @@ export function QuestionModal({
             )}
             {(typeof watchImage?.[0] === 'object' ||
               watchImage === '' ||
-              watchImage === null) && (
+              !watchImage) && (
               <FileInput
                 fileName={
                   typeof watchImage === 'object' ? watchImage?.[0].name : ''
