@@ -42,7 +42,7 @@ export function QuestionModal({
   type,
   question,
 }: QuestionModalProps) {
-  const { register, handleSubmit, formState, setValue, watch } =
+  const { register, handleSubmit, formState, setValue, reset, watch } =
     useForm<QuestionFormData>({
       resolver: yupResolver(blockFormSchema),
     });
@@ -72,7 +72,7 @@ export function QuestionModal({
       setValue('query', question.query);
       setValue('image', question.image);
     } else {
-      setValue('query', '');
+      reset();
     }
   }, [question]);
 
