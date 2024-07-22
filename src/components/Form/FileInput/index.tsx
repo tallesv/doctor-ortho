@@ -1,5 +1,4 @@
 import bindClassNames from '@/utils/bindClassNames';
-import classNames from '@/utils/bindClassNames';
 import { ForwardedRef, forwardRef, InputHTMLAttributes } from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
