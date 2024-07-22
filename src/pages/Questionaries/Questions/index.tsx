@@ -12,6 +12,8 @@ import { HiChevronRight } from 'react-icons/hi';
 import { BlockType, QuestionType } from '../types';
 import { useAuth } from '../../../hooks/auth';
 import { useBlocksQuery } from '../../../shared/api/useQuestionariesQuery';
+import uploadFile from '@/utils/uploadFile';
+import deleteFile from '@/utils/deleteFile';
 
 export function Questions() {
   const [showQuestionModal, setShowQuestionModal] = useState(false);
@@ -46,7 +48,14 @@ export function Questions() {
       mutationFn: async (
         data: QuestionFormData,
       ): Promise<{ data: QuestionType }> => {
-        return api.post(`/questions_sets/${blockId}/questions`, data);
+        const { query, image } = data;
+        const imageUploaded =
+          image && typeof image === 'object' ? await uploadFile(image[0]) : '';
+
+        return api.post(`/questions_sets/${blockId}/questions`, {
+          query,
+          image: imageUploaded,
+        });
       },
       onError: err => {
         console.log(err);
@@ -64,8 +73,24 @@ export function Questions() {
       mutationFn: async (data: {
         query: string;
         id: number;
+        image?: FileList | string;
       }): Promise<{ data: QuestionType }> => {
-        return api.put(`/questions_sets/${blockId}/questions/${data.id}`, data);
+        const editQuestionPayload = data;
+        const { id, image } = editQuestionPayload;
+        const findQuestion = questions.find(question => question.id === id);
+
+        if (findQuestion?.image !== image) {
+          if (findQuestion?.image && findQuestion.image !== '') {
+            await deleteFile(findQuestion?.image);
+          }
+          editQuestionPayload.image =
+            typeof image === 'object' ? await uploadFile(image[0]) : '';
+        }
+
+        return api.put(
+          `/questions_sets/${blockId}/questions/${data.id}`,
+          editQuestionPayload,
+        );
       },
       onError: err => {
         console.log(err);

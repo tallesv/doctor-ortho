@@ -10,6 +10,7 @@ export type ReplyType = {
 export type QuestionType = {
   id: number;
   query: string;
+  image: string;
   replies: ReplyType[];
 };
 
