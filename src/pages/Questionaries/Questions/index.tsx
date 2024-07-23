@@ -106,6 +106,11 @@ export function Questions() {
   const { mutate: deleteQuestion, isPending: isDeleteQuestionPending } =
     useMutation({
       mutationFn: async (id: number): Promise<{ data: QuestionType }> => {
+        const findQuestion = questions.find(question => question.id === id);
+        if (findQuestion?.image && findQuestion?.image !== '') {
+          await deleteFile(findQuestion?.image);
+        }
+
         return api.delete(`/questions_sets/${blockId}/questions/${id}`);
       },
       onError: err => {

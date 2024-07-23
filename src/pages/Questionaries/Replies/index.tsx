@@ -75,8 +75,6 @@ export function Replies() {
       const { image } = editReplyPayload;
       const findReply = replies?.find(reply => reply.id === replyId);
 
-      //console.log(editReplyPayload);
-
       if (findReply?.image !== image) {
         if (findReply?.image && findReply.image !== '') {
           await deleteFile(findReply?.image);
@@ -102,6 +100,12 @@ export function Replies() {
 
   const { mutate: deleteReply, isPending: isDeleteReplyPending } = useMutation({
     mutationFn: async (id: number): Promise<{ data: ReplyType }> => {
+      const findReply = replies?.find(reply => reply.id === id);
+
+      if (findReply?.image && findReply?.image !== '') {
+        await deleteFile(findReply?.image);
+      }
+
       return api.delete(`/questions/${questionId}/replies/${id}`);
     },
     onError: err => {
