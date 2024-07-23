@@ -193,7 +193,7 @@ export function QuestionGenerator({
         {currentQuestion.image && (
           <div className="mt-10 flex">
             <img
-              className="h-auto mx-auto rounded-lg"
+              className="max-w-xl max-h-96 mx-auto rounded-lg"
               src={currentQuestion.image}
               alt={`question ${currentQuestion.id} image`}
             />
