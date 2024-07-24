@@ -146,7 +146,7 @@ export function QuestionGenerator({
                         ? 'ring-2 ring-white/60 ring-offset-2 ring-offset-sky-300  dark:ring-white/80 dark:ring-offset-sky-600'
                         : '',
                       checked ? 'bg-sky-600' : 'bg-gray-50 dark:bg-gray-700',
-                      'h-24 relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none',
+                      'animate-right-left h-24 relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none',
                     )
                   }
                 >

@@ -10,6 +10,7 @@ module.exports = {
     extend: {
       animation: {
         'up-down': 'up-down 1s',
+        'right-left': 'right-left 1s',
       },
       keyframes: {
         'up-down': {
@@ -19,6 +20,16 @@ module.exports = {
           },
           '35%': {
             transform: 'translateY(0)',
+            'animation-timing-function': 'cubic-bezier(0, 0, 0.2, 1)',
+          },
+        },
+        'right-left': {
+          '0%': {
+            transform: 'translateX(40%)',
+            'animation-timing-function': 'cubic-bezier(0.8, 0, 1, 1)',
+          },
+          '35%': {
+            transform: 'translateX(0)',
             'animation-timing-function': 'cubic-bezier(0, 0, 0.2, 1)',
           },
         },
