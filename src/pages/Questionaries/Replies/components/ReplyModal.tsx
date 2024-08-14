@@ -9,6 +9,7 @@ import Select from '../../../../components/Form/Select';
 import { BlockType, ReplyType } from '../../types';
 import { Link } from 'react-router-dom';
 import FileInput from '@/components/Form/FileInput';
+import Checkbox from '@/components/Form/Checkbox';
 
 interface ReplyModalProps {
   showModal: boolean;
@@ -30,7 +31,9 @@ export type ReplyFormData = {
   answer: string;
   coordinate?: string;
   next_question_id?: number | null;
-  image?: FileList | string;
+  image?: FileList | string | null;
+  show_on_summary: boolean;
+  summary_title?: string;
 };
 
 const replyFormSchema = yup.object().shape({
@@ -40,7 +43,18 @@ const replyFormSchema = yup.object().shape({
     .number()
     .nullable()
     .transform((_, val) => (val === '0' ? null : +val)),
-  image: yup.mixed(),
+  image: yup
+    .mixed<FileList | string>()
+    .nullable()
+    .transform((_, val) => (val === null ? undefined : val)),
+  show_on_summary: yup.boolean().required(),
+  summary_title: yup
+    .string()
+    .test(
+      'Required',
+      'Por favor insira a resposta que você quer mostrar no resumo',
+      (value, ctx) => (ctx.parent.show_on_summary ? value !== '' : true),
+    ),
 });
 
 export function ReplyModal({
@@ -60,6 +74,7 @@ export function ReplyModal({
     });
 
   const watchImage = watch('image');
+  const watchShowOnSummary = watch('show_on_summary');
 
   useEffect(() => {
     if (showModal) reset();
@@ -70,6 +85,8 @@ export function ReplyModal({
       setValue('answer', reply.answer);
       setValue('next_question_id', reply.next_question_id);
       setValue('image', reply.image);
+      setValue('show_on_summary', reply.show_on_summary ?? false);
+      setValue('summary_title', reply.summary_title ?? '');
     }
   }, [reply]);
 
@@ -124,6 +141,27 @@ export function ReplyModal({
               {...register('answer')}
             />
           </div>
+
+          <div>
+            <Checkbox
+              label="Exibir no resumo"
+              {...register('show_on_summary')}
+            />
+          </div>
+
+          {watchShowOnSummary && (
+            <div className={watchShowOnSummary ? '' : 'hidden'}>
+              <div className="mb-2 block">
+                <Label htmlFor="summaryTitle" value="Resposta no resumo" />
+              </div>
+              <Input
+                error={!!formState.errors.summary_title}
+                errorMessage={formState.errors.summary_title?.message}
+                {...register('summary_title')}
+              />
+            </div>
+          )}
+
           <div>
             <div className="mb-2 block">
               <Label htmlFor="answerTitle" value="Coordenada" />

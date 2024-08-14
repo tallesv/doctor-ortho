@@ -80,7 +80,7 @@ export function Replies() {
           await deleteFile(findReply?.image);
         }
         editReplyPayload.image =
-          typeof image === 'object' ? await uploadFile(image[0]) : '';
+          image && typeof image === 'object' ? await uploadFile(image[0]) : '';
       }
       return api.put(
         `/questions/${questionId}/replies/${replyId}`,

@@ -6,6 +6,8 @@ export type ReplyType = {
   treatment_id: number;
   coordinate: string;
   image: string;
+  show_on_summary: boolean;
+  summary_title?: string;
 };
 
 export type QuestionType = {
