@@ -2,40 +2,49 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../../client/api';
 import { LoadingLayout } from '../../layout/LoadingLayout';
 import { useState } from 'react';
-import { Progress } from 'flowbite-react';
-import { QuestionGenerator } from './components/QuestionGenerator';
 import * as yup from 'yup';
 import { useForm, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button } from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/auth';
+import Input from '@/components/Form/Input';
+import { Questions } from './components/Questions';
+import { ReviewAnsweredQuestions } from './components/ReviewAnsweredQuestions';
 import { BlockType } from '../Questionaries/types';
-import { HiMenu } from 'react-icons/hi';
-import { DocsDrawer } from './components/DocsDrawer';
 
-type QuestionBlocksProps = {
-  id: number;
-  name: string;
+export type QuestionaryFormData = {
+  pacient_name: string;
+  questions: {
+    [key: number]: string;
+  };
+  questionsIdOrder: number[];
 };
 
-type QuestionaryFormData = {
-  [key: number]: string;
-};
+enum FormStep {
+  PACIENT_NAME = 0,
+  QUESTIONS = 1,
+  REVIEW_QUESTIONS_ANSWERED = 2,
+}
 
 export function Questionary() {
+  const [formStep, setFormStep] = useState(0);
+
   const navigate = useNavigate();
-  const formSchema = yup.object().shape({});
+  const formSchema = yup.object().shape({
+    pacient_name: yup.string().required('Por favor insira o nome do paciente'),
+    questionsIdOrder: yup.array(yup.number().required()).required(),
+    questions: yup.object({}),
+  });
 
   const reactHookFormsMethods = useForm<QuestionaryFormData>({
     resolver: yupResolver(formSchema),
+    defaultValues: {
+      questionsIdOrder: [],
+    },
   });
 
-  const { handleSubmit, getValues } = reactHookFormsMethods;
-
-  const [blockIndex, setBlockIndex] = useState(0);
-  const [showFinishButton, setShowFinishButton] = useState(false);
-  const [docsDrawerIsOpen, setDocsDrawerIsOpen] = useState(false);
+  const { handleSubmit, getValues, register } = reactHookFormsMethods;
 
   const { user } = useAuth();
   const userFirebaseId = user.firebase_id;
@@ -49,88 +58,45 @@ export function Questionary() {
     return <LoadingLayout />;
   }
 
-  const questionBlocks: QuestionBlocksProps[] = data?.data.sort(
+  const questionBlocks: BlockType[] = data?.data.sort(
     (a: BlockType, b: BlockType) =>
       new Date(a.created_at).valueOf() - new Date(b.created_at).valueOf(),
   );
 
-  const currentBlock = questionBlocks[blockIndex];
-  const previousBlock =
-    blockIndex === 0 ? questionBlocks[0] : questionBlocks[blockIndex - 1];
-  const progressPercentage = ((blockIndex + 1) * 100) / questionBlocks.length;
-  const isInLastBlock = blockIndex + 1 === questionBlocks.length;
-
-  function handleNextBlock() {
-    if (!isInLastBlock) {
-      setBlockIndex(prev => prev + 1);
-    }
-  }
-
-  function handlePreviousBlock() {
-    setBlockIndex(state => state - 1);
-  }
-
-  function handleShowFinishButton(isInLastQuestion: boolean) {
-    if (!isInLastQuestion && showFinishButton) {
-      setShowFinishButton(false);
-    }
-    if (isInLastQuestion && !showFinishButton) {
-      setShowFinishButton(true);
-    }
-  }
-
   function handleSubmitForm(data: QuestionaryFormData) {
-    const formattedData = Object.values(data);
-    navigate(`/treatment?answers=${formattedData.toString()}`);
+    const formattedData = Object.values(data.questions);
+    navigate(`/treatment?answers=${formattedData.toString()}`, {
+      state: {
+        ...data,
+      },
+    });
   }
 
   return (
-    <div className="w-4/5 mx-auto">
-      <div className="my-3 flex items-center gap-2">
-        <div className="flex-grow my-auto">
-          <Progress
-            progress={progressPercentage}
-            className="[&>div]:bg-sky-600"
-          />
-        </div>
-        <div className="font-medium text-gray-700 dark:text-gray-200 flex-shrink-0">
-          <span className="text-sky-600">
-            {Object.keys(getValues()).length + 1}
-          </span>
-        </div>
-        <div className="flex-shrink-0">
-          <button className="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600">
-            <HiMenu
-              className="w-5 h-5"
-              onClick={() => setDocsDrawerIsOpen(prevState => !prevState)}
-            />
-          </button>
-        </div>
-      </div>
-
-      <DocsDrawer
-        isOpen={docsDrawerIsOpen}
-        handleClose={() => setDocsDrawerIsOpen(false)}
-      />
-
+    <div className="w-4/5 mx-auto py-3">
       <FormProvider {...reactHookFormsMethods}>
-        <form
-          onSubmit={handleSubmit(handleSubmitForm)}
-          className="flex flex-col"
-        >
-          <QuestionGenerator
-            blockId={currentBlock.id}
-            previousBlockId={previousBlock.id}
-            isLastBlock={isInLastBlock}
-            handleNextBlock={handleNextBlock}
-            handlePreviousBlock={handlePreviousBlock}
-            handleShowFinishButton={handleShowFinishButton}
-          />
+        <form onSubmit={handleSubmit(handleSubmitForm)}>
+          <div
+            className={
+              formStep === FormStep.PACIENT_NAME
+                ? 'flex flex-col space-y-8 w-96 mx-auto'
+                : 'hidden'
+            }
+          >
+            <Input label="Nome do paciente" {...register('pacient_name')} />
 
-          {showFinishButton && (
-            <Button type="submit" className="w-full sm:w-96 h-12 self-center">
-              Finalizar
-            </Button>
+            <Button onClick={() => setFormStep(1)}>Seguir</Button>
+          </div>
+
+          <div className={formStep === FormStep.QUESTIONS ? '' : 'hidden'}>
+            <Questions handleFinishForm={() => setFormStep(2)} />
+          </div>
+
+          {formStep === FormStep.REVIEW_QUESTIONS_ANSWERED && (
+            <ReviewAnsweredQuestions
+              blocks={questionBlocks}
+              formAnswers={getValues().questions}
+            />
           )}
         </form>
       </FormProvider>

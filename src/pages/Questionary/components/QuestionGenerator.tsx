@@ -24,7 +24,11 @@ type Question = {
 };
 
 type QuestionaryFormData = {
-  [key: string]: string;
+  pacientName: string;
+  questions: {
+    [key: number]: string;
+  };
+  questionsIdOrder: number[];
 };
 
 interface QuestionGeneratorProps {
@@ -44,13 +48,18 @@ export function QuestionGenerator({
   handlePreviousBlock,
   handleShowFinishButton,
 }: QuestionGeneratorProps) {
-  const { setValue, getValues, unregister, watch } =
-    useFormContext<QuestionaryFormData>();
+  const { setValue, getValues, watch } = useFormContext<QuestionaryFormData>();
 
   const [questionIndex, setQuestionIndex] = useState(0);
 
   function handleSelectReply(reply: Reply) {
-    setValue(`${currentQuestion.id}`, reply.id);
+    const { questions: formQuestions = {}, questionsIdOrder } = getValues();
+    formQuestions[currentQuestion.id] = reply.id;
+    setValue('questions', formQuestions);
+
+    if (!questionsIdOrder.includes(currentQuestion.id)) {
+      questionsIdOrder.push(currentQuestion.id);
+    }
 
     const findNextQuestionIndex = questions.findIndex(
       question => question.id === reply.next_question_id,
@@ -72,8 +81,13 @@ export function QuestionGenerator({
   }
 
   async function handleBackPreviousQuestion() {
-    const lastAnsweredQuestionId = Object.keys(getValues()).pop();
-    unregister(lastAnsweredQuestionId);
+    const { questions: formQuestions = {}, questionsIdOrder } = getValues();
+    const lastAnsweredQuestionId = questionsIdOrder.slice(-1)[0];
+    if (lastAnsweredQuestionId) {
+      delete formQuestions[+lastAnsweredQuestionId];
+      questionsIdOrder.pop();
+      setValue('questions', formQuestions);
+    }
     const findPreviousQuestionIndex = questions.findIndex(
       question => question.id === +String(lastAnsweredQuestionId),
     );
@@ -105,7 +119,7 @@ export function QuestionGenerator({
 
   const questions: Question[] = data?.data;
   const currentQuestion = questions[questionIndex];
-  watch(currentQuestion.id.toString());
+  watch('questions');
 
   const disablePreviousQuestionButton =
     questionIndex === 0 && blockId === previousBlockId;
