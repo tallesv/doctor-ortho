@@ -34,8 +34,8 @@ export function ReviewAnsweredQuestions({
       .filter(Boolean),
   }));
 
-  const isFormatQuestionsAnsweredEmpty = formatQuestionsAnswered.some(
-    item => item.questions.length === 0,
+  const isFormatQuestionsAnsweredEmpty = !formatQuestionsAnswered.some(
+    item => item.questions.length > 0,
   );
 
   return (
