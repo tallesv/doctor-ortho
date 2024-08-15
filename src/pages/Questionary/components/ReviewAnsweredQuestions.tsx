@@ -1,5 +1,6 @@
 import { Button } from '@/components/Button';
 import { BlockType } from '@/pages/Questionaries/types';
+import { useNavigate } from 'react-router-dom';
 
 interface ReviewAnsweredQuestionsProps {
   blocks: BlockType[];
@@ -12,6 +13,8 @@ export function ReviewAnsweredQuestions({
   blocks,
   formAnswers,
 }: ReviewAnsweredQuestionsProps) {
+  const navigate = useNavigate();
+
   const formatQuestionsAnswered = blocks.map(block => ({
     blockName: block.name,
     questions: block.questions
@@ -31,15 +34,25 @@ export function ReviewAnsweredQuestions({
       .filter(Boolean),
   }));
 
+  const isFormatQuestionsAnsweredEmpty = formatQuestionsAnswered.some(
+    item => item.questions.length === 0,
+  );
+
   return (
     <section className="bg-white dark:bg-gray-800 antialiased shadow-md sm:rounded-lg ">
       <div className="max-w-screen-xl px-4 py-2 mx-auto lg:px-6 sm:py-4 lg:py-8">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-4xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-white">
-            Revisar respostas
+            Conferência questionário
           </h2>
         </div>
 
+        {isFormatQuestionsAnsweredEmpty && (
+          <div className="max-w-3xl mx-auto my-4 text-center text-gray-900 dark:text-white">
+            Não foram encontradas respostas para serem exibidas na Conferência
+            questionário
+          </div>
+        )}
         {formatQuestionsAnswered.map((item, index) => (
           <div key={`${item.blockName}-${index}`}>
             {item.questions.length > 0 && (
@@ -72,10 +85,19 @@ export function ReviewAnsweredQuestions({
         ))}
       </div>
 
-      <div className="max-w-3xl mx-auto pb-2">
-        <Button type="submit" className="w-full">
-          Finalizar
-        </Button>
+      <div className="max-w-3xl mx-auto text-center space-y-4">
+        <span className="text-xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-white">
+          Você confirma essas respostas?
+        </span>
+        <div className="max-w-3xl mx-auto pb-2 flex justify-center">
+          <Button onClick={() => navigate(0)} className="w-48">
+            Refazer questionário
+          </Button>
+
+          <Button type="submit" className="w-48">
+            Sim
+          </Button>
+        </div>
       </div>
     </section>
   );
