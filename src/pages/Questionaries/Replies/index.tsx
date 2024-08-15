@@ -49,7 +49,9 @@ export function Replies() {
       const replyPayload = data;
       const { image } = replyPayload;
       replyPayload.image =
-        image && typeof image === 'object' ? await uploadFile(image[0]) : '';
+        image && typeof image === 'object' && image.length > 0
+          ? await uploadFile(image[0])
+          : '';
 
       return api.post(`/questions/${questionId}/replies`, replyPayload);
     },
@@ -80,7 +82,9 @@ export function Replies() {
           await deleteFile(findReply?.image);
         }
         editReplyPayload.image =
-          image && typeof image === 'object' ? await uploadFile(image[0]) : '';
+          image && typeof image === 'object' && image.length > 0
+            ? await uploadFile(image[0])
+            : '';
       }
       return api.put(
         `/questions/${questionId}/replies/${replyId}`,

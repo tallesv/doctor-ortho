@@ -48,13 +48,7 @@ const replyFormSchema = yup.object().shape({
     .nullable()
     .transform((_, val) => (val === null ? undefined : val)),
   show_on_summary: yup.boolean().required(),
-  summary_title: yup
-    .string()
-    .test(
-      'Required',
-      'Por favor insira a resposta que você quer mostrar no resumo',
-      (value, ctx) => (ctx.parent.show_on_summary ? value !== '' : true),
-    ),
+  summary_title: yup.string(),
 });
 
 export function ReplyModal({
