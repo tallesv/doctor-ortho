@@ -169,7 +169,10 @@ export function QuestionGenerator({
                       <div className="flex w-full items-center justify-between space-x-4">
                         <div className="h-full flex-shrink-0">
                           {reply.image && (
-                            <img className="h-16 w-16" src={reply.image} />
+                            <img
+                              className="h-16 object-cover"
+                              src={reply.image}
+                            />
                           )}
                         </div>
 
@@ -207,7 +210,7 @@ export function QuestionGenerator({
         {currentQuestion.image && (
           <div className="mt-10 flex">
             <img
-              className="max-w-xl max-h-96 mx-auto rounded-lg"
+              className="max-w-xl max-h-96 mx-auto rounded-lg object-cover"
               src={currentQuestion.image}
               alt={`question ${currentQuestion.id} image`}
             />
