@@ -149,7 +149,7 @@ export function QuestionGenerator({
       <div className="w-full px-5 py-6">
         <div className="mx-auto w-full max-w-md">
           <RadioGroup onChange={handleSelectReply}>
-            <div className="space-y-2">
+            <div className="flex flex-col lg:h-full h-[500px] space-y-2">
               {currentQuestion?.replies?.map(reply => (
                 <RadioGroup.Option
                   key={reply.id}
@@ -160,14 +160,14 @@ export function QuestionGenerator({
                         ? 'ring-2 ring-white/60 ring-offset-2 ring-offset-sky-300  dark:ring-white/80 dark:ring-offset-sky-600'
                         : '',
                       checked ? 'bg-sky-600' : 'bg-gray-50 dark:bg-gray-700',
-                      'animate-right-left h-24 relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none',
+                      'animate-right-left min-h-[6rem]  lg:min-h-[10rem] flex-grow relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none',
                     )
                   }
                 >
                   {({ active, checked }) => (
                     <>
                       <div className="flex w-full items-center justify-between space-x-4">
-                        <div className="h-full flex-shrink-0">
+                        <div className="h-full flex-shrink-0 content-center">
                           {reply.image && (
                             <img
                               className="h-16 object-cover"
