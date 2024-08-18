@@ -147,8 +147,8 @@ export function QuestionGenerator({
         </h3>
       </div>
       <div className="w-full px-5 py-6">
-        <div className="mx-auto w-full max-w-md">
-          <RadioGroup onChange={handleSelectReply}>
+        <div className="flex mx-auto w-full max-w-md">
+          <RadioGroup onChange={handleSelectReply} className="flex-grow">
             <div className="flex flex-col lg:h-full h-[500px] space-y-2">
               {currentQuestion?.replies?.map(reply => (
                 <RadioGroup.Option
@@ -160,13 +160,13 @@ export function QuestionGenerator({
                         ? 'ring-2 ring-white/60 ring-offset-2 ring-offset-sky-300  dark:ring-white/80 dark:ring-offset-sky-600'
                         : '',
                       checked ? 'bg-sky-600' : 'bg-gray-50 dark:bg-gray-700',
-                      'animate-right-left min-h-[6rem]  lg:min-h-[10rem] flex-grow relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none',
+                      'animate-right-left lg:min-h-[8rem] flex-grow relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none',
                     )
                   }
                 >
                   {({ active, checked }) => (
                     <>
-                      <div className="flex w-full items-center justify-between space-x-4">
+                      <div className="flex w-full items-center justify-between space-x-4 h-full">
                         <div className="h-full flex-shrink-0 content-center">
                           {reply.image && (
                             <img
@@ -176,7 +176,7 @@ export function QuestionGenerator({
                           )}
                         </div>
 
-                        <div className="flex items-center flex-grow">
+                        <div className="flex items-center">
                           <div className="text-sm">
                             <RadioGroup.Label
                               as="p"
@@ -193,9 +193,10 @@ export function QuestionGenerator({
                             </RadioGroup.Label>
                           </div>
                         </div>
+
                         <div className="flex-shrink-0 text-white">
                           {(active || checked) && (
-                            <HiCheckCircle className="h-6 w-6 " />
+                            <HiCheckCircle className="h-6 w-6" />
                           )}
                         </div>
                       </div>
@@ -205,17 +206,16 @@ export function QuestionGenerator({
               ))}
             </div>
           </RadioGroup>
+          {currentQuestion.image && (
+            <div className="mt-10 flex">
+              <img
+                className="max-w-xl max-h-72 lg:max-h-96 mx-auto rounded-lg object-cover"
+                src={currentQuestion.image}
+                alt={`question ${currentQuestion.id} image`}
+              />
+            </div>
+          )}
         </div>
-
-        {currentQuestion.image && (
-          <div className="mt-10 flex">
-            <img
-              className="max-w-xl max-h-96 mx-auto rounded-lg object-cover"
-              src={currentQuestion.image}
-              alt={`question ${currentQuestion.id} image`}
-            />
-          </div>
-        )}
       </div>
     </div>
   );
