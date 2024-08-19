@@ -79,7 +79,7 @@ export function Questionary() {
           <div
             className={
               formStep === FormStep.PACIENT_NAME
-                ? 'flex flex-col space-y-8 w-96 mx-auto'
+                ? 'flex flex-col space-y-8 w-72 lg:w-96 mx-auto'
                 : 'hidden'
             }
           >
