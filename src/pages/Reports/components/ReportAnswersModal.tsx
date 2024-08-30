@@ -30,7 +30,6 @@ export function ReportAnswersModal({
       .filter(Boolean),
   }));
 
-  console.log(formatQuestionsAnswered);
   return (
     <Modal dismissible show={showModal} onClose={onCloseModal}>
       <Modal.Header>Respostas</Modal.Header>
