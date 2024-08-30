@@ -1,21 +1,15 @@
-import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Progress } from 'flowbite-react';
 import { useFormContext } from 'react-hook-form';
 import { HiMenu } from 'react-icons/hi';
 import { useAuth } from '@/hooks/auth';
-import { api } from '@/client/api';
 import { LoadingLayout } from '@/layout/LoadingLayout';
 import { BlockType } from '@/pages/Questionaries/types';
 import { QuestionaryFormData } from '..';
 import { DocsDrawer } from './DocsDrawer';
 import { QuestionGenerator } from './QuestionGenerator';
 import { Button } from '@/components/Button';
-
-type QuestionBlocksProps = {
-  id: number;
-  name: string;
-};
+import { useQuestionsBlockQuery } from '@/shared/api/QuestionsBlocks/useQuestionsBlocksQuery';
 
 interface QuestionsProps {
   handleFinishForm: () => void;
@@ -31,16 +25,13 @@ export function Questions({ handleFinishForm }: QuestionsProps) {
   const { user } = useAuth();
   const userFirebaseId = user.firebase_id;
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['questions-blocks', userFirebaseId],
-    queryFn: () => api.get(`/users/${userFirebaseId}/questions_sets`),
-  });
+  const { data, isLoading, isError } = useQuestionsBlockQuery(userFirebaseId);
 
-  if (isLoading || isError) {
+  if (isLoading || isError || !data) {
     return <LoadingLayout />;
   }
 
-  const questionBlocks: QuestionBlocksProps[] = data?.data.sort(
+  const questionBlocks = data?.sort(
     (a: BlockType, b: BlockType) =>
       new Date(a.created_at).valueOf() - new Date(b.created_at).valueOf(),
   );

@@ -1,5 +1,3 @@
-import { useQuery } from '@tanstack/react-query';
-import { api } from '../../client/api';
 import { LoadingLayout } from '../../layout/LoadingLayout';
 import { useState } from 'react';
 import * as yup from 'yup';
@@ -12,6 +10,7 @@ import { ReviewAnsweredQuestions } from './components/ReviewAnsweredQuestions';
 import { BlockType } from '../Questionaries/types';
 import { useCreateReportMutation } from '@/shared/api/Reports/useReportMutation';
 import { PatientDataForm } from './components/PatientDataForm';
+import { useQuestionsBlockQuery } from '@/shared/api/QuestionsBlocks/useQuestionsBlocksQuery';
 
 export type QuestionaryFormData = {
   patient_name: string;
@@ -58,18 +57,19 @@ export function Questionary() {
   const { user } = useAuth();
   const userFirebaseId = user.firebase_id;
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['questions-blocks', userFirebaseId],
-    queryFn: () => api.get(`/users/${userFirebaseId}/questions_sets`),
-  });
+  const {
+    data: questionsBlockData,
+    isLoading,
+    isError,
+  } = useQuestionsBlockQuery(userFirebaseId);
 
   const { mutate: createReport } = useCreateReportMutation(userFirebaseId);
 
-  if (isLoading || isError) {
+  if (isLoading || isError || !questionsBlockData) {
     return <LoadingLayout />;
   }
 
-  const questionBlocks: BlockType[] = data?.data.sort(
+  const questionBlocks = questionsBlockData?.sort(
     (a: BlockType, b: BlockType) =>
       new Date(a.created_at).valueOf() - new Date(b.created_at).valueOf(),
   );
