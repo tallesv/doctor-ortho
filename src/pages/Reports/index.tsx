@@ -6,31 +6,47 @@ import { LoadingLayout } from '../../layout/LoadingLayout';
 import SearchInput from '../../components/SearchInput';
 import { useReportsQuery } from '@/shared/api/Reports/useReportQuery';
 import { useAuth } from '@/hooks/auth';
+import { ReportAnswersModal } from './components/ReportAnswersModal';
+import { useQuestionsBlockQuery } from '@/shared/api/QuestionsBlocks/useQuestionsBlocksQuery';
+import { DeleteReportModal } from './components/DeleteReportModal';
+import { useDeleteReportMutation } from '@/shared/api/Reports/useReportMutation';
 
-type ReportsProps = {
+export type ReportsProps = {
   id: number;
   patient_name: string;
   patient_gender: string;
   patient_age: number;
+  fields: string;
   created_at: string;
 };
 
 export function Reports() {
   const [currentPage, setCurrentPage] = useState(1);
   const contentPerPage = 10;
+  const [reportAnswersToShow, setReportAnswersToShow] =
+    useState<ReportsProps>();
+
+  const [reportToDelete, setReportToDelete] = useState<ReportsProps>();
 
   const [searchParams, setSearchParams] = useSearchParams();
 
   const { user } = useAuth();
   const userFirebaseId = user.firebase_id;
 
-  const { data, isLoading } = useReportsQuery(userFirebaseId);
+  const { data: reportsData, isLoading: isReportsDataLoading } =
+    useReportsQuery(userFirebaseId);
 
-  if (isLoading) {
+  const { data: questionaryData, isLoading: isQuestionaryDataLoading } =
+    useQuestionsBlockQuery(userFirebaseId);
+
+  const { mutate: deleteReport, isPending: isDeleteReportPending } =
+    useDeleteReportMutation(userFirebaseId, setReportToDelete);
+
+  if (isReportsDataLoading || isQuestionaryDataLoading) {
     return <LoadingLayout />;
   }
 
-  const reports: ReportsProps[] = data?.data;
+  const reports: ReportsProps[] = reportsData?.data;
 
   const termSearched = searchParams.get('search') || '';
   const filteredData = reports.filter((report: ReportsProps) =>
@@ -51,6 +67,23 @@ export function Reports() {
 
   return (
     <section className="bg-gray-100 dark:bg-gray-900">
+      {reportAnswersToShow && questionaryData && (
+        <ReportAnswersModal
+          answers={JSON.parse(reportAnswersToShow.fields)}
+          questionaryBlocks={questionaryData}
+          showModal={!!reportAnswersToShow}
+          onCloseModal={() => setReportAnswersToShow(undefined)}
+        />
+      )}
+
+      <DeleteReportModal
+        showModal={!!reportToDelete?.id}
+        report={reportToDelete}
+        onCloseModal={() => setReportToDelete(undefined)}
+        onSubmmit={blockId => deleteReport(blockId)}
+        isSubmitting={isDeleteReportPending}
+      />
+
       <div className="py-8 px-4 mx-auto max-w-screen-2xl lg:py-8 lg:px-6">
         <div className="max-w-screen-2xl text-gray-500 sm:text-lg dark:text-gray-400">
           <div className="px-3 sm:px-5 mx-auto">
@@ -70,6 +103,9 @@ export function Reports() {
                     <Table.HeadCell>Idade</Table.HeadCell>
                     <Table.HeadCell>Data de criação</Table.HeadCell>
                     <Table.HeadCell>Relátorio</Table.HeadCell>
+                    <Table.HeadCell>
+                      <span className="sr-only">Delete</span>
+                    </Table.HeadCell>
                   </Table.Head>
                   <Table.Body className="divide-y">
                     {filteredData
@@ -93,8 +129,19 @@ export function Reports() {
                             )}
                           </Table.Cell>
                           <Table.Cell>
-                            <a className="font-medium text-sky-500 hover:underline dark:text-sky-600 cursor-pointer">
-                              <p>Editar</p>
+                            <a
+                              className="font-medium text-sky-500 hover:underline dark:text-sky-600 cursor-pointer"
+                              onClick={() => setReportAnswersToShow(report)}
+                            >
+                              <p>Respostas</p>
+                            </a>
+                          </Table.Cell>
+                          <Table.Cell>
+                            <a
+                              className="font-medium text-sky-500 hover:underline dark:text-sky-600 cursor-pointer"
+                              onClick={() => setReportToDelete(report)}
+                            >
+                              <p>Excluir</p>
                             </a>
                           </Table.Cell>
                         </Table.Row>
