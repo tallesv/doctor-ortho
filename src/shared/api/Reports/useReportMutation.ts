@@ -37,8 +37,14 @@ export function useCreateReportMutation(userFirebaseId: string) {
       queryClient.setQueryData(
         ['reports', userFirebaseId],
         (response: { data: CreateReportData[] }) => {
-          response.data = [...response.data, newReport];
-          return response;
+          if (!response) {
+            return { data: [newReport] };
+          }
+
+          return {
+            ...response,
+            data: [...response.data, newReport],
+          };
         },
       );
     },
