@@ -47,6 +47,10 @@ export function Reports() {
   }
 
   const reports: ReportsProps[] = reportsData?.data;
+  const questionary = questionaryData?.sort(
+    (a, b) =>
+      new Date(a.created_at).valueOf() - new Date(b.created_at).valueOf(),
+  );
 
   const termSearched = searchParams.get('search') || '';
   const filteredData = reports.filter((report: ReportsProps) =>
@@ -67,10 +71,10 @@ export function Reports() {
 
   return (
     <section className="bg-gray-100 dark:bg-gray-900">
-      {reportAnswersToShow && questionaryData && (
+      {reportAnswersToShow && questionary && (
         <ReportAnswersModal
           answers={JSON.parse(reportAnswersToShow.fields)}
-          questionaryBlocks={questionaryData}
+          questionaryBlocks={questionary}
           showModal={!!reportAnswersToShow}
           onCloseModal={() => setReportAnswersToShow(undefined)}
         />
