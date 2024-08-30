@@ -38,28 +38,21 @@ export function ReportAnswersModal({
           <div key={`${item.blockName}-${index}`}>
             {item.questions.length > 0 && (
               <div>
-                <div className="px-4 py-2 sm:px-0">
-                  <h3 className="text-base font-semibold leading-7 text-gray-900 dark:text-white">
-                    {item.blockName}
-                  </h3>
-                </div>
-                <div className="mt- border-t border-gray-100 dark:border-gray-600">
-                  <dl className="divide-y divide-gray-100 dark:divide-gray-600">
-                    {item.questions.map(questionItem => (
-                      <div
-                        key={questionItem?.id}
-                        className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0"
-                      >
-                        <dt className="text-sm font-medium leading-6 text-gray-900 dark:text-white sm:col-span-2">
-                          {questionItem?.query}
-                        </dt>
-                        <dd className="mt-1 text-sm leading-6 text-gray-700 dark:text-gray-300 sm:mt-0">
-                          {questionItem?.answer}
-                        </dd>
-                      </div>
-                    ))}
-                  </dl>
-                </div>
+                <dl className="">
+                  {item.questions.map(questionItem => (
+                    <div
+                      key={questionItem?.id}
+                      className="px-4 py-2 sm:px-0 space-y-2 border-b-2 border-gray-100 dark:border-gray-600"
+                    >
+                      <dt className="text-sm font-medium leading-6 text-gray-900 dark:text-white sm:col-span-2">
+                        {questionItem?.query}
+                      </dt>
+                      <dd className="mt-1 text-sm leading-6 text-gray-700 dark:text-gray-300 sm:mt-0">
+                        {questionItem?.answer}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
               </div>
             )}
           </div>
