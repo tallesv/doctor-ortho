@@ -24,7 +24,6 @@ type Question = {
 };
 
 type QuestionaryFormData = {
-  pacientName: string;
   questions: {
     [key: number]: string;
   };
