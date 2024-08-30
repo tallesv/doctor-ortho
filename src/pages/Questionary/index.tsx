@@ -5,16 +5,18 @@ import { useState } from 'react';
 import * as yup from 'yup';
 import { useForm, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Button } from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/auth';
-import Input from '@/components/Form/Input';
 import { Questions } from './components/Questions';
 import { ReviewAnsweredQuestions } from './components/ReviewAnsweredQuestions';
 import { BlockType } from '../Questionaries/types';
+import { useCreateReportMutation } from '@/shared/api/Reports/useReportMutation';
+import { PatientDataForm } from './components/PatientDataForm';
 
 export type QuestionaryFormData = {
-  pacient_name: string;
+  patient_name: string;
+  patient_age: number;
+  patient_gender: string;
   questions: {
     [key: number]: string;
   };
@@ -22,7 +24,7 @@ export type QuestionaryFormData = {
 };
 
 enum FormStep {
-  PACIENT_NAME = 0,
+  PAtIENT_NAME = 0,
   QUESTIONS = 1,
   REVIEW_QUESTIONS_ANSWERED = 2,
 }
@@ -32,7 +34,14 @@ export function Questionary() {
 
   const navigate = useNavigate();
   const formSchema = yup.object().shape({
-    pacient_name: yup.string().required('Por favor insira o nome do paciente'),
+    patient_name: yup.string().required('Por favor insira o nome do paciente'),
+    patient_age: yup
+      .number()
+      .typeError('Por favor insira a idade do paciente')
+      .required('Por favor insira a idade do paciente'),
+    patient_gender: yup
+      .string()
+      .required('Por favor insira o sexo do paciente'),
     questionsIdOrder: yup.array(yup.number().required()).required(),
     questions: yup.object({}),
   });
@@ -44,7 +53,7 @@ export function Questionary() {
     },
   });
 
-  const { handleSubmit, getValues, register } = reactHookFormsMethods;
+  const { handleSubmit, getValues } = reactHookFormsMethods;
 
   const { user } = useAuth();
   const userFirebaseId = user.firebase_id;
@@ -53,6 +62,8 @@ export function Questionary() {
     queryKey: ['questions-blocks', userFirebaseId],
     queryFn: () => api.get(`/users/${userFirebaseId}/questions_sets`),
   });
+
+  const { mutate: createReport } = useCreateReportMutation(userFirebaseId);
 
   if (isLoading || isError) {
     return <LoadingLayout />;
@@ -64,29 +75,25 @@ export function Questionary() {
   );
 
   function handleSubmitForm(data: QuestionaryFormData) {
-    const formattedData = Object.values(data.questions);
-    navigate(`/treatment?answers=${formattedData.toString()}`, {
-      state: {
-        ...data,
-      },
-    });
+    const { patient_age, patient_gender, patient_name, questions } = data;
+    const formattedQuestionsData = Object.values(questions);
+    const createReportPayload = {
+      patient_age,
+      patient_gender,
+      patient_name,
+      fields: JSON.stringify(questions),
+    };
+    createReport(createReportPayload);
+    navigate(`/treatment?answers=${formattedQuestionsData.toString()}`);
   }
 
   return (
     <div className="w-4/5 mx-auto py-3">
       <FormProvider {...reactHookFormsMethods}>
         <form onSubmit={handleSubmit(handleSubmitForm)}>
-          <div
-            className={
-              formStep === FormStep.PACIENT_NAME
-                ? 'flex flex-col space-y-8 w-72 lg:w-96 mx-auto'
-                : 'hidden'
-            }
-          >
-            <Input label="Nome do paciente" {...register('pacient_name')} />
-
-            <Button onClick={() => setFormStep(1)}>Seguir</Button>
-          </div>
+          {formStep === FormStep.PAtIENT_NAME && (
+            <PatientDataForm onSubmitPatientData={() => setFormStep(1)} />
+          )}
 
           <div className={formStep === FormStep.QUESTIONS ? '' : 'hidden'}>
             <Questions handleFinishForm={() => setFormStep(2)} />
