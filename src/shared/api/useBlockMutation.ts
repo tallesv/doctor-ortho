@@ -92,7 +92,6 @@ export function useDeleteBlockMutation(
           return response;
         },
       );
-      setBlockToDelete(undefined);
     },
     onSettled: () => {
       setBlockToDelete(undefined);
