@@ -5,11 +5,11 @@ import { HiMenu } from 'react-icons/hi';
 import { useAuth } from '@/hooks/auth';
 import { LoadingLayout } from '@/layout/LoadingLayout';
 import { BlockType } from '@/pages/Questionaries/types';
+import { Button } from '@/components/Button';
+import { useQuestionsBlockQuery } from '@/shared/api/QuestionsBlocks/useQuestionsBlocksQuery';
 import { QuestionaryFormData } from '..';
 import { DocsDrawer } from './DocsDrawer';
 import { QuestionGenerator } from './QuestionGenerator';
-import { Button } from '@/components/Button';
-import { useQuestionsBlockQuery } from '@/shared/api/QuestionsBlocks/useQuestionsBlocksQuery';
 
 interface QuestionsProps {
   handleFinishForm: () => void;
@@ -42,10 +42,17 @@ export function Questions({ handleFinishForm }: QuestionsProps) {
   const progressPercentage = ((blockIndex + 1) * 100) / questionBlocks.length;
   const isInLastBlock = blockIndex + 1 === questionBlocks.length;
 
-  function handleNextBlock() {
+  function handleNextBlock(nextQuestionId: number) {
     if (!isInLastBlock) {
+      const nextBlock = questionBlocks[blockIndex + 1];
+      const nextQuestionIndex = nextBlock.questions.findIndex(
+        question => question.id === nextQuestionId,
+      );
       setBlockIndex(prev => prev + 1);
+      return nextQuestionIndex;
     }
+
+    return -1;
   }
 
   function handlePreviousBlock() {

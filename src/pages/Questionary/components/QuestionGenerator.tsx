@@ -1,11 +1,11 @@
 import { RadioGroup } from '@headlessui/react';
 import { useState } from 'react';
 import { HiCheckCircle, HiArrowLeft } from 'react-icons/hi';
-import bindClassNames from '../../../utils/bindClassNames';
 import { useQuery, QueryKey } from '@tanstack/react-query';
+import { useFormContext } from 'react-hook-form';
+import bindClassNames from '../../../utils/bindClassNames';
 import { api } from '../../../client/api';
 import { LoadingLayout } from '../../../layout/LoadingLayout';
-import { useFormContext } from 'react-hook-form';
 import { queryClient } from '../../../config/queryClient';
 
 type Reply = {
@@ -34,7 +34,7 @@ interface QuestionGeneratorProps {
   blockId: number;
   previousBlockId: number;
   isLastBlock: boolean;
-  handleNextBlock: () => void;
+  handleNextBlock: (nextQuestionId: number) => number;
   handlePreviousBlock: () => void;
   handleShowFinishButton: (isInLastQuestion: boolean) => void;
 }
@@ -68,13 +68,11 @@ export function QuestionGenerator({
       if (findNextQuestionIndex !== -1) {
         setQuestionIndex(findNextQuestionIndex);
         handleShowFinishButton(false);
+      } else if (!isLastBlock) {
+        const nextQuestionIndex = handleNextBlock(reply.next_question_id);
+        setQuestionIndex(nextQuestionIndex);
       } else {
-        if (!isLastBlock) {
-          setQuestionIndex(0);
-          handleNextBlock();
-        } else {
-          handleShowFinishButton(true);
-        }
+        handleShowFinishButton(true);
       }
     }, 500);
   }
@@ -164,48 +162,46 @@ export function QuestionGenerator({
                   }
                 >
                   {({ active, checked }) => (
-                    <>
-                      <div className="flex w-full items-center justify-between space-x-4 h-full">
-                        <div className="h-full flex-shrink-0 content-center">
-                          {reply.image && (
-                            <img
-                              className="h-16 object-cover"
-                              src={reply.image}
-                            />
-                          )}
-                        </div>
+                    <div className="flex w-full items-center justify-between space-x-4 h-full">
+                      <div className="h-full flex-shrink-0 content-center">
+                        {reply.image && (
+                          <img
+                            className="h-16 object-cover"
+                            src={reply.image}
+                          />
+                        )}
+                      </div>
 
-                        <div className="flex items-center">
-                          <div className="text-sm">
-                            <RadioGroup.Label
-                              as="p"
-                              className={({}) =>
-                                bindClassNames(
-                                  active || checked
-                                    ? 'text-gray-200'
-                                    : 'text-gray-800 dark:text-gray-200',
-                                  `font-medium`,
-                                )
-                              }
-                            >
-                              {reply.answer}
-                            </RadioGroup.Label>
-                          </div>
-                        </div>
-
-                        <div className="flex-shrink-0 text-white">
-                          {(active || checked) && (
-                            <HiCheckCircle className="h-6 w-6" />
-                          )}
+                      <div className="flex items-center">
+                        <div className="text-sm">
+                          <RadioGroup.Label
+                            as="p"
+                            className={({}) =>
+                              bindClassNames(
+                                active || checked
+                                  ? 'text-gray-200'
+                                  : 'text-gray-800 dark:text-gray-200',
+                                `font-medium`,
+                              )
+                            }
+                          >
+                            {reply.answer}
+                          </RadioGroup.Label>
                         </div>
                       </div>
-                    </>
+
+                      <div className="flex-shrink-0 text-white">
+                        {(active || checked) && (
+                          <HiCheckCircle className="h-6 w-6" />
+                        )}
+                      </div>
+                    </div>
                   )}
                 </RadioGroup.Option>
               ))}
             </div>
           </RadioGroup>
-          {currentQuestion.image && (
+          {currentQuestion?.image && (
             <div className="mt-10 flex">
               <img
                 className="max-w-xl max-h-72 lg:max-h-96 mx-auto rounded-lg object-cover"
