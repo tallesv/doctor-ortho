@@ -8,8 +8,8 @@ interface LogiinLayoutProps {
 
 export function LoginLayout({ children }: LogiinLayoutProps) {
   return (
-    <div className="flex min-h-full items-center justify-center py-24 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-3 m-auto">
+    <div className="flex min-h-full items-center justify-center py-6 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-sm lg:max-w-md space-y-3 m-auto">
         <div>
           <img
             className="mx-auto w-4/5  sm:w-auto"
