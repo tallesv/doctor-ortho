@@ -82,7 +82,7 @@ export function EditUserprofile({
       });
 
       let userAvatar = formData.avatar;
-      if (typeof formData.avatar === 'object') {
+      if (!!formData.avatar && typeof formData.avatar === 'object') {
         userAvatar = await uploadFile(formData.avatar);
       }
 
