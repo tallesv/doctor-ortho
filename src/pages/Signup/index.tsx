@@ -228,7 +228,7 @@ export function Signup() {
             <Datepicker
               label="Data de nascimento"
               required
-              placeholderText="dd/mm/aaaa"
+              placeholderText="DD/MM/AAAA"
               control={control}
               error={!!formState.errors.birthdate}
               errorMessage={formState.errors.birthdate?.message}

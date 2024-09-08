@@ -7,6 +7,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { getInputBorderStyle } from '../../../utils/inputBorderStyle';
 import bindClassNames from '../../../utils/bindClassNames';
 import { Control, Controller } from 'react-hook-form';
+import { PatternFormat, PatternFormatProps } from 'react-number-format';
 
 interface DatepickerProps extends Omit<ReactDatePickerProps, 'onChange'> {
   label?: string;
@@ -33,6 +34,14 @@ const DatepickerComponent = forwardRef(
     ref: ForwardedRef<ReactDatePicker>,
   ) => {
     const inputBorderStyle = getInputBorderStyle(error);
+
+    const PatternFormatWithRef = forwardRef<
+      HTMLInputElement,
+      PatternFormatProps
+    >((props, ref: ForwardedRef<HTMLInputElement>) => (
+      <PatternFormat {...props} getInputRef={ref} />
+    ));
+
     return (
       <div className="w-full">
         {label && (
@@ -49,16 +58,24 @@ const DatepickerComponent = forwardRef(
               return (
                 <DatePicker
                   dateFormat="dd/MM/yyyy"
-                  ref={ref}
                   {...rest}
                   onChange={date => field.onChange(date, name)}
                   selected={field.value}
                   wrapperClassName="w-full"
-                  className={bindClassNames(
-                    `shadow-sm bg-gray-50 border text-gray-900 text-sm rounded-lg w-full block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 dark:shadow-sm-light`,
-                    className || '',
-                    inputBorderStyle,
-                  )}
+                  customInput={
+                    <PatternFormatWithRef
+                      format="##/##/####"
+                      placeholder="DD/MM/AAAA"
+                      mask={['D', 'D', 'M', 'M', 'A', 'A', 'A', 'A']}
+                      getInputRef={ref}
+                      className={bindClassNames(
+                        `shadow-sm bg-gray-50 border text-gray-900 text-sm rounded-lg w-full block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 dark:shadow-sm-light`,
+                        className || '',
+                        inputBorderStyle,
+                      )}
+                      value={field.value ? field.value : ''}
+                    />
+                  }
                 />
               );
             }}
