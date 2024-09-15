@@ -1,6 +1,5 @@
 import { Button } from '@/components/Button';
 import { BlockType } from '@/pages/Questionaries/types';
-import { useNavigate } from 'react-router-dom';
 
 interface ReviewAnsweredQuestionsProps {
   blocks: BlockType[];
