@@ -24,7 +24,7 @@ export function Button({
       disabled={isLoading}
       className={twMerge(
         bindClassNames(
-          'flex items-center justify-center text-white border  hover:text-primary-700  disabled:cursor-not-allowed focus:ring-2 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2',
+          'flex items-center justify-center text-white border  hover:text-primary-700  disabled:cursor-not-allowed focus:ring-2 font-medium rounded-lg text-sm px-5 py-2.5',
           buttonColorStyle,
           className || '',
         ),
