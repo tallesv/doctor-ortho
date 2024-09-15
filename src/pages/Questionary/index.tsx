@@ -11,12 +11,16 @@ import { BlockType } from '../Questionaries/types';
 import { useCreateReportMutation } from '@/shared/api/Reports/useReportMutation';
 import { PatientDataForm } from './components/PatientDataForm';
 import { useQuestionsBlockQuery } from '@/shared/api/QuestionsBlocks/useQuestionsBlocksQuery';
+import { useQuestionStore } from './hooks/useQuestionStore';
 
 export type QuestionaryFormData = {
   patient_name: string;
   patient_age: number;
   patient_gender: string;
   questions: {
+    [key: number]: string;
+  };
+  previous_questions: {
     [key: number]: string;
   };
   questionsIdOrder: number[];
@@ -31,6 +35,8 @@ enum FormStep {
 export function Questionary() {
   const [formStep, setFormStep] = useState(0);
 
+  const { setBlockIndex, setQuestionIndex } = useQuestionStore();
+
   const navigate = useNavigate();
   const formSchema = yup.object().shape({
     patient_name: yup.string().required('Por favor insira o nome do paciente'),
@@ -43,6 +49,7 @@ export function Questionary() {
       .required('Por favor insira o sexo do paciente'),
     questionsIdOrder: yup.array(yup.number().required()).required(),
     questions: yup.object({}),
+    previous_questions: yup.object({}),
   });
 
   const reactHookFormsMethods = useForm<QuestionaryFormData>({
@@ -52,7 +59,7 @@ export function Questionary() {
     },
   });
 
-  const { handleSubmit, getValues } = reactHookFormsMethods;
+  const { handleSubmit, getValues, setValue } = reactHookFormsMethods;
 
   const { user } = useAuth();
   const userFirebaseId = user.firebase_id;
@@ -74,6 +81,16 @@ export function Questionary() {
       new Date(a.created_at).valueOf() - new Date(b.created_at).valueOf(),
   );
 
+  function handleGoBackToQuestionary() {
+    const { questions } = getValues();
+    setValue('previous_questions', questions);
+    setValue('questions', {});
+    setValue('questionsIdOrder', []);
+    setQuestionIndex(0);
+    setBlockIndex(0);
+    setFormStep(1);
+  }
+
   function handleSubmitForm(data: QuestionaryFormData) {
     const { patient_age, patient_gender, patient_name, questions } = data;
     const formattedQuestionsData = Object.values(questions);
@@ -88,7 +105,7 @@ export function Questionary() {
   }
 
   return (
-    <div className="w-4/5 mx-auto py-3">
+    <div className="max-w-screen-xl mx-auto py-3">
       <FormProvider {...reactHookFormsMethods}>
         <form onSubmit={handleSubmit(handleSubmitForm)}>
           {formStep === FormStep.PAtIENT_NAME && (
@@ -103,6 +120,7 @@ export function Questionary() {
             <ReviewAnsweredQuestions
               blocks={questionBlocks}
               formAnswers={getValues().questions}
+              goBackToQuestionary={() => handleGoBackToQuestionary()}
             />
           )}
         </form>

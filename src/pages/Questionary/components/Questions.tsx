@@ -10,13 +10,15 @@ import { useQuestionsBlockQuery } from '@/shared/api/QuestionsBlocks/useQuestion
 import { QuestionaryFormData } from '..';
 import { DocsDrawer } from './DocsDrawer';
 import { QuestionGenerator } from './QuestionGenerator';
+import { useQuestionStore } from '../hooks/useQuestionStore';
 
 interface QuestionsProps {
   handleFinishForm: () => void;
 }
 
 export function Questions({ handleFinishForm }: QuestionsProps) {
-  const [blockIndex, setBlockIndex] = useState(0);
+  const { blockIndex, setBlockIndex } = useQuestionStore();
+
   const [showFinishButton, setShowFinishButton] = useState(false);
   const [docsDrawerIsOpen, setDocsDrawerIsOpen] = useState(false);
 
@@ -48,7 +50,7 @@ export function Questions({ handleFinishForm }: QuestionsProps) {
       const nextQuestionIndex = nextBlock.questions.findIndex(
         question => question.id === nextQuestionId,
       );
-      setBlockIndex(prev => prev + 1);
+      setBlockIndex(blockIndex + 1);
       return nextQuestionIndex;
     }
 
@@ -56,7 +58,7 @@ export function Questions({ handleFinishForm }: QuestionsProps) {
   }
 
   function handlePreviousBlock() {
-    setBlockIndex(state => state - 1);
+    setBlockIndex(blockIndex - 1);
   }
 
   function handleShowFinishButton(isInLastQuestion: boolean) {

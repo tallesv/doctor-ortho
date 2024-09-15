@@ -1,5 +1,4 @@
-import { RadioGroup } from '@headlessui/react';
-import { useState } from 'react';
+import { RadioGroup, Radio, Label, Field } from '@headlessui/react';
 import { HiCheckCircle, HiArrowLeft } from 'react-icons/hi';
 import { useQuery, QueryKey } from '@tanstack/react-query';
 import { useFormContext } from 'react-hook-form';
@@ -7,6 +6,8 @@ import bindClassNames from '../../../utils/bindClassNames';
 import { api } from '../../../client/api';
 import { LoadingLayout } from '../../../layout/LoadingLayout';
 import { queryClient } from '../../../config/queryClient';
+import { useQuestionStore } from '../hooks/useQuestionStore';
+import { QuestionaryFormData } from '..';
 
 type Reply = {
   answer: string;
@@ -21,13 +22,6 @@ type Question = {
   query: string;
   image?: string;
   replies: Reply[];
-};
-
-type QuestionaryFormData = {
-  questions: {
-    [key: number]: string;
-  };
-  questionsIdOrder: number[];
 };
 
 interface QuestionGeneratorProps {
@@ -49,7 +43,7 @@ export function QuestionGenerator({
 }: QuestionGeneratorProps) {
   const { setValue, getValues, watch } = useFormContext<QuestionaryFormData>();
 
-  const [questionIndex, setQuestionIndex] = useState(0);
+  const { questionIndex, setQuestionIndex } = useQuestionStore();
 
   function handleSelectReply(reply: Reply) {
     const { questions: formQuestions = {}, questionsIdOrder } = getValues();
@@ -104,6 +98,11 @@ export function QuestionGenerator({
     }
   }
 
+  function checkReplySelected(replyId: string) {
+    const { previous_questions } = getValues();
+    return previous_questions?.[currentQuestion.id] === replyId;
+  }
+
   const { data, isLoading } = useQuery({
     queryKey: ['questions', blockId],
     queryFn: ({ queryKey }) =>
@@ -145,23 +144,26 @@ export function QuestionGenerator({
       </div>
       <div className="w-full px-5 py-6">
         <div className="flex mx-auto w-full max-w-md">
-          <RadioGroup onChange={handleSelectReply} className="flex-grow">
-            <div className="flex flex-col lg:h-full h-[500px] space-y-2">
+          <RadioGroup className="flex-grow">
+            <Field className="flex flex-col lg:h-full h-[500px] space-y-2">
               {currentQuestion?.replies?.map(reply => (
-                <RadioGroup.Option
+                <Radio
                   key={reply.id}
                   value={reply}
-                  className={({ active, checked }) =>
+                  onClick={() => handleSelectReply(reply)}
+                  className={({ focus, checked }) =>
                     bindClassNames(
-                      active
+                      focus
                         ? 'ring-2 ring-white/60 ring-offset-2 ring-offset-sky-300  dark:ring-white/80 dark:ring-offset-sky-600'
                         : '',
-                      checked ? 'bg-sky-600' : 'bg-gray-50 dark:bg-gray-700',
+                      checked || checkReplySelected(reply.id)
+                        ? 'bg-sky-600'
+                        : 'bg-gray-50 dark:bg-gray-700',
                       'animate-right-left lg:min-h-[8rem] flex-grow relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none',
                     )
                   }
                 >
-                  {({ active, checked }) => (
+                  {({ focus, checked }) => (
                     <div className="flex w-full items-center justify-between space-x-4 h-full">
                       <div className="h-full flex-shrink-0 content-center">
                         {reply.image && (
@@ -174,11 +176,11 @@ export function QuestionGenerator({
 
                       <div className="flex items-center">
                         <div className="text-sm">
-                          <RadioGroup.Label
+                          <Label
                             as="p"
                             className={({}) =>
                               bindClassNames(
-                                active || checked
+                                focus || checked || checkReplySelected(reply.id)
                                   ? 'text-gray-200'
                                   : 'text-gray-800 dark:text-gray-200',
                                 `font-medium`,
@@ -186,20 +188,20 @@ export function QuestionGenerator({
                             }
                           >
                             {reply.answer}
-                          </RadioGroup.Label>
+                          </Label>
                         </div>
                       </div>
 
                       <div className="flex-shrink-0 text-white">
-                        {(active || checked) && (
+                        {(focus || checked || checkReplySelected(reply.id)) && (
                           <HiCheckCircle className="h-6 w-6" />
                         )}
                       </div>
                     </div>
                   )}
-                </RadioGroup.Option>
+                </Radio>
               ))}
-            </div>
+            </Field>
           </RadioGroup>
           {currentQuestion?.image && (
             <div className="mt-10 flex">
