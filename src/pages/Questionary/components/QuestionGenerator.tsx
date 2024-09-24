@@ -143,9 +143,9 @@ export function QuestionGenerator({
         </h3>
       </div>
       <div className="w-full px-5 py-6">
-        <div className="flex mx-auto w-full max-w-md">
-          <RadioGroup className="flex-grow">
-            <Field className="flex flex-col lg:h-full h-[500px] space-y-2">
+        <div className="mx-auto w-full max-w-md">
+          <RadioGroup className="flex-grow relative z-10">
+            <Field className="flex flex-col space-y-4">
               {currentQuestion?.replies?.map(reply => (
                 <Radio
                   key={reply.id}
@@ -154,42 +154,38 @@ export function QuestionGenerator({
                   className={({ focus, checked }) =>
                     bindClassNames(
                       focus
-                        ? 'ring-2 ring-white/60 ring-offset-2 ring-offset-sky-300  dark:ring-white/80 dark:ring-offset-sky-600'
+                        ? 'ring-2 ring-white/60 ring-offset-2 ring-offset-sky-300 dark:ring-white/80 dark:ring-offset-sky-600'
                         : '',
                       checked || checkReplySelected(reply.id)
                         ? 'bg-sky-600'
                         : 'bg-gray-50 dark:bg-gray-700',
-                      'animate-right-left lg:min-h-[8rem] flex-grow relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none',
+                      'animate-right-left border-2 border-sky-600 h-[6rem] flex-grow relative flex cursor-pointer rounded-lg pr-5 shadow-md focus:outline-none overflow-hidden',
                     )
                   }
                 >
                   {({ focus, checked }) => (
                     <div className="flex w-full items-center justify-between space-x-4 h-full">
-                      <div className="h-full flex-shrink-0 content-center">
+                      <div className="h-full flex-shrink-0">
                         {reply.image && (
                           <img
-                            className="h-16 object-cover"
+                            className="h-full w-20 object-cover"
                             src={reply.image}
                           />
                         )}
                       </div>
 
-                      <div className="flex items-center">
-                        <div className="text-sm">
-                          <Label
-                            as="p"
-                            className={({}) =>
-                              bindClassNames(
-                                focus || checked || checkReplySelected(reply.id)
-                                  ? 'text-gray-200'
-                                  : 'text-gray-800 dark:text-gray-200',
-                                `font-medium`,
-                              )
-                            }
-                          >
-                            {reply.answer}
-                          </Label>
-                        </div>
+                      <div className="flex-grow flex-shrink min-w-0">
+                        <Label
+                          as="p"
+                          className={bindClassNames(
+                            focus || checked || checkReplySelected(reply.id)
+                              ? 'text-gray-200'
+                              : 'text-sky-600 dark:text-gray-200',
+                            'text-lg font-medium break-words whitespace-normal leading-4',
+                          )}
+                        >
+                          {reply.answer}
+                        </Label>
                       </div>
 
                       <div className="flex-shrink-0 text-white">
@@ -204,13 +200,11 @@ export function QuestionGenerator({
             </Field>
           </RadioGroup>
           {currentQuestion?.image && (
-            <div className="mt-10 flex">
-              <img
-                className="max-w-xl max-h-72 lg:max-h-96 mx-auto rounded-lg object-cover"
-                src={currentQuestion.image}
-                alt={`question ${currentQuestion.id} image`}
-              />
-            </div>
+            <img
+              className="fixed bottom-0 right-0 h-96 z-0 object-cover m-4"
+              src={currentQuestion.image}
+              alt={`question ${currentQuestion.id} image`}
+            />
           )}
         </div>
       </div>

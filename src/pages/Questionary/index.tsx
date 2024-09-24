@@ -105,7 +105,7 @@ export function Questionary() {
   }
 
   return (
-    <div className="max-w-screen-xl mx-auto py-3">
+    <div className="max-w-screen-lg mx-auto py-3">
       <FormProvider {...reactHookFormsMethods}>
         <form onSubmit={handleSubmit(handleSubmitForm)}>
           {formStep === FormStep.PAtIENT_NAME && (
