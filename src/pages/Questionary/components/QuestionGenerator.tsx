@@ -185,7 +185,7 @@ export function QuestionGenerator({
                             focus || checked || checkReplySelected(reply.id)
                               ? 'text-gray-200'
                               : 'text-sky-600 dark:text-gray-200',
-                            'text-lg font-medium break-words whitespace-normal leading-4',
+                            'break-words whitespace-normal leading-4',
                           )}
                         >
                           {reply.answer}
@@ -205,7 +205,8 @@ export function QuestionGenerator({
           </RadioGroup>
           {currentQuestion?.image && (
             <img
-              className="fixed bottom-0 right-0 h-96 z-0 object-cover m-4"
+              className="fixed bottom-0 lg:right-0 h-96 z-0 object-cover lg:m-4 left-1/2 transform -translate-x-1/2
+               sm:left-auto sm:transform-none sm:translate-x-0"
               src={currentQuestion.image}
               alt={`question ${currentQuestion.id} image`}
             />
