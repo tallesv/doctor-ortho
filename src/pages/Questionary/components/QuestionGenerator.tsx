@@ -74,6 +74,7 @@ export function QuestionGenerator({
   async function handleBackPreviousQuestion() {
     const { questions: formQuestions = {}, questionsIdOrder } = getValues();
     const lastAnsweredQuestionId = questionsIdOrder.slice(-1)[0];
+    setValue('previous_questions', formQuestions);
     if (lastAnsweredQuestionId) {
       delete formQuestions[+lastAnsweredQuestionId];
       questionsIdOrder.pop();
@@ -99,8 +100,11 @@ export function QuestionGenerator({
   }
 
   function checkReplySelected(replyId: string) {
-    const { previous_questions } = getValues();
-    return previous_questions?.[currentQuestion.id] === replyId;
+    const { previous_questions, questions } = getValues();
+    return (
+      previous_questions?.[currentQuestion.id] === replyId ||
+      questions?.[currentQuestion.id] === replyId
+    );
   }
 
   const { data, isLoading } = useQuery({
