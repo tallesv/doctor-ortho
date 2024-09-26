@@ -53,7 +53,7 @@ export function ReviewAnsweredQuestions({
           Conferência questionário
         </h2>
       </div>
-      <div className="bg-white max-w-screen-lg mx-auto dark:bg-gray-800 antialiased shadow-md rounded-lg ">
+      <div className="bg-white max-w-screen-lg mx-auto pt-2 dark:bg-gray-800 antialiased shadow-md rounded-lg ">
         <div className="px-4 py-2 mx-auto lg:px-6 sm:py-4 lg:py-8">
           <ol className="space-y-4 text-sky-600 font-medium list-decimal list-inside dark:text-gray-400">
             {formatQuestionsAnswered.map(summaryBlock => (
@@ -78,7 +78,7 @@ export function ReviewAnsweredQuestions({
           )}
         </div>
 
-        <div className="pb-2 px-1 lg:space-x-10 flex justify-between lg:justify-center">
+        <div className="py-2 px-1 lg:space-x-10 flex justify-between lg:justify-center">
           <Button
             onClick={() => goBackToQuestionary()}
             className="w-44 lg:w-48"
