@@ -163,7 +163,7 @@ export function QuestionGenerator({
                       checked || checkReplySelected(reply.id)
                         ? 'bg-sky-600'
                         : 'bg-gray-50 dark:bg-gray-700',
-                      'animate-right-left border-2 border-sky-600 h-[6rem] flex-grow relative flex cursor-pointer rounded-lg pr-5 shadow-md focus:outline-none overflow-hidden',
+                      'animate-right-left border-2 border-sky-600 h-[4rem] flex-grow relative flex cursor-pointer rounded-lg pr-5 shadow-md focus:outline-none overflow-hidden',
                     )
                   }
                 >
@@ -172,7 +172,7 @@ export function QuestionGenerator({
                       <div className="h-full flex-shrink-0">
                         {reply.image && (
                           <img
-                            className="h-full w-20 object-cover"
+                            className="h-full object-cover"
                             src={reply.image}
                           />
                         )}
@@ -205,8 +205,7 @@ export function QuestionGenerator({
           </RadioGroup>
           {currentQuestion?.image && (
             <img
-              className="fixed bottom-0 lg:right-0 h-96 z-0 object-cover lg:m-4 left-1/2 transform -translate-x-1/2
-               sm:left-auto sm:transform-none sm:translate-x-0"
+              className="fixed bottom-0 right-0 h-96 z-0 object-cover m-4"
               src={currentQuestion.image}
               alt={`question ${currentQuestion.id} image`}
             />
