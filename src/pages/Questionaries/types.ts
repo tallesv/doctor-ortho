@@ -8,6 +8,7 @@ export type ReplyType = {
   image: string;
   show_on_summary: boolean;
   summary_title?: string;
+  summary_block?: number;
 };
 
 export type QuestionType = {

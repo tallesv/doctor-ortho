@@ -10,6 +10,7 @@ import { BlockType, ReplyType } from '../../types';
 import { Link } from 'react-router-dom';
 import FileInput from '@/components/Form/FileInput';
 import Checkbox from '@/components/Form/Checkbox';
+import { summaryBlocksData } from '../utils/summaryBlocksData';
 
 interface ReplyModalProps {
   showModal: boolean;
@@ -34,6 +35,7 @@ export type ReplyFormData = {
   image?: FileList | string | null;
   show_on_summary: boolean;
   summary_title?: string;
+  summary_block?: number;
 };
 
 const replyFormSchema = yup.object().shape({
@@ -81,6 +83,7 @@ export function ReplyModal({
       setValue('image', reply.image);
       setValue('show_on_summary', reply.show_on_summary ?? false);
       setValue('summary_title', reply.summary_title ?? '');
+      setValue('summary_block', reply.summary_block ?? undefined);
     }
   }, [reply]);
 
@@ -152,6 +155,21 @@ export function ReplyModal({
                 error={!!formState.errors.summary_title}
                 errorMessage={formState.errors.summary_title?.message}
                 {...register('summary_title')}
+              />
+            </div>
+          )}
+
+          {watchShowOnSummary && (
+            <div className={watchShowOnSummary ? '' : 'hidden'}>
+              <div className="mb-2 block">
+                <Label htmlFor="summaryBlock" value="Bloco do resumo" />
+              </div>
+              <Select
+                options={summaryBlocksData?.map(block => ({
+                  label: block.title,
+                  value: block.id,
+                }))}
+                {...register('summary_block')}
               />
             </div>
           )}

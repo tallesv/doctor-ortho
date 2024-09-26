@@ -1,4 +1,5 @@
 import { Button } from '@/components/Button';
+import { summaryBlocksData } from '@/pages/Questionaries/Replies/utils/summaryBlocksData';
 import { BlockType } from '@/pages/Questionaries/types';
 
 interface ReviewAnsweredQuestionsProps {
@@ -14,27 +15,35 @@ export function ReviewAnsweredQuestions({
   formAnswers,
   goBackToQuestionary,
 }: ReviewAnsweredQuestionsProps) {
-  const formatQuestionsAnswered = blocks.map(block => ({
-    blockName: block.name,
-    questions: block.questions
-      .map(({ id, query, replies }) => {
-        const replyId = Number(formAnswers[id]);
-        const reply = replies.find(({ id }) => id === replyId);
+  const formatQuestionsAnswered = summaryBlocksData.map(summaryBlock => {
+    const answers = blocks
+      .flatMap(block =>
+        block.questions.map(({ id, query, replies }) => {
+          const replyId = Number(formAnswers[id]);
+          const reply = replies.find(({ id }) => id === replyId);
 
-        if (!reply || !reply.show_on_summary) return null;
+          const isReplyValid =
+            reply &&
+            reply.show_on_summary &&
+            reply.summary_block === summaryBlock.id;
 
-        const answer =
-          reply.summary_title && reply.summary_title !== ''
-            ? reply.summary_title
-            : reply.answer;
+          if (!isReplyValid) return null;
 
-        return answer ? { id, query, answer } : null;
-      })
-      .filter(Boolean),
-  }));
+          const answerText = reply.summary_title || reply.answer;
+
+          return answerText ? { id, query, answer: answerText } : null;
+        }),
+      )
+      .filter(Boolean);
+
+    return {
+      summaryBlockTitle: summaryBlock.title,
+      answers,
+    };
+  });
 
   const isFormatQuestionsAnsweredEmpty = !formatQuestionsAnswered.some(
-    item => item.questions.length > 0,
+    item => item.answers.length > 0,
   );
 
   return (
@@ -46,37 +55,27 @@ export function ReviewAnsweredQuestions({
       </div>
       <div className="bg-white max-w-screen-lg mx-auto dark:bg-gray-800 antialiased shadow-md rounded-lg ">
         <div className="px-4 py-2 mx-auto lg:px-6 sm:py-4 lg:py-8">
+          <ol className="space-y-4 text-sky-600 font-medium list-decimal list-inside dark:text-gray-400">
+            {formatQuestionsAnswered.map(summaryBlock => (
+              <li key={summaryBlock.summaryBlockTitle}>
+                {summaryBlock.summaryBlockTitle}
+
+                <ul className="ps-5 mt-2 space-y-1 list-disc list-inside">
+                  {summaryBlock.answers.length === 0 && <li />}
+                  {summaryBlock.answers.map(answer => (
+                    <li>{answer?.answer}</li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ol>
+
           {isFormatQuestionsAnsweredEmpty && (
             <div className="mx-auto my-4 text-center text-gray-900 dark:text-white">
               Não foram encontradas respostas para serem exibidas na Conferência
               questionário
             </div>
           )}
-          {formatQuestionsAnswered.map((item, index) => (
-            <div key={`${item.blockName}-${index}`}>
-              {item.questions.length > 0 && (
-                <div>
-                  <div className="border-t border-gray-100 dark:border-gray-700">
-                    <dl>
-                      {item.questions.map(questionItem => (
-                        <div
-                          key={questionItem?.id}
-                          className="px-4 py-2 sm:px-0 space-y-2 border-b-2 border-gray-100 dark:border-gray-700"
-                        >
-                          <dt className="text-sm font-medium leading-6 text-gray-900 dark:text-white">
-                            {questionItem?.query}
-                          </dt>
-                          <dd className="mt-1 text-sm leading-6 text-gray-700 dark:text-gray-300 sm:col-span-2 sm:mt-0">
-                            {questionItem?.answer}
-                          </dd>
-                        </div>
-                      ))}
-                    </dl>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
         </div>
 
         <div className="pb-2 px-1 lg:space-x-10 flex justify-between lg:justify-center">
