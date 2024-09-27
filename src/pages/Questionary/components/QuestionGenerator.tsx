@@ -8,6 +8,7 @@ import { LoadingLayout } from '../../../layout/LoadingLayout';
 import { queryClient } from '../../../config/queryClient';
 import { useQuestionStore } from '../hooks/useQuestionStore';
 import { QuestionaryFormData } from '..';
+import { useEffect, useRef, useState } from 'react';
 
 type Reply = {
   answer: string;
@@ -44,6 +45,27 @@ export function QuestionGenerator({
   const { setValue, getValues, watch } = useFormContext<QuestionaryFormData>();
 
   const { questionIndex, setQuestionIndex } = useQuestionStore();
+
+  const [isImageVisible, setIsImageVisible] = useState(true);
+  const optionRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
+
+  const checkOverlap = () => {
+    if (optionRef.current && imageRef.current) {
+      const optionRect = optionRef.current.getBoundingClientRect();
+      const imageRect = imageRef.current.getBoundingClientRect();
+
+      // Check if the option text overlaps with the image
+      const isOverlapping = !(
+        optionRect.bottom < imageRect.top ||
+        optionRect.top > imageRect.bottom ||
+        optionRect.right < imageRect.left ||
+        optionRect.left > imageRect.right
+      );
+
+      setIsImageVisible(!isOverlapping);
+    }
+  };
 
   function handleSelectReply(reply: Reply) {
     const { questions: formQuestions = {}, questionsIdOrder } = getValues();
@@ -107,6 +129,16 @@ export function QuestionGenerator({
     );
   }
 
+  useEffect(() => {
+    window.addEventListener('resize', checkOverlap);
+    // Initial check
+    checkOverlap();
+
+    return () => {
+      window.removeEventListener('resize', checkOverlap);
+    };
+  }, [questionIndex]);
+
   const { data, isLoading } = useQuery({
     queryKey: ['questions', blockId],
     queryFn: ({ queryKey }) =>
@@ -152,7 +184,7 @@ export function QuestionGenerator({
             <Field className="flex flex-col space-y-4">
               {currentQuestion?.replies?.map(reply => (
                 <Radio
-                  key={reply.id}
+                  key={`${currentQuestion.id}-${reply.id}`}
                   value={reply}
                   onClick={() => handleSelectReply(reply)}
                   className={({ focus, checked }) =>
@@ -178,7 +210,10 @@ export function QuestionGenerator({
                         )}
                       </div>
 
-                      <div className="flex-grow flex-shrink min-w-0">
+                      <div
+                        className="flex-grow flex-shrink min-w-0"
+                        ref={optionRef}
+                      >
                         <Label
                           as="p"
                           className={bindClassNames(
@@ -205,7 +240,11 @@ export function QuestionGenerator({
           </RadioGroup>
           {currentQuestion?.image && (
             <img
-              className="fixed bottom-0 right-0 h-96 z-0 object-cover m-4"
+              ref={imageRef}
+              className={bindClassNames(
+                'fixed bottom-0 right-0 h-2/4 z-0 object-cover m-4',
+                isImageVisible ? 'z-20' : 'z-0',
+              )}
               src={currentQuestion.image}
               alt={`question ${currentQuestion.id} image`}
             />
