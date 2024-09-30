@@ -211,7 +211,7 @@ export function QuestionGenerator({
                       </div>
 
                       <div
-                        className="flex-grow flex-shrink min-w-0"
+                        className="flex-grow flex items-center justify-center text-center flex-shrink min-w-0"
                         ref={optionRef}
                       >
                         <Label
@@ -227,11 +227,11 @@ export function QuestionGenerator({
                         </Label>
                       </div>
 
-                      <div className="flex-shrink-0 text-white h-6 w-6">
-                        {(focus || checked || checkReplySelected(reply.id)) && (
+                      {(focus || checked || checkReplySelected(reply.id)) && (
+                        <div className="flex-shrink-0 text-white h-6 w-6">
                           <HiCheckCircle className="h-6 w-6" />
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </Radio>
