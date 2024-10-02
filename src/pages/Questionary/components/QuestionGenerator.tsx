@@ -195,12 +195,12 @@ export function QuestionGenerator({
                       checked || checkReplySelected(reply.id)
                         ? 'bg-sky-600'
                         : 'bg-gray-50 dark:bg-gray-700',
-                      'animate-right-left border-2 border-sky-600 h-[4rem] w-fit flex-grow relative flex cursor-pointer rounded-lg pr-5 shadow-md focus:outline-none overflow-hidden',
+                      'animate-right-left border-2 border-sky-600 h-[4rem] flex-grow relative flex cursor-pointer rounded-lg shadow-md focus:outline-none overflow-hidden',
                     )
                   }
                 >
                   {({ focus, checked }) => (
-                    <div className="flex w-full items-center justify-between space-x-4 h-full">
+                    <div className="flex w-full items-center justify-between h-full">
                       <div className="h-full flex-shrink-0">
                         {reply.image && (
                           <img
@@ -211,7 +211,10 @@ export function QuestionGenerator({
                       </div>
 
                       <div
-                        className="flex-grow flex items-center justify-center text-center flex-shrink min-w-0"
+                        className={bindClassNames(
+                          'flex-grow flex items-center justify-center text-center flex-shrink min-w-0',
+                          reply.image ? 'pr-4' : 'px-8',
+                        )}
                         ref={optionRef}
                       >
                         <Label
@@ -227,11 +230,15 @@ export function QuestionGenerator({
                         </Label>
                       </div>
 
-                      {(focus || checked || checkReplySelected(reply.id)) && (
-                        <div className="flex-shrink-0 text-white h-6 w-6">
-                          <HiCheckCircle className="h-6 w-6" />
+                      {
+                        <div className="text-white absolute right-1">
+                          {(focus ||
+                            checked ||
+                            checkReplySelected(reply.id)) && (
+                            <HiCheckCircle className="h-6 w-6" />
+                          )}
                         </div>
-                      )}
+                      }
                     </div>
                   )}
                 </Radio>
