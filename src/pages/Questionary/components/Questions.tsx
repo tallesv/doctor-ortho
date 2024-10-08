@@ -44,17 +44,26 @@ export function Questions({ handleFinishForm }: QuestionsProps) {
   const progressPercentage = ((blockIndex + 1) * 100) / questionBlocks.length;
   const isInLastBlock = blockIndex + 1 === questionBlocks.length;
 
-  function handleNextBlock(nextQuestionId: number) {
-    if (!isInLastBlock) {
-      const nextBlock = questionBlocks[blockIndex + 1];
-      const nextQuestionIndex = nextBlock.questions.findIndex(
-        question => question.id === nextQuestionId,
-      );
-      setBlockIndex(blockIndex + 1);
-      return nextQuestionIndex;
+  function handleNextBlock(
+    nextQuestionId: number,
+    currentBlockIndex: number = blockIndex,
+  ): number {
+    const isLastBlock = currentBlockIndex + 1 === questionBlocks.length;
+
+    if (isLastBlock) {
+      return -1;
     }
 
-    return -1;
+    const nextBlock = questionBlocks[currentBlockIndex + 1];
+    const nextQuestionIndex = nextBlock.questions.findIndex(
+      question => question.id === nextQuestionId,
+    );
+
+    if (nextQuestionIndex !== -1) {
+      setBlockIndex(currentBlockIndex + 1);
+      return nextQuestionIndex;
+    }
+    return handleNextBlock(nextQuestionId, currentBlockIndex + 1); // Recursive call with updated block index
   }
 
   function handlePreviousBlock() {
