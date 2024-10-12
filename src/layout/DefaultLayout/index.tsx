@@ -8,6 +8,7 @@ import { useAuth } from '../../hooks/auth';
 import { LoadingLayout } from '../LoadingLayout';
 import { SidebarDialog } from './components/SidebarDialog';
 import bindClassNames from '../../utils/bindClassNames';
+import { CreditData } from './components/CreditData';
 
 interface DefaultLayoutProps {
   children?: ReactNode;
@@ -81,7 +82,9 @@ export function DefaultLayout({ children }: DefaultLayoutProps) {
               </span> */}
             </a>
           </div>
-          <div className="flex items-center lg:order-2">
+          <div className="flex items-center space-x-2 lg:order-2">
+            <CreditData userCurrencyAmount={user.currency_amount ?? 0} />
+
             {/* <!-- Theme --> */}
             <button
               type="button"
