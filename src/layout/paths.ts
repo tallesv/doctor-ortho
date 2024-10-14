@@ -4,6 +4,7 @@ import {
   HiOutlinePencil,
   HiDocumentText,
   HiDocumentDuplicate,
+  HiOutlineCurrencyDollar,
 } from 'react-icons/hi';
 type Path = {
   label: string;
@@ -59,5 +60,10 @@ export const paths: Path[] = [
     label: 'Relátorios',
     path: '/reports',
     icon: HiDocumentDuplicate,
+  },
+  {
+    label: 'Créditos',
+    path: '/credits',
+    icon: HiOutlineCurrencyDollar,
   },
 ];

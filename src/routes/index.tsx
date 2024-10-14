@@ -23,6 +23,7 @@ import { FAQ } from '../pages/FAQ';
 import { Terms } from '../pages/Terms';
 import { PrivacyPolicy } from '../pages/PrivacyPolicy';
 import { Reports } from '@/pages/Reports';
+import { Credits } from '@/pages/Credits';
 
 const isDevEnv = import.meta.env.DEV;
 
@@ -66,6 +67,7 @@ export function Router() {
         <Route path="/faq" Component={FAQ} />
         <Route path="/terms" Component={Terms} />
         <Route path="/privacy-policy" Component={PrivacyPolicy} />
+        <Route path="/credits" Component={Credits} />
 
         {isDevEnv && <Route path="/showcase" Component={Showcase} />}
 
