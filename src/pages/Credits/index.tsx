@@ -1,13 +1,8 @@
 import { Table } from 'flowbite-react';
 import { useState } from 'react';
 import Pagination from '../../components/Pagination';
-import { useSearchParams } from 'react-router-dom';
 import { LoadingLayout } from '../../layout/LoadingLayout';
-import SearchInput from '../../components/SearchInput';
-import { useReportsQuery } from '@/shared/api/Reports/useReportQuery';
 import { useAuth } from '@/hooks/auth';
-import { useQuestionsBlockQuery } from '@/shared/api/QuestionsBlocks/useQuestionsBlocksQuery';
-import { useDeleteReportMutation } from '@/shared/api/Reports/useReportMutation';
 import { useOrdersQuery } from '@/shared/api/Credits/useCreditsQuery';
 import { Button } from '@/components/Button';
 import { AddCreditsModal } from './components/AddCreditsModal';
@@ -26,7 +21,7 @@ export function Credits() {
   const contentPerPage = 10;
   const [isAddCreditsModalOpen, setIsAddCreditsModalOpen] = useState(false);
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  //const [searchParams, setSearchParams] = useSearchParams();
 
   const { user } = useAuth();
   const userFirebaseId = user.firebase_id;
@@ -40,12 +35,12 @@ export function Credits() {
 
   const orders = ordersData?.data ?? [];
 
-  const termSearched = searchParams.get('search') || '';
+  //const termSearched = searchParams.get('search') || '';
   /* const filteredData = orders?.filter((report: ReportsProps) =>
     report.patient_name.toLowerCase().includes(termSearched.toLowerCase()),
   ); */
 
-  function handleSearchContent(data: string) {
+  /*   function handleSearchContent(data: string) {
     setCurrentPage(1);
     setSearchParams(state => {
       if (data === '') {
@@ -55,7 +50,7 @@ export function Credits() {
       }
       return state;
     });
-  }
+  } */
 
   return (
     <section className="bg-gray-100 dark:bg-gray-900">
