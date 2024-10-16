@@ -4,29 +4,30 @@ import { useMutation } from '@tanstack/react-query';
 import { Dispatch, SetStateAction } from 'react';
 
 type CreateReportData = {
-  patient_age: number;
-  patient_gender: string;
-  patient_name: string;
   fields: string;
 };
 
 type ReportProps = {
   id: number;
-  patient_name: string;
-  patient_gender: string;
-  patient_age: number;
+  patient_id: number;
   fields: string;
   created_at: string;
+};
+
+type CreateReportMutationVariables = {
+  data: CreateReportData;
+  patientId: number;
 };
 
 type SetReportType = Dispatch<SetStateAction<ReportProps | undefined>>;
 
 export function useCreateReportMutation(userFirebaseId: string) {
   return useMutation({
-    mutationFn: async (
-      data: CreateReportData,
-    ): Promise<{ data: CreateReportData }> => {
-      return api.post(`/users/${userFirebaseId}/reports`, data);
+    mutationFn: async ({ data, patientId }: CreateReportMutationVariables) => {
+      return api.post<ReportProps>(
+        `/users/${userFirebaseId}/patients/${patientId}/reports`,
+        data,
+      );
     },
     onError: err => {
       console.log(err);

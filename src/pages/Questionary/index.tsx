@@ -12,6 +12,7 @@ import { useCreateReportMutation } from '@/shared/api/Reports/useReportMutation'
 import { PatientDataForm } from './components/PatientDataForm';
 import { useQuestionsBlockQuery } from '@/shared/api/QuestionsBlocks/useQuestionsBlocksQuery';
 import { useQuestionStore } from './hooks/useQuestionStore';
+import { useCreatePatientMutation } from '@/shared/api/Patients/usePatientMutations';
 
 export type QuestionaryFormData = {
   patient_name: string;
@@ -71,6 +72,8 @@ export function Questionary() {
   } = useQuestionsBlockQuery(userFirebaseId);
 
   const { mutate: createReport } = useCreateReportMutation(userFirebaseId);
+  const { mutateAsync: createPatient } =
+    useCreatePatientMutation(userFirebaseId);
 
   if (isLoading || isError || !questionsBlockData) {
     return <LoadingLayout />;
@@ -91,14 +94,23 @@ export function Questionary() {
     setFormStep(1);
   }
 
-  function handleSubmitForm(data: QuestionaryFormData) {
+  async function handleSubmitForm(data: QuestionaryFormData) {
     const { patient_age, patient_gender, patient_name, questions } = data;
+
+    const createPatientPayload = {
+      age: patient_age,
+      gender: patient_gender,
+      name: patient_name,
+    };
+
+    const patientCreated = await createPatient(createPatientPayload);
+
     const formattedQuestionsData = Object.values(questions);
     const createReportPayload = {
-      patient_age,
-      patient_gender,
-      patient_name,
-      fields: JSON.stringify(questions),
+      patientId: patientCreated.id,
+      data: {
+        fields: JSON.stringify(questions),
+      },
     };
     createReport(createReportPayload);
     navigate(`/treatment?answers=${formattedQuestionsData.toString()}`);
