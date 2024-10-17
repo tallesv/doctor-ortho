@@ -223,7 +223,7 @@ export function QuestionGenerator({
                             focus || checked || checkReplySelected(reply.id)
                               ? 'text-gray-200'
                               : 'text-sky-600 dark:text-gray-200',
-                            'font-medium break-words whitespace-normal leading-5',
+                            'font-medium break-words whitespace-normal leading-6',
                           )}
                         >
                           {reply.answer}
