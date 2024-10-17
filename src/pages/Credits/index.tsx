@@ -70,7 +70,7 @@ export function Credits() {
                   Adicionar créditos
                 </Button>
 
-                <div>{`Saldo: R$ ${user.currency_amount ?? 0}`}</div>
+                <div>{`Saldo: ${user.currency_amount ?? 0}`}</div>
               </div>
               <div className="overflow-x-auto sm:rounded-lg">
                 <Table hoverable>
@@ -99,7 +99,7 @@ export function Credits() {
                             {order.order_transaction}
                           </Table.Cell>
                           <Table.Cell>{order.quantity}</Table.Cell>
-                          <Table.Cell>{`R$ ${order.value}`}</Table.Cell>
+                          <Table.Cell>{`${order.value}`}</Table.Cell>
                           <Table.Cell>{order.status}</Table.Cell>
                           <Table.Cell>
                             {new Date(order.created_at).toLocaleDateString(
