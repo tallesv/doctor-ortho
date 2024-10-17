@@ -29,7 +29,7 @@ export function DeleteReportModal({
         <div className="text-center">
           <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-red-500 dark:text-gray-200" />
           <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-            {`Você tem certeza que deseja deletar o relatório de ${report.patient_name}?`}
+            {`Você tem certeza que deseja deletar o relatório de ${report.id}?`}
           </h3>
           <div className="flex justify-end gap-4">
             <Button
