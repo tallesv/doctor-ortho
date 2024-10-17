@@ -1,21 +1,16 @@
 import { Table } from 'flowbite-react';
 import { useState } from 'react';
 import Pagination from '../../components/Pagination';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { LoadingLayout } from '../../layout/LoadingLayout';
-import SearchInput from '../../components/SearchInput';
 import { useReportsQuery } from '@/shared/api/Reports/useReportQuery';
 import { useAuth } from '@/hooks/auth';
 import { ReportAnswersModal } from './components/ReportAnswersModal';
 import { useQuestionsBlockQuery } from '@/shared/api/QuestionsBlocks/useQuestionsBlocksQuery';
-import { DeleteReportModal } from './components/DeleteReportModal';
-import { useDeleteReportMutation } from '@/shared/api/Reports/useReportMutation';
+import { HiOutlineArrowSmLeft, HiDocumentText } from 'react-icons/hi';
 
 export type ReportsProps = {
   id: number;
-  patient_name: string;
-  patient_gender: string;
-  patient_age: number;
   fields: string;
   created_at: string;
 };
@@ -26,21 +21,22 @@ export function Reports() {
   const [reportAnswersToShow, setReportAnswersToShow] =
     useState<ReportsProps>();
 
-  const [reportToDelete, setReportToDelete] = useState<ReportsProps>();
+  const { patientId } = useParams();
+  const navigate = useNavigate();
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  if (!patientId) {
+    navigate(-1);
+    return null;
+  }
 
   const { user } = useAuth();
   const userFirebaseId = user.firebase_id;
 
   const { data: reportsData, isLoading: isReportsDataLoading } =
-    useReportsQuery(userFirebaseId);
+    useReportsQuery(userFirebaseId, patientId);
 
   const { data: questionaryData, isLoading: isQuestionaryDataLoading } =
     useQuestionsBlockQuery(userFirebaseId);
-
-  const { mutate: deleteReport, isPending: isDeleteReportPending } =
-    useDeleteReportMutation(userFirebaseId, setReportToDelete);
 
   if (isReportsDataLoading || isQuestionaryDataLoading) {
     return <LoadingLayout />;
@@ -51,23 +47,6 @@ export function Reports() {
     (a, b) =>
       new Date(a.created_at).valueOf() - new Date(b.created_at).valueOf(),
   );
-
-  const termSearched = searchParams.get('search') || '';
-  const filteredData = reports.filter((report: ReportsProps) =>
-    report.patient_name.toLowerCase().includes(termSearched.toLowerCase()),
-  );
-
-  function handleSearchContent(data: string) {
-    setCurrentPage(1);
-    setSearchParams(state => {
-      if (data === '') {
-        state.delete('search');
-      } else {
-        state.set('search', data);
-      }
-      return state;
-    });
-  }
 
   return (
     <section className="bg-gray-100 dark:bg-gray-900">
@@ -80,39 +59,34 @@ export function Reports() {
         />
       )}
 
-      <DeleteReportModal
-        showModal={!!reportToDelete?.id}
-        report={reportToDelete}
-        onCloseModal={() => setReportToDelete(undefined)}
-        onSubmmit={blockId => deleteReport(blockId)}
-        isSubmitting={isDeleteReportPending}
-      />
-
       <div className="py-8 px-4 mx-auto max-w-screen-2xl lg:py-8 lg:px-6">
         <div className="max-w-screen-2xl text-gray-500 sm:text-lg dark:text-gray-400">
           <div className="px-3 sm:px-5 mx-auto">
-            <h2 className="my-4 text-4xl tracking-tight font-bold text-gray-800 dark:text-white">
-              Relátorios
-            </h2>
+            <div className="flex items-center">
+              <button
+                type="button"
+                className="text-gray-500 hover:bg-gray-300 focus:ring-2 focus:outline-none focus:ring-sky-400 font-medium h-14 w-14 rounded-full text-sm p-2.5 text-center inline-flex items-center me-2 dark:hover:bg-gray-800"
+                onClick={() => navigate('/patients')}
+              >
+                <HiOutlineArrowSmLeft className="h-14 w-14" />
+              </button>
+              <h2 className="my-4 text-4xl tracking-tight font-bold text-gray-800 dark:text-white">
+                Relátorios
+              </h2>
+            </div>
             <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
-              <SearchInput
+              {/*  <SearchInput
                 placeholder="Procure pelo Nome do paciente"
                 onChange={e => handleSearchContent(e.target.value)}
-              />
+              /> */}
               <div className="overflow-x-auto sm:rounded-lg">
                 <Table hoverable>
                   <Table.Head>
-                    <Table.HeadCell>Paciente</Table.HeadCell>
-                    <Table.HeadCell>Sexo</Table.HeadCell>
-                    <Table.HeadCell>Idade</Table.HeadCell>
                     <Table.HeadCell>Data de criação</Table.HeadCell>
                     <Table.HeadCell>Relátorio</Table.HeadCell>
-                    <Table.HeadCell>
-                      <span className="sr-only">Delete</span>
-                    </Table.HeadCell>
                   </Table.Head>
                   <Table.Body className="divide-y">
-                    {filteredData
+                    {reports
                       .slice(
                         (currentPage - 1) * contentPerPage,
                         contentPerPage * currentPage,
@@ -123,30 +97,18 @@ export function Reports() {
                           className="bg-white dark:border-gray-700 dark:bg-gray-800"
                         >
                           <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                            {report.patient_name}
-                          </Table.Cell>
-                          <Table.Cell>{report.patient_gender}</Table.Cell>
-                          <Table.Cell>{report.patient_age}</Table.Cell>
-                          <Table.Cell>
                             {new Date(report.created_at).toLocaleDateString(
                               'pt-BR',
                             )}
                           </Table.Cell>
                           <Table.Cell>
-                            <a
-                              className="font-medium text-sky-500 hover:underline dark:text-sky-600 cursor-pointer"
+                            <button
+                              type="button"
+                              className="text-white bg-gray-300 hover:bg-gray-400 focus:ring-2 focus:outline-none focus:ring-sky-400 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center me-2 dark:bg-gray-700 dark:hover:bg-gray-800"
                               onClick={() => setReportAnswersToShow(report)}
                             >
-                              <p>Respostas</p>
-                            </a>
-                          </Table.Cell>
-                          <Table.Cell>
-                            <a
-                              className="font-medium text-sky-500 hover:underline dark:text-sky-600 cursor-pointer"
-                              onClick={() => setReportToDelete(report)}
-                            >
-                              <p>Excluir</p>
-                            </a>
+                              <HiDocumentText className="w-5 h-5" />
+                            </button>
                           </Table.Cell>
                         </Table.Row>
                       ))}
@@ -156,7 +118,7 @@ export function Reports() {
                 <Pagination
                   currentPage={currentPage}
                   onPageChange={page => setCurrentPage(page)}
-                  totalQuantityOfData={filteredData.length}
+                  totalQuantityOfData={reports.length}
                   dataPerPage={contentPerPage}
                 />
               </div>

@@ -24,6 +24,7 @@ import { Terms } from '../pages/Terms';
 import { PrivacyPolicy } from '../pages/PrivacyPolicy';
 import { Reports } from '@/pages/Reports';
 import { Credits } from '@/pages/Credits';
+import { PatientsList } from '@/pages/PatientsList/PatientsList';
 
 const isDevEnv = import.meta.env.DEV;
 
@@ -62,7 +63,8 @@ export function Router() {
           Component={TreatmentEditor}
         />
         <Route path="/users" Component={Users} />
-        <Route path="/reports" Component={Reports} />
+        <Route path="/patients" Component={PatientsList} />
+        <Route path="/reports/:patientId" Component={Reports} />
         <Route path="/profile" Component={Profile} />
         <Route path="/faq" Component={FAQ} />
         <Route path="/terms" Component={Terms} />

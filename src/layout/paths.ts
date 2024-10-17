@@ -3,8 +3,8 @@ import {
   HiPencilAlt,
   HiOutlinePencil,
   HiDocumentText,
-  HiDocumentDuplicate,
   HiOutlineCurrencyDollar,
+  HiUsers,
 } from 'react-icons/hi';
 type Path = {
   label: string;
@@ -57,9 +57,9 @@ export const paths: Path[] = [
     icon: HiUser,
   },
   {
-    label: 'Relátorios',
-    path: '/reports',
-    icon: HiDocumentDuplicate,
+    label: 'Pacientes',
+    path: '/patients',
+    icon: HiUsers,
   },
   {
     label: 'Créditos',
