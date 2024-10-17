@@ -15,6 +15,8 @@ import { useQuestionStore } from './hooks/useQuestionStore';
 import { useCreatePatientMutation } from '@/shared/api/Patients/usePatientMutations';
 
 export type QuestionaryFormData = {
+  add_new_pacient: boolean;
+  patient_id?: number;
   patient_name: string;
   patient_age: number;
   patient_gender: string;
@@ -40,6 +42,8 @@ export function Questionary() {
 
   const navigate = useNavigate();
   const formSchema = yup.object().shape({
+    add_new_pacient: yup.boolean().required(),
+    patient_id: yup.number(),
     patient_name: yup.string().required('Por favor insira o nome do paciente'),
     patient_age: yup
       .number()
@@ -95,19 +99,27 @@ export function Questionary() {
   }
 
   async function handleSubmitForm(data: QuestionaryFormData) {
-    const { patient_age, patient_gender, patient_name, questions } = data;
+    const { patient_age, patient_gender, patient_name, questions, patient_id } =
+      data;
 
-    const createPatientPayload = {
-      age: patient_age,
-      gender: patient_gender,
-      name: patient_name,
-    };
+    let patientId;
+    if (patient_id) {
+      patientId = patient_id;
+    } else {
+      const createPatientPayload = {
+        age: patient_age,
+        gender: patient_gender,
+        name: patient_name,
+      };
 
-    const patientCreated = await createPatient(createPatientPayload);
+      const patientCreated = await createPatient(createPatientPayload);
+      patientId = patientCreated.id;
+    }
 
     const formattedQuestionsData = Object.values(questions);
+
     const createReportPayload = {
-      patientId: patientCreated.id,
+      patientId,
       data: {
         fields: JSON.stringify(questions),
       },
