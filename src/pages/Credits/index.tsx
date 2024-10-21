@@ -3,9 +3,9 @@ import { useState } from 'react';
 import Pagination from '../../components/Pagination';
 import { LoadingLayout } from '../../layout/LoadingLayout';
 import { useAuth } from '@/hooks/auth';
-import { useOrdersQuery } from '@/shared/api/Credits/useCreditsQuery';
 import { Button } from '@/components/Button';
 import { AddCreditsModal } from './components/AddCreditsModal';
+import { useOrdersQuery } from '@/shared/api/Orders/useOrdersQuery';
 
 export type ReportsProps = {
   id: number;

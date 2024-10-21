@@ -3,66 +3,23 @@ import Input from '@/components/Form/Input';
 import Select from '@/components/Form/Select';
 import { Modal } from 'flowbite-react';
 import Cards from 'react-credit-cards-2';
-import * as yup from 'yup';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import 'react-credit-cards-2/dist/es/styles-compiled.css';
 import InputMask from '@/components/Form/InputMask';
+import { useAuth } from '@/hooks/auth';
+import bindClassNames from '@/utils/bindClassNames';
+import { encryptCardPagSeguro } from '../utils/encryptPagseguro';
+import { useCreateOrderMutation } from '@/shared/api/Orders/useOrdersMutations';
+import { toast } from 'react-toastify';
+import { CreditValueCard } from './CreditValueCard';
+import { AddCreditsFormData, addCreditsFormSchema, months } from '../types';
+import { RadioGroup } from '@headlessui/react';
 
 interface AddCreditsModalProps {
   showModal: boolean;
   onCloseModal: () => void;
 }
-
-const months = [
-  { label: '01', value: 1 },
-  { label: '02', value: 2 },
-  { label: '03', value: 3 },
-  { label: '04', value: 4 },
-  { label: '05', value: 5 },
-  { label: '06', value: 6 },
-  { label: '07', value: 7 },
-  { label: '08', value: 8 },
-  { label: '09', value: 9 },
-  { label: '10', value: 10 },
-  { label: '11', value: 11 },
-  { label: '12', value: 12 },
-  { label: '', value: 0 },
-];
-
-type CardData = {
-  holder: string;
-  number: string;
-  expMonth: string;
-  expYear: string;
-  securityCode: string;
-};
-
-type AddCreditsFormData = {
-  cardData: CardData;
-};
-
-const addCreditsFormSchema = yup.object().shape({
-  cardData: yup.object().shape({
-    holder: yup.string().required('Digite o nome no cartão'),
-    number: yup
-      .string()
-      .required('Digite o número do cartão')
-      .matches(/^\d{4} \d{4} \d{4} \d{4}$/, 'Cartão inválido'),
-    expMonth: yup
-      .string()
-      .required('Selecione a data de expiração')
-      .matches(/^(0[1-9]|1[0-2])$/, 'Selecione a data de expiração'),
-    expYear: yup
-      .string()
-      .required('Selecione a data de expiração')
-      .matches(/^\d{4}$/, 'Selecione a data de expiração'),
-    securityCode: yup
-      .string()
-      .required('Digite o CCV do cartão')
-      .matches(/^\d{3,4}$/, 'CCV inválido'),
-  }),
-});
 
 export function AddCreditsModal({
   showModal,
@@ -79,13 +36,35 @@ export function AddCreditsModal({
       .map((year, index) => ({ label: year + index, value: year + index })),
   ];
 
-  const { register, handleSubmit, formState, watch, reset } =
+  const { register, handleSubmit, formState, watch, reset, control } =
     useForm<AddCreditsFormData>({
       resolver: yupResolver(addCreditsFormSchema),
     });
 
+  const { user } = useAuth();
+  const userFirebaseId = user.firebase_id;
+
+  const { mutateAsync: createOrder, isPending: isCreateOrderPending } =
+    useCreateOrderMutation(userFirebaseId);
+
   const handleAddCredits: SubmitHandler<AddCreditsFormData> = async data => {
-    console.log(data);
+    try {
+      const { encryptedCard } = await encryptCardPagSeguro(data.cardData);
+
+      const payload = {
+        value: data.value,
+        credit_card_name_holder: data.cardData.holder,
+        credit_card_tax_id: data.holderIndentificationNumber,
+        envirionment: import.meta.env.DEV ? 'DEV' : 'PROD',
+        card_encrypted: encryptedCard,
+      };
+      await createOrder(payload);
+      toast.success('Créditos adicionados!');
+      handleCloseModal();
+    } catch (err) {
+      console.log(err);
+      toast.error('Ocorreu um erro no pagamento, por favor tente novamente.');
+    }
   };
 
   function handleCloseModal() {
@@ -109,7 +88,10 @@ export function AddCreditsModal({
         />
 
         <form
-          className="my-6 space-y-4"
+          className={bindClassNames(
+            'my-6 space-y-4',
+            isCreateOrderPending ? 'pointer-events-none opacity-70' : '',
+          )}
           onSubmit={handleSubmit(handleAddCredits)}
         >
           <InputMask
@@ -125,6 +107,15 @@ export function AddCreditsModal({
             error={!!formState.errors.cardData?.holder}
             errorMessage={formState.errors.cardData?.holder?.message}
             {...register('cardData.holder')}
+          />
+
+          <InputMask
+            format="###.###.###-##"
+            autoComplete="cpf"
+            label="CPF do titular do cartão"
+            error={!!formState.errors.holderIndentificationNumber}
+            errorMessage={formState.errors.holderIndentificationNumber?.message}
+            {...register('holderIndentificationNumber')}
           />
 
           <div className="grid grid-cols-4 gap-2">
@@ -166,8 +157,35 @@ export function AddCreditsModal({
             </div>
           </div>
 
+          <div>
+            <label className="block mb-2 ml-1 text-sm font-medium text-gray-900 dark:text-gray-300">
+              Valor
+            </label>
+
+            <Controller
+              name="value"
+              control={control}
+              defaultValue={100}
+              render={({ field: { onChange, value } }) => (
+                <RadioGroup value={value} onChange={onChange} className="mt-4">
+                  <div className="grid grid-cols-4 gap-4">
+                    <CreditValueCard value={100} />
+
+                    <CreditValueCard value={200} />
+
+                    <CreditValueCard value={300} />
+                  </div>
+                </RadioGroup>
+              )}
+            />
+          </div>
+
           <div className="pt-1">
-            <Button type="submit" className="w-full">
+            <Button
+              type="submit"
+              className="w-full"
+              isLoading={isCreateOrderPending}
+            >
               Comprar créditos
             </Button>
           </div>
