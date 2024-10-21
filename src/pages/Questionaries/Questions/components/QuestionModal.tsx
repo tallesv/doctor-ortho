@@ -55,7 +55,6 @@ export function QuestionModal({
   }) => {
     try {
       if (type === 'create') {
-        console.log(image);
         onCreate({ query, image });
       }
       if (type === 'edit' && question) {

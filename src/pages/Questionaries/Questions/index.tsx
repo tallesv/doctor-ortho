@@ -48,14 +48,14 @@ export function Questions() {
       mutationFn: async (
         data: QuestionFormData,
       ): Promise<{ data: QuestionType }> => {
-        const { query, image } = data;
-        const imageUploaded =
-          image && typeof image === 'object' ? await uploadFile(image[0]) : '';
+        const replyPayload = data;
+        const { image } = replyPayload;
+        replyPayload.image =
+          image && typeof image === 'object' && image.length > 0
+            ? await uploadFile(image[0])
+            : '';
 
-        return api.post(`/questions_sets/${blockId}/questions`, {
-          query,
-          image: imageUploaded,
-        });
+        return api.post(`/questions_sets/${blockId}/questions`, replyPayload);
       },
       onError: err => {
         console.log(err);
