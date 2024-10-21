@@ -1,3 +1,4 @@
+import { transformToCpf } from '@/utils/transformToCpf';
 import { Avatar } from 'flowbite-react';
 import { HiOutlinePencilAlt } from 'react-icons/hi';
 
@@ -61,7 +62,7 @@ export function DisplayUserProfile({
           CPF
         </span>
         <span className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">
-          {user.cpf}
+          {transformToCpf(user.cpf)}
         </span>
       </div>
 

@@ -49,7 +49,8 @@ export const userDataFormSchema = yup.object().shape({
       val =>
         val.replace('.', '').replace('.', '').replace('-', '').replace(' ', '')
           .length === 11,
-    ),
+    )
+    .transform(value => value.replace(/[.-]/g, '')),
   ddi: yup
     .string()
     .test(
