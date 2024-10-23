@@ -15,5 +15,5 @@ type UserProps = {
   state: string;
   street: string;
   updated_at: string;
-  currency_amount: number | null;
+  credit_amount: number | null;
 };

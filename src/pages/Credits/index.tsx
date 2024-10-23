@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/auth';
 import { Button } from '@/components/Button';
 import { AddCreditsModal } from './components/AddCreditsModal';
 import { useOrdersQuery } from '@/shared/api/Orders/useOrdersQuery';
+import { useUsersQuery } from '@/shared/api/Users/useUsersQuery';
 
 export type ReportsProps = {
   id: number;
@@ -51,6 +52,8 @@ export function Credits() {
     refetch: refetchOrders,
   } = useOrdersQuery(userFirebaseId);
 
+  const { refetch: refetchUserQuery } = useUsersQuery();
+
   if (isOrdersDataLoading) {
     return <LoadingLayout />;
   }
@@ -74,12 +77,17 @@ export function Credits() {
     });
   } */
 
+  function handleCloseModal() {
+    refetchUserQuery();
+    refetchOrders();
+  }
+
   return (
     <section className="bg-gray-100 dark:bg-gray-900">
       <AddCreditsModal
         showModal={isAddCreditsModalOpen}
         onCloseModal={() => setIsAddCreditsModalOpen(false)}
-        onAddCredit={() => refetchOrders()}
+        onAddCredit={handleCloseModal}
       />
       <div className="py-8 px-4 mx-auto max-w-screen-2xl lg:py-8 lg:px-6">
         <div className="max-w-screen-2xl text-gray-500 sm:text-lg dark:text-gray-400">
@@ -93,7 +101,7 @@ export function Credits() {
                   Adicionar créditos
                 </Button>
 
-                <div>{`Saldo: ${user.currency_amount ?? 0}`}</div>
+                <div>{`Saldo: ${user.credit_amount ?? 0}`}</div>
               </div>
               <div className="overflow-x-auto sm:rounded-lg">
                 <Table hoverable>

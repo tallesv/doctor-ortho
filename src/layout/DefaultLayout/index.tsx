@@ -83,7 +83,7 @@ export function DefaultLayout({ children }: DefaultLayoutProps) {
             </a>
           </div>
           <div className="flex items-center space-x-2 lg:order-2">
-            <CreditData userCurrencyAmount={user.currency_amount ?? 0} />
+            <CreditData userCurrencyAmount={user.credit_amount ?? 0} />
 
             {/* <!-- Theme --> */}
             <button
