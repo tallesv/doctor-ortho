@@ -6,10 +6,12 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { destroyCookie, parseCookies, setCookie } from 'nookies';
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { firebaseAuth } from '../config/firebase';
-import { api } from '../client/api';
+import { parseCookies } from 'nookies';
+import { useUsersQuery } from '@/shared/api/Users/useUsersQuery';
+import {
+  useLoginMutation,
+  useLogoutMutation,
+} from '@/shared/api/Users/useUsersMutations';
 
 interface AuthContextData {
   user: UserProps;
@@ -38,59 +40,36 @@ function AuthProvider({ token, children }: AuthContext) {
   const [user, setUser] = useState<UserProps>({} as UserProps);
 
   const cookies = parseCookies();
+  const { data: userData, refetch } = useUsersQuery();
 
-  const login = useCallback(async ({ email, password }: LoginProps) => {
-    try {
-      const signInResponse = await signInWithEmailAndPassword(
-        firebaseAuth,
-        email,
-        password,
-      );
+  const loginMutation = useLoginMutation();
+  const logoutMutation = useLogoutMutation();
 
-      const token = await signInResponse.user.getIdTokenResult();
-      const userFirebaseId = signInResponse.user.uid;
-      setCookie(undefined, 'doctor-ortho.token', token.token, {
-        maxAge: 60 * 60 * 24 * 1,
-        path: '/',
-      });
-      setCookie(undefined, 'doctor-ortho.user-firebase-id', userFirebaseId, {
-        maxAge: 60 * 60 * 24 * 1,
-        path: '/',
-      });
-
-      const { data } = await api.get(`/users/${userFirebaseId}`);
-      setUser(data);
-      setRefreshToken(token.token);
+  const login = useCallback(
+    async (data: LoginProps) => {
+      await loginMutation.mutateAsync(data);
+      setRefreshToken(cookies['doctor-ortho.token']);
       setIsLogged(true);
-    } catch (err) {
-      throw err;
-    }
-  }, []);
+      await refetch();
+    },
+    [loginMutation, cookies, refetch],
+  );
 
   const logout = useCallback(async () => {
-    await signOut(firebaseAuth).then(() => {
-      destroyCookie(undefined, 'doctor-ortho.token');
-      destroyCookie(undefined, 'doctor-ortho.user-firebase-id');
-      setIsLogged(false);
-      setRefreshToken(undefined);
-      setUser({} as UserProps);
-      document.body.classList.remove('dark');
-    });
-  }, []);
+    await logoutMutation.mutateAsync();
+    setIsLogged(false);
+    setRefreshToken(undefined);
+    setUser({} as UserProps);
+    document.body.classList.remove('dark');
+  }, [logoutMutation]);
 
   useEffect(() => {
     const token = cookies['doctor-ortho.token'];
-    const firebaseId = cookies['doctor-ortho.user-firebase-id'];
-
     if (token) {
       setRefreshToken(token);
       setIsLogged(true);
     }
-
-    if (firebaseId && !user.name) {
-      api.get(`/users/${firebaseId}`).then(response => setUser(response.data));
-    }
-  }, [login]);
+  }, [cookies]);
 
   return (
     <AuthContext.Provider
@@ -100,7 +79,7 @@ function AuthProvider({ token, children }: AuthContext) {
         logout,
         setUser,
         isLogged,
-        user,
+        user: userData || user,
       }}
     >
       {children}

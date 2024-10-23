@@ -18,12 +18,12 @@ function App() {
 
   return (
     <BrowserRouter>
-      <AuthProvider token={token}>
-        <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider token={token}>
           <Router />
           <ToastContainer theme={theme} />
-        </QueryClientProvider>
-      </AuthProvider>
+        </AuthProvider>
+      </QueryClientProvider>
     </BrowserRouter>
   );
 }
