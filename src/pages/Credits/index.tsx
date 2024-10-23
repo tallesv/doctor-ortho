@@ -61,10 +61,10 @@ export function Credits() {
   const orders = ordersData?.data ?? [];
 
   //const termSearched = searchParams.get('search') || '';
-  /* const filteredData = orders?.filter((report: ReportsProps) =>
-    report.patient_name.toLowerCase().includes(termSearched.toLowerCase()),
-  ); */
-
+  const filteredData = orders?.sort(
+    (a: OrderProps, b: OrderProps) =>
+      new Date(b.created_at).valueOf() - new Date(a.created_at).valueOf(),
+  );
   /*   function handleSearchContent(data: string) {
     setCurrentPage(1);
     setSearchParams(state => {
@@ -106,17 +106,17 @@ export function Credits() {
               <div className="overflow-x-auto sm:rounded-lg">
                 <Table hoverable>
                   <Table.Head>
-                    <Table.HeadCell>Transação</Table.HeadCell>
+                    <Table.HeadCell>Data</Table.HeadCell>
                     <Table.HeadCell>Quantidade</Table.HeadCell>
                     <Table.HeadCell>Valor</Table.HeadCell>
+                    <Table.HeadCell>Transação</Table.HeadCell>
                     <Table.HeadCell>Status</Table.HeadCell>
-                    <Table.HeadCell>Data</Table.HeadCell>
                     <Table.HeadCell>
                       <span className="sr-only">Delete</span>
                     </Table.HeadCell>
                   </Table.Head>
                   <Table.Body className="divide-y">
-                    {orders
+                    {filteredData
                       ?.slice(
                         (currentPage - 1) * contentPerPage,
                         contentPerPage * currentPage,
@@ -126,18 +126,18 @@ export function Credits() {
                           key={order.id}
                           className="bg-white dark:border-gray-700 dark:bg-gray-800"
                         >
-                          <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                            {order.order_transaction}
-                          </Table.Cell>
-                          <Table.Cell>{order.quantity}</Table.Cell>
-                          <Table.Cell>{`${order.value}`}</Table.Cell>
-                          <Table.Cell>
-                            {renderOrderStatus(order.status)}
-                          </Table.Cell>
                           <Table.Cell>
                             {new Date(order.created_at).toLocaleDateString(
                               'pt-BR',
                             )}
+                          </Table.Cell>
+                          <Table.Cell>{order.quantity}</Table.Cell>
+                          <Table.Cell>{`${order.value}`}</Table.Cell>
+                          <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                            {order.order_transaction}
+                          </Table.Cell>
+                          <Table.Cell>
+                            {renderOrderStatus(order.status)}
                           </Table.Cell>
                         </Table.Row>
                       ))}

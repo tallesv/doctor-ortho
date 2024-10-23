@@ -87,7 +87,6 @@ export function AddCreditsModal({
           cvc={watchCardData?.securityCode}
           name={watchCardData?.holder}
           placeholders={{ name: 'Nome' }}
-          //focused={false}
         />
 
         <form
@@ -126,11 +125,15 @@ export function AddCreditsModal({
               <label className="block mb-2 ml-1 text-sm font-medium text-gray-900 dark:text-gray-300">
                 Data de expiração
               </label>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 gap-1">
                 <div>
                   <Select
                     defaultValue={0}
-                    options={months.slice(currentMonth)}
+                    options={
+                      +watchCardData?.expYear === currentYear
+                        ? months.slice(currentMonth)
+                        : months
+                    }
                     error={!!formState.errors.cardData?.expMonth}
                     errorMessage={formState.errors.cardData?.expMonth?.message}
                     {...register('cardData.expMonth')}

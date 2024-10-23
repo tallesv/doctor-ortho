@@ -53,7 +53,7 @@ export const addCreditsFormSchema = yup.object().shape({
     expMonth: yup
       .string()
       .required('Selecione a data de expiração')
-      .matches(/^(0[1-9]|1[0-2])$/, 'Selecione a data de expiração'),
+      .matches(/^(0?[1-9]|1[0-2])$/, 'Selecione a data de expiração'),
     expYear: yup
       .string()
       .required('Selecione a data de expiração')
