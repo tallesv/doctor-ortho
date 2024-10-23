@@ -16,6 +16,25 @@ export type ReportsProps = {
   created_at: string;
 };
 
+function renderOrderStatus(status: string) {
+  switch (status) {
+    case 'PAID':
+      return (
+        <span className="inline-flex items-center rounded-md bg-green-50 dark:bg-green-200 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+          Pago
+        </span>
+      );
+    case 'DECLINED':
+      return (
+        <span className="inline-flex items-center rounded-md bg-red-50 dark:bg-red-200 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
+          Recusado
+        </span>
+      );
+    default:
+      return status;
+  }
+}
+
 export function Credits() {
   const [currentPage, setCurrentPage] = useState(1);
   const contentPerPage = 10;
@@ -26,8 +45,11 @@ export function Credits() {
   const { user } = useAuth();
   const userFirebaseId = user.firebase_id;
 
-  const { data: ordersData, isLoading: isOrdersDataLoading } =
-    useOrdersQuery(userFirebaseId);
+  const {
+    data: ordersData,
+    isLoading: isOrdersDataLoading,
+    refetch: refetchOrders,
+  } = useOrdersQuery(userFirebaseId);
 
   if (isOrdersDataLoading) {
     return <LoadingLayout />;
@@ -57,6 +79,7 @@ export function Credits() {
       <AddCreditsModal
         showModal={isAddCreditsModalOpen}
         onCloseModal={() => setIsAddCreditsModalOpen(false)}
+        onAddCredit={() => refetchOrders()}
       />
       <div className="py-8 px-4 mx-auto max-w-screen-2xl lg:py-8 lg:px-6">
         <div className="max-w-screen-2xl text-gray-500 sm:text-lg dark:text-gray-400">
@@ -100,7 +123,9 @@ export function Credits() {
                           </Table.Cell>
                           <Table.Cell>{order.quantity}</Table.Cell>
                           <Table.Cell>{`${order.value}`}</Table.Cell>
-                          <Table.Cell>{order.status}</Table.Cell>
+                          <Table.Cell>
+                            {renderOrderStatus(order.status)}
+                          </Table.Cell>
                           <Table.Cell>
                             {new Date(order.created_at).toLocaleDateString(
                               'pt-BR',

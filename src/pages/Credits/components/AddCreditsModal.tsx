@@ -19,11 +19,13 @@ import { RadioGroup } from '@headlessui/react';
 interface AddCreditsModalProps {
   showModal: boolean;
   onCloseModal: () => void;
+  onAddCredit: () => void;
 }
 
 export function AddCreditsModal({
   showModal,
   onCloseModal,
+  onAddCredit,
 }: AddCreditsModalProps) {
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth();
@@ -60,6 +62,7 @@ export function AddCreditsModal({
       };
       await createOrder(payload);
       toast.success('Créditos adicionados!');
+      onAddCredit();
       handleCloseModal();
     } catch (err) {
       console.log(err);
